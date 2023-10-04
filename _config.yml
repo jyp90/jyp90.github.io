@@ -29,6 +29,7 @@ github_username:  jyp90
 
 # Build settings
 theme: minima
+asset_url: /assets
 plugins:
   - jekyll-feed
 
