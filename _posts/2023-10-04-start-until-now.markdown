@@ -19,14 +19,6 @@ public class Collections<T> {
 이렇게 기본 생성자는 private 로 선언되어 있습니다.
 
 {% highlight java %}
-    /**
-     * Returns an immutable empty list if the argument is <code>null</code>,
-     * or the argument itself otherwise.
-     *
-     * @param <T> the element type
-     * @param list the list, possibly <code>null</code>
-     * @return an empty list if the argument is <code>null</code>
-     */
     public static <T> List<T> emptyIfNull(final List<T> list) {
         return list == null ? Collections.<T>emptyList() : list;
     }
@@ -35,16 +27,6 @@ public class Collections<T> {
 입력받은 파라미터가 빈 리스트이거나 null 인 경우 값을 가지고 있지 않은 싱글톤 리스트를 반환합니다.
 
 {% highlight java %}
-    /**
-     * Returns either the passed in list, or if the list is {@code null},
-     * the value of {@code defaultList}.
-     *
-     * @param <T> the element type
-     * @param list  the list, possibly {@code null}
-     * @param defaultList  the returned values if list is {@code null}
-     * @return an empty list if the argument is <code>null</code>
-     * @since 4.0
-     */
     public static <T> List<T> defaultIfNull(final List<T> list, final List<T> defaultList) {
         return list == null ? defaultList : list;
     }
@@ -54,16 +36,6 @@ public class Collections<T> {
 입력받은 파라미터가 빈 리스트이거나 null 인 경우 두번째 파라미터로 받은 리스트를, 그렇지 않으면 첫번째 파라미터의 리스트를 반환합니다.
 
 {% highlight java %}
-    /**
-     * Returns a new list containing all elements that are contained in
-     * both given lists.
-     *
-     * @param <E> the element type
-     * @param list1  the first list
-     * @param list2  the second list
-     * @return  the intersection of those two lists
-     * @throws NullPointerException if either list is null
-     */
     public static <E> List<E> intersection(final List<? extends E> list1, final List<? extends E> list2) {
         final List<E> result = new ArrayList<>();
 
@@ -87,25 +59,9 @@ public class Collections<T> {
 
 {% endhighlight %}
 
-입력받은 파라미터가 빈 리스트이거나 null 인 경우 값을 가지고 있지 않은 싱글톤 리스트를 반환합니다.
+입력받은 파라미터 1, 2의 리스트 중 교집합을 반환합니다.
 
 {% highlight java %}
-    /**
-     * Subtracts all elements in the second list from the first list,
-     * placing the results in a new list.
-     * <p>
-     * This differs from {@link List#removeAll(Collection)} in that
-     * cardinality is respected; if <Code>list1</Code> contains two
-     * occurrences of <Code>null</Code> and <Code>list2</Code> only
-     * contains one occurrence, then the returned list will still contain
-     * one occurrence.
-     *
-     * @param <E> the element type
-     * @param list1  the list to subtract from
-     * @param list2  the list to subtract
-     * @return a new list containing the results
-     * @throws NullPointerException if either list is null
-     */
     public static <E> List<E> subtract(final List<E> list1, final List<? extends E> list2) {
         final ArrayList<E> result = new ArrayList<>();
         final HashBag<E> bag = new HashBag<>(list2);
@@ -119,34 +75,18 @@ public class Collections<T> {
 
 {% endhighlight %}
 
-입력받은 파라미터가 빈 리스트이거나 null 인 경우 값을 가지고 있지 않은 싱글톤 리스트를 반환합니다.
+입력받은 1번째 리스트에서 2번째 리스트의 내용을 제거합니다. (차집합)
 
 {% highlight java %}
-    /**
-     * Returns the sum of the given lists.  This is their intersection
-     * subtracted from their union.
-     *
-     * @param <E> the element type
-     * @param list1  the first list
-     * @param list2  the second list
-     * @return  a new list containing the sum of those lists
-     * @throws NullPointerException if either list is null
-     */
     public static <E> List<E> sum(final List<? extends E> list1, final List<? extends E> list2) {
         return subtract(union(list1, list2), intersection(list1, list2));
     }
 
-    /**
-     * Returns a new list containing the second list appended to the
-     * first list.  The {@link List#addAll(Collection)} operation is
-     * used to append the two given lists into a new list.
-     *
-     * @param <E> the element type
-     * @param list1  the first list
-     * @param list2  the second list
-     * @return a new list containing the union of those lists
-     * @throws NullPointerException if either list is null
-     */
+{% endhighlight %}
+
+입력받은 파라미터 1, 2의 리스트를 합집합합니다.
+
+{% highlight java %}
     public static <E> List<E> union(final List<? extends E> list1, final List<? extends E> list2) {
         final ArrayList<E> result = new ArrayList<>(list1.size() + list2.size());
         result.addAll(list1);
@@ -156,78 +96,28 @@ public class Collections<T> {
 
 {% endhighlight %}
 
-입력받은 파라미터가 빈 리스트이거나 null 인 경우 값을 가지고 있지 않은 싱글톤 리스트를 반환합니다.
+입력받은 파라미터 1, 2 의 리스트를 더합니다. 
 
 {% highlight java %}
-    /**
-     * Selects all elements from input collection which match the given
-     * predicate into an output list.
-     * <p>
-     * A <code>null</code> predicate matches no elements.
-     *
-     * @param <E> the element type
-     * @param inputCollection  the collection to get the input from, may not be null
-     * @param predicate  the predicate to use, may be null
-     * @return the elements matching the predicate (new list)
-     * @throws NullPointerException if the input list is null
-     *
-     * @since 4.0
-     * @see CollectionUtils#select(Iterable, Predicate)
-     */
     public static <E> List<E> select(final Collection<? extends E> inputCollection,
             final Predicate<? super E> predicate) {
         return CollectionUtils.select(inputCollection, predicate, new ArrayList<E>(inputCollection.size()));
     }
 
-    /**
-     * Selects all elements from inputCollection which don't match the given
-     * predicate into an output collection.
-     * <p>
-     * If the input predicate is <code>null</code>, the result is an empty list.
-     *
-     * @param <E> the element type
-     * @param inputCollection the collection to get the input from, may not be null
-     * @param predicate the predicate to use, may be null
-     * @return the elements <b>not</b> matching the predicate (new list)
-     * @throws NullPointerException if the input collection is null
-     *
-     * @since 4.0
-     * @see CollectionUtils#selectRejected(Iterable, Predicate)
-     */
+{% endhighlight %}
+
+입력받은 파라미터 1 리스트에서 파라미터 2의 조건을 필터링합니다.
+
+{% highlight java %}
     public static <E> List<E> selectRejected(final Collection<? extends E> inputCollection,
             final Predicate<? super E> predicate) {
         return CollectionUtils.selectRejected(inputCollection, predicate, new ArrayList<E>(inputCollection.size()));
     }
+{% endhighlight %}
 
-    /**
-     * Tests two lists for value-equality as per the equality contract in
-     * {@link java.util.List#equals(java.lang.Object)}.
-     * <p>
-     * This method is useful for implementing <code>List</code> when you cannot
-     * extend AbstractList. The method takes Collection instances to enable other
-     * collection types to use the List implementation algorithm.
-     * <p>
-     * The relevant text (slightly paraphrased as this is a static method) is:
-     * <blockquote>
-     * Compares the two list objects for equality.  Returns
-     * {@code true} if and only if both
-     * lists have the same size, and all corresponding pairs of elements in
-     * the two lists are <i>equal</i>.  (Two elements {@code e1} and
-     * {@code e2} are <i>equal</i> if <code>(e1==null ? e2==null :
-     * e1.equals(e2))</code>.)  In other words, two lists are defined to be
-     * equal if they contain the same elements in the same order.  This
-     * definition ensures that the equals method works properly across
-     * different implementations of the {@code List} interface.
-     * </blockquote>
-     *
-     * <b>Note:</b> The behaviour of this method is undefined if the lists are
-     * modified during the equals comparison.
-     *
-     * @see java.util.List
-     * @param list1  the first list, may be null
-     * @param list2  the second list, may be null
-     * @return whether the lists are equal by value comparison
-     */
+위 메소드의 반대의 결과로 역필터링합니다.
+
+{% highlight java %}
     public static boolean isEqualList(final Collection<?> list1, final Collection<?> list2) {
         if (list1 == list2) {
             return true;
@@ -253,18 +143,11 @@ public class Collections<T> {
         return !(it1.hasNext() || it2.hasNext());
     }
 
-    /**
-     * Generates a hash code using the algorithm specified in
-     * {@link java.util.List#hashCode()}.
-     * <p>
-     * This method is useful for implementing <code>List</code> when you cannot
-     * extend AbstractList. The method takes Collection instances to enable other
-     * collection types to use the List implementation algorithm.
-     *
-     * @see java.util.List#hashCode()
-     * @param list  the list to generate the hashCode for, may be null
-     * @return the hash code
-     */
+{% endhighlight %}
+
+입력받은 파라미터가 빈 리스트이거나 null 인 경우 값을 가지고 있지 않은 싱글톤 리스트를 반환합니다.
+
+{% highlight java %}
     public static int hashCodeForList(final Collection<?> list) {
         if (list == null) {
             return 0;
@@ -279,6 +162,11 @@ public class Collections<T> {
         return hashCode;
     }
 
+{% endhighlight %}
+
+입력받은 파라미터 리스트의 해시 코드값을 추출합니다.
+
+{% highlight java %}
     //-----------------------------------------------------------------------
     /**
      * Returns a List containing all the elements in <code>collection</code>
@@ -693,9 +581,3 @@ public class Collections<T> {
   
 }
 {% endhighlight %}
-
-Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
-
-[jekyll-docs]: https://jekyllrb.com/docs/home
-[jekyll-gh]:   https://github.com/jekyll/jekyll
-[jekyll-talk]: https://talk.jekyllrb.com/
