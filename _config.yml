@@ -21,13 +21,14 @@
 title: jypark
 email: jyp90@kakao.com
 description: >- # this means to ignore newlines until "baseurl:"
-  github를 더 활성화하기 위해 공부하는 리포지토리
+  github blog & 공부를 위한 repository
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://abbo.tistory.com" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: junyongpark90
 github_username:  jyp90
 
 # Build settings
+markdown: kramdown
 theme: minima
 asset_url: /assets
 plugins:
