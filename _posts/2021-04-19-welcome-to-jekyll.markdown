@@ -1,8 +1,8 @@
 ---
 layout: post
-title:  "Welcome to Jekyll!"
-date:   2021-04-19 19:05:05 +0900
-categories: jekyll update
+title:  "인트로로 사용하기"
+date:   2023-10-04 21:49:15 +0900
+categories: intro
 ---
 You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
 
