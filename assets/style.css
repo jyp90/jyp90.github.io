@@ -16,6 +16,7 @@ header {
 
 .header-items ul {
   display: flex;
+  padding: 20px;
 }
 
 .header-items li {
@@ -48,16 +49,16 @@ header {
 .header-items li.division {
   content: "";
   position: relative;
-  left: 8px;
-  top: 8px;
+  top: 3px;
   width: 1px;
   height: 14px;
   background-color: rgba(255, 255, 255, 0.2);
+  position: relative;
+  padding: 0;
+  margin: 0 8px;
 }
 
 .division {
-  position: relative;
-  padding-left: 25px;
 }
 
 main {
@@ -76,13 +77,22 @@ main {
 .banner {
   min-height: 200px;
   background-color: Gray;
+  width:100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.banner img {
+  width: 100%;
+  height: auto;
+  position: absolute;
+  top: -360px;
 }
 
 .categories {
   background-color: green;
   min-width: 288px;
   padding: 24px 90px;
-
 }
 
 .list {
@@ -90,7 +100,44 @@ main {
   width: 100%;
 }
 
-footer {
+.thumbnail-image img {
+  width: 30px;
+  height: 24px;
+  padding-bottom: 6px;
+}
 
-  height: 250px;
+.heart:before {
+  content: "❤️";
+  font-size: 18px;
+}
+
+.search:before {
+  content: "🔍";
+  font-size: 18px;
+}
+
+.bell:before {
+  content: "🔔";
+  font-size: 18px;
+}
+
+.favorite-category:before {
+  content: "관심 카테고리";
+}
+
+.category-first li.first {
+  vertical-align: center;
+  color: white;
+  border-radius: 20px;
+  width: 240px;
+  height: 48px;
+  font-size: 22px;
+  padding: 20px;
+  background-color: black;
+}
+
+.category-second li.second {
+  color: grey;
+  width: 160px;
+  height: 36px;
 }
