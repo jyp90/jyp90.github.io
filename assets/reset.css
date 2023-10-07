@@ -9,6 +9,10 @@ body {
     line-height: 1.4;
 }
 
+main {
+    background-color: black;
+}
+
 ol, ul {
     list-style: none;
     padding: 0;
@@ -19,6 +23,7 @@ a {
     text-decoration: none;
     cursor: pointer;
     outline: none;
+    color: white;
 }
 
 footer {
