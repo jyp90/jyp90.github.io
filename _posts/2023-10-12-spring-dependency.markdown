@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  "Apache ListUtils "
+title:  "Spring Dependency"
 date:   2023-10-12 15:37:15 +0900
 categories: spring
 ---
 
 오늘은 스프링 부트에서 자주 사용하는 내용들을 가져와보았습니다.
 
-1. Spring web
+## 1. Spring web
 
 웹 개발자에게는 없어서는 안될 web
 
@@ -15,8 +15,9 @@ categories: spring
 implementation 'org.springframework.boot:spring-boot-starter-web'
 {% endhighlight %}
 
+---
 
-2. Spring Data JPA
+## 2. Spring Data JPA
 
 ORM 사용자들에게는 필수
 
@@ -26,7 +27,9 @@ implementation 'com.querydsl:querydsl-core'
 implementation 'com.querydsl:querydsl-jpa'
 {% endhighlight %}
 
-3. Lombok 
+---
+
+## 3. Lombok 
 
 없어서는 안될 클래스계의 친구같은 존재
 
@@ -40,7 +43,9 @@ annotationProcessor "org.projectlombok:lombok:${lombok_version}"
 testAnnotationProcessor "org.projectlombok:lombok:${lombok_version}"
 {% endhighlight %}
 
-4. Spring Data Redis
+---
+
+## 4. Spring Data Redis
 
 Redis 를 사용한다면 
 
@@ -48,7 +53,9 @@ Redis 를 사용한다면
 implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 {% endhighlight %}
 
-5. Spring Configuration
+---
+
+## 5. Spring Configuration
 
 스프링에 의존성을 주입했지만 특정 커스텀을 할때 필요한 의존성
 
@@ -56,7 +63,9 @@ implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 implementation 'org.springframework.boot:spring-boot-configuration-processor'
 {% endhighlight %}
 
-6. Spring Devtools
+---
+
+## 6. Spring Devtools
 
 개발자의 작업속도를 늘리고 싶으면
 
@@ -64,7 +73,9 @@ implementation 'org.springframework.boot:spring-boot-configuration-processor'
 runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 {% endhighlight %}
 
-7. Util
+---
+
+## 7. Util
 
 조건 처리를 하거나 기본적인 Collection 객체를 컨트롤하기 쉽게 하려면 
 
@@ -91,7 +102,9 @@ implementation 'io.jsonwebtoken:jjwt:0.9.1'
 implementation 'org.apache.httpcomponents:httpclient:4.5.12'
 {% endhighlight %}
 
-8. AWS
+---
+
+## 8. AWS
 
 AWS 기반으로 된 프로젝트라면
 
@@ -104,10 +117,11 @@ implementation 'com.amazonaws:aws-java-sdk-ses:1.11.889'
 testImplementation 'software.amazon.awssdk:s3:2.17.57'
 {% endhighlight %}
 
-9. Test
+---
+
+## 9. Test
 
 TDD에 관심이 있거나 단위 테스트를 쓰기 위해 꼭 필요한 내용 
-
 
 {% highlight gradle %}
 testImplementation("org.springframework.boot:spring-boot-starter-test") {
