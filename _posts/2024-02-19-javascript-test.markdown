@@ -1,10 +1,13 @@
 ---
-layout: default
-date:   2024-02-19 17:02:06
+layout: post
+title:  "Javascript Test HTML"
+date:   2024-02-19 17:02:06 +0900
+categories: article
 ---
+
 <html>
 <head>
-  <title>My Jekyll Site</title>
+  <title></title>
 </head>
 <body>
   {% include custom.html %}
