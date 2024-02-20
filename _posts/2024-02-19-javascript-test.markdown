@@ -10,7 +10,7 @@ categories: article
   <title></title>
 </head>
 <body>
-  {% include custom.html %}
+  {% include 2024-02-19-javascript-test.html %}
   <script src="{{ site.baseurl }}/assets/js/custom.js"></script>
 </body>
 </html>
