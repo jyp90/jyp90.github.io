@@ -11,6 +11,6 @@ categories: article
 </head>
 <body>
   {% include 2024-02-20-json-prettier.html %}
-  {% include js/2024/02/20/json-prettier.js %}
+  <script src="{{ site.baseurl }}/assets/js/2024/02/20/json-prettier.js">
 </body>
 </html>

@@ -1,4 +1,27 @@
+<style>
+.float {
+    display: flex;
+    padding: 13px;
+    position: fixed;
+    border-radius: 20px;
+    font-size: 15px;
+    z-index: 999;
+    bottom: 10%;
+    right: 10%;
+}
+
+.pretty {
+    background: none;
+    border: none;
+    width: 100%;
+    height: auto;
+    color: rgb(231, 222, 222);
+    resize: none;
+}
+
+</style>
+
 <div id="custom-div" style="width: 100%">
-    <textarea name="area" id="target" cols="30" rows="10"></textarea>
-    <button name="btn" onclick="prettifyJSON()">Prettier</button>
+    <textarea name="area" class="pretty" id="target" cols="30" rows="50" placeholder="JSON 입력"></textarea>
+    <button name="btn" class="float" onclick="prettifyJSON()">Prettier</button>
 </div>
