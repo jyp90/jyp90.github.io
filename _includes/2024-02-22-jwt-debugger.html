@@ -1,7 +1,43 @@
 <style>
-
+.pretty {
+    background: none;
+    border: none;
+    width: 80%;
+    height: auto;
+    color: rgb(231, 222, 222);
+    resize: none;
+}
+p.head {
+    font-size: 20px;
+}
 </style>
-<div id="custom-div" style="width: 100%">
-
-    
+<div id="custom-div" style="width: 100%;display: flex;">
+    <div style="width: 50%;display: flex; flex-direction: column;">
+        <p class="head">Encoded</p>
+        <textarea name="area" class="pretty" id="target" rows="20" placeholder="Token 입력"></textarea>
+    </div>
+    <div style="width: 50%; display: flex; flex-direction: column;">
+        <p class="head">Decoded</p>
+        <div>Header</div>
+        <textarea name="header" id="header" class="pretty" rows="10"></textarea>
+        <div>Payload</div>
+        <textarea name="header" id="payload" class="pretty" rows="10"></textarea>
+    </div>
+</div>
+<div id="description-div" style="width: 100%;">
+    <p class="head">Token Info</p>
+    <hr>
+    <div style="padding-top: 20px;"></div>
+    <div style="display: flex;justify-content: space-between;">
+        <b>Subject: </b><p id="sub"></p>
+    </div>
+    <div style="display: flex;justify-content: space-between;">
+        <b>Issued At: </b><p id="iat"></p>
+    </div>
+    <div style="display: flex;justify-content: space-between;">
+        <b>Not Valid Before At: </b><p id="nbf"></p>
+    </div>
+    <div style="display: flex;justify-content: space-between;">
+        <b>Expiration Time: </b><p id="exp"></p>
+    </div>
 </div>
