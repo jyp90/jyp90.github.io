@@ -1,0 +1,121 @@
+---
+layout: post
+title: "다중 서버 환경에서 Worker 실패 대응 전략 (RabbitMQ 기반)"
+date: 2026-01-15 09:00:00 +0900
+categories: blog
+tags: [RabbitMQ, Worker, 장애복구, 분산시스템, 메시지큐]
+excerpt: "다중 서버 환경에서 Worker가 작업 중 중단될 때 나머지 서버 Worker가 어떻게 대응해야 하는지를 정리합니다."
+---
+
+## 배경
+
+RabbitMQ를 기반으로 여러 서버가 동시에 Worker로 동작하는 시스템에서는  
+**한 서버에서 Job 처리 중 Worker가 중단**되는 상황이 발생할 수 있습니다.
+
+이 글에서는 RabbitMQ의 기본 특성과 다중 서버 Worker 장애 시  
+어떻게 안정적으로 시스템을 복구하고 처리할지를 살펴봅니다.
+
+---
+
+## RabbitMQ Work Queues 기반 작업 흐름
+
+RabbitMQ의 Work Queue 패턴은 여러 Worker가 **하나의 큐에서 메시지를 분배받아 처리**하도록 설계됩니다.  
+RabbitMQ는 기본적으로 **한 메시지는 하나의 Worker에게만 전달**되며, Worker가 ACK(처리완료) 전까지는 삭제되지 않습니다.  
+즉, Worker가 메시지를 받아 처리 중이라도 ACK을 보내지 않으면 **다른 Worker로 동일 메시지를 재전달**합니다.  [oai_citation:0‡DevOps Knowledge Hub](https://devops.aibit.im/article/rabbitmq-message-patterns-explained?utm_source=chatgpt.com)
+
+---
+
+## Worker 도중 중단 시 발생할 수 있는 문제
+
+Worker가 **메시지를 수신하고 작업을 시작했지만, 처리 완료 또는 ACK 전**에 서버가 종료되는 경우:
+
+1. RabbitMQ는 ACK을 받지 못했기 때문에 해당 메시지를 “미처리 상태”로 봅니다.
+2. RabbitMQ는 다른 살아 있는 Worker로 **메시지를 재전달**합니다.
+   → 이 과정은 중복 처리 가능성을 만들 수 있습니다.  [oai_citation:1‡DevOps Knowledge Hub](https://devops.aibit.im/article/rabbitmq-message-patterns-explained?utm_source=chatgpt.com)
+
+> 요약하자면, 메시지를 받아서 처리 중인 Worker가 중단되면 RabbitMQ는 해당 메시지를 다시 큐에 남겨두고,  
+> 다른 Worker에 전달할 여지를 남깁니다. 이때 나머지 Worker는 **중복 처리 여부를 판단할 필요가 있습니다.**
+
+---
+
+## Worker 장애 상황 처리 전략
+
+### 1. ACK 타이밍을 명확히 관리하기
+
+RabbitMQ는 메시지를 Deliver한 이후에 **ACK이 수행될 때** 해당 메시지를 제거합니다.  
+따라서 Worker는 다음 순서를 지키는 것이 중요합니다:
+
+메시지 수신 → 처리 시작 → DB 트랜잭션/업데이트 →
+완료 확인 → ACK 전송
+
+이 순서대로 진행하면 Worker가 처리 중에 중단되었을 때,  
+ACK이 보내지지 않았으므로 RabbitMQ는 다른 Worker로 메시지를 **재전달**합니다.  
+이로 인해 “실제로 작업이 성공했지만 ACK이 전송되지 않아 중복 처리될 가능성”이 생기므로,  
+중복 처리 방지(멱등성) 설계를 함께 고려해야 합니다.
+
+---
+
+## 2. 메시지 재전달에 대비한 멱등성 확인
+
+앞서 정리한 것처럼,  
+Worker가 중단되어 메시지가 재전달되면 **나머지 Worker는 동일 메시지를 다시 받게 됩니다.**
+
+이때 다음과 같은 전략으로 중복 처리를 피할 수 있습니다:
+
+- 메시지 본문 또는 `messageId` 등으로 **고유 식별자(ID)**를 생성
+- 처리 전 **중복 체크 테이블(ID 기반 로그)**를 확인
+- 이미 처리된 ID이면 해당 메시지는 빠르게 ACK만 처리
+
+즉, 메시지 처리와 중복 검사는 Worker가 메시지를 재전달 받았을 때 다시 판단할 수 있도록 설계해야 합니다.
+
+이처럼 Worker가 **중복 메시지 확인 → 처리 → 완료 → ACK**까지의 순서를 지키면  
+다중 서버 환경에서도 안정적인 Job 처리 흐름을 유지할 수 있습니다.
+
+---
+
+## 3. Dead-Letter 및 재시도 패턴 활용
+
+RabbitMQ에는 **Dead-Letter Queue(DLQ)**를 설정하여 처리 실패 메시지를 별도 큐로 옮기는 기능이 있습니다.  
+이 기능을 적절히 활용하면 다음과 같은 이점을 얻을 수 있습니다:
+
+- 메시지가 일정 횟수 이상 처리 실패 시 DLQ로 보낸 뒤 문제 원인 조사
+- 재시도 로직을 수립하여 일시적 오류에 대해서는 자동 재시도
+- 장기 실패 메시지에 대해서 알람 및 수동 처리 도구 마련
+
+즉, Worker 처리 중 오류나 중단이 잦은 경우 DLQ와 재시도 정책은 복구 플로우의 핵심 요소가 됩니다.  [oai_citation:2‡Transdigital](https://www.transdigitaltech.com/post/handling-errors-and-dead-letter-queues-in-rabbitmq?utm_source=chatgpt.com)
+
+---
+
+## 4. Worker 모니터링과 프로세스 매니저
+
+다중 서버 Worker는 개별 서버의 장애 뿐 아니라, 프로세스 수준 장애도 동시에 고려해야 합니다.  
+Worker가 Crash 또는 Kill 되는 경우, 다음과 같은 프로세스 매니저를 활용할 수 있습니다:
+
+- **systemd / supervisord** 등을 이용하여 Worker 자동 재시작
+- **컨테이너 오케스트레이션** (Kubernetes 등)에서 Liveness/Readiness 체크 설정
+- 장애 감지 시 자동 재할당 및 로깅
+
+이런 전략은 “한 서버만 배포하거나 재기동하는 와중”에도  
+Worker의 처리가 중단되지 않고 **다른 서버에서 정상적으로 이어질 수 있도록** 합니다.
+
+---
+
+## 5. 요약: 다중 서버 Worker 장애 결함 대응
+
+| 상황 | 발생 가능 문제 | 대응 전략 |
+|------|-----------------|------------|
+| Worker가 처리 도중 종료됨 | ACK 전 종료로 메시지 재전달 발생 | 메시지 ID 기반 멱등성 처리 |
+| 재전달된 메시지 중복 처리 | DB 업데이트 중복 또는 상태 불일치 | 중복 체크 로직 |
+| 반복 오류 메시지 | 무한 재시도 | Dead-Letter 정책 |
+| 개별 Worker 장애 | 처리 지연 또는 작업 누락 | 모니터링 및 자동 재시작 |
+
+---
+
+## 마무리
+
+다중 서버 환경에서는 Worker가 작업 중 중단되는 상황이 불가피합니다.  
+RabbitMQ와 같은 브로커는 처리 실패 메시지를 자동으로 다시 전달하기 때문에  
+멱등성과 장애 복구 패턴을 함께 설계하는 것이 중요합니다.
+
+이번 글에서는 이런 장애 시 **Worker 처리 흐름을 어떻게 설계할지**를 중심으로 정리했습니다.  
+다음 글에서는 **사례 기반 코드 예제**와 **상태 추적/모니터링 전략**까지 이어서 다뤄보겠습니다.

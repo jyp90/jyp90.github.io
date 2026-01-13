@@ -1,14 +1,206 @@
-<style>
-    .split {
-        padding-top: 20px;
-    }
-</style>
-<div id="custom-div" style="width: 100%">
-    <input type="text" id="unix" placeholder="Unix Timestamp 입력">
-    <button name="convert" onclick="convert()">Convert</button>
+<div class="tool-card">
+    <div class="tool-card-header">
+        <div class="tool-card-icon" style="background: linear-gradient(135deg, #3fb950 0%, #238636 100%);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+            </svg>
+        </div>
+        <div>
+            <h2 class="tool-card-title">Unix Timestamp Converter</h2>
+            <p style="color: #8b949e; font-size: 14px; margin-top: 4px;">Convert Unix timestamps to human-readable dates</p>
+        </div>
+    </div>
 
-    <div class="split"></div>
-    <hr>
-    <p>결과</p>
-    <input type="text" id="result">
+    <div id="custom-div" style="display: block;">
+        <div class="timestamp-section">
+            <p class="head">Current Time</p>
+            <div class="current-time-display">
+                <div class="time-box">
+                    <span class="time-label">Unix Timestamp</span>
+                    <span class="time-value" id="currentUnix">-</span>
+                </div>
+                <div class="time-box">
+                    <span class="time-label">Human Readable</span>
+                    <span class="time-value" id="currentHuman">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="timestamp-section" style="margin-top: 24px;">
+            <p class="head">Convert Timestamp</p>
+            <div class="converter-form">
+                <div class="input-group">
+                    <label for="unix">Unix Timestamp</label>
+                    <input type="text" id="unix" placeholder="e.g., 1704067200">
+                </div>
+                <button type="button" onclick="convert()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 6px;">
+                        <path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/>
+                    </svg>
+                    Convert
+                </button>
+            </div>
+        </div>
+
+        <div class="timestamp-section result-section" style="margin-top: 24px;">
+            <p class="head">Result</p>
+            <div class="result-display">
+                <div class="result-row">
+                    <span class="result-label">Local Time</span>
+                    <input type="text" id="result" readonly placeholder="Converted date will appear here">
+                </div>
+                <div class="result-row">
+                    <span class="result-label">UTC Time</span>
+                    <input type="text" id="resultUTC" readonly placeholder="UTC date will appear here">
+                </div>
+                <div class="result-row">
+                    <span class="result-label">ISO 8601</span>
+                    <input type="text" id="resultISO" readonly placeholder="ISO format will appear here">
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+.timestamp-section {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+}
+
+.current-time-display {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.time-box {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.time-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.time-value {
+    font-family: 'SF Mono', monospace;
+    font-size: 16px;
+    color: var(--accent-primary);
+    font-weight: 500;
+}
+
+.converter-form {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.input-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.input-group input {
+    width: 100%;
+}
+
+.result-section {
+    background: var(--bg-card);
+}
+
+.result-display {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.result-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.result-label {
+    min-width: 100px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.result-row input {
+    flex: 1;
+    background: var(--bg-tertiary);
+}
+
+@media (max-width: 600px) {
+    .converter-form {
+        flex-direction: column;
+    }
+
+    .converter-form button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .result-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .result-label {
+        min-width: auto;
+    }
+}
+</style>
+
+<script>
+// Update current time display
+function updateCurrentTime() {
+    const now = Math.floor(Date.now() / 1000);
+    const currentUnix = document.getElementById('currentUnix');
+    const currentHuman = document.getElementById('currentHuman');
+
+    if (currentUnix) currentUnix.textContent = now;
+    if (currentHuman) currentHuman.textContent = new Date().toLocaleString();
+}
+
+// Update every second
+setInterval(updateCurrentTime, 1000);
+updateCurrentTime();
+
+// Enhanced convert function
+function convertEnhanced() {
+    const unix = document.getElementById('unix').value;
+    if (!unix) return;
+
+    const timestamp = parseInt(unix);
+    const date = new Date(timestamp * 1000);
+
+    document.getElementById('result').value = date.toLocaleString();
+    document.getElementById('resultUTC').value = date.toUTCString();
+    document.getElementById('resultISO').value = date.toISOString();
+}
+</script>

@@ -18,10 +18,10 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: jypark
+title: 뇽이의 TIL
 email: jyp90@kakao.com
 description: >- # this means to ignore newlines until "baseurl:"
-  github blog & 공부를 위한 repository
+  매일 배운 것을 기록하는 TIL(Today I Learned) 블로그
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://abbo.tistory.com" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: junyongpark90
@@ -31,6 +31,7 @@ github_username:  jyp90
 markdown: kramdown
 theme: minima
 asset_url: /assets
+future: true
 plugins:
   - jekyll-feed
 

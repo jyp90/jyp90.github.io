@@ -1,27 +1,97 @@
+<div class="tool-card">
+    <div class="tool-card-header">
+        <div class="tool-card-icon" style="background: linear-gradient(135deg, #f7df1e 0%, #f0a500 100%);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#000">
+                <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2m7.5 9.5L9.41 9.41L8 10.82l4.5 4.5l4.5-4.5l-1.41-1.41z"/>
+            </svg>
+        </div>
+        <div>
+            <h2 class="tool-card-title">JSON Prettier</h2>
+            <p style="color: #8b949e; font-size: 14px; margin-top: 4px;">Format and beautify your JSON data</p>
+        </div>
+    </div>
+
+    <div id="custom-div" style="display: block;">
+        <div class="json-input-wrapper">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <p class="head" style="margin-bottom: 0;">JSON Input</p>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="tool-btn-secondary" onclick="clearJSON()" style="padding: 8px 16px; font-size: 13px;">
+                        Clear
+                    </button>
+                    <button type="button" onclick="copyJSON()" style="padding: 8px 16px; font-size: 13px;">
+                        Copy
+                    </button>
+                </div>
+            </div>
+            <textarea
+                name="area"
+                class="pretty"
+                id="target"
+                rows="30"
+                placeholder='Paste your JSON here...
+
+Example:
+{"name":"John Doe","age":30,"email":"john@example.com","address":{"city":"Seoul","country":"Korea"},"hobbies":["coding","reading","gaming"]}'></textarea>
+        </div>
+    </div>
+</div>
+
+<button name="btn" class="float" onclick="prettifyJSON()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;">
+        <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+    </svg>
+    Prettify
+</button>
+
 <style>
-.float {
-    display: flex;
-    padding: 13px;
-    position: fixed;
-    border-radius: 20px;
-    font-size: 15px;
-    z-index: 999;
-    bottom: 10%;
-    right: 10%;
+.json-input-wrapper {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 20px;
 }
 
-.pretty {
-    background: none;
-    border: none;
-    width: 100%;
-    height: auto;
-    color: rgb(231, 222, 222);
-    resize: none;
+.json-input-wrapper .pretty {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-secondary);
+    font-size: 13px;
+    line-height: 1.5;
 }
 
+.tool-btn-secondary {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+}
+
+.tool-btn-secondary:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--accent-primary);
+    transform: translateY(-1px);
+    box-shadow: none;
+}
 </style>
 
-<div id="custom-div" style="width: 100%">
-    <textarea name="area" class="pretty" id="target" cols="30" rows="50" placeholder="JSON 입력"></textarea>
-    <button name="btn" class="float" onclick="prettifyJSON()">Prettier</button>
-</div>
+<script>
+function clearJSON() {
+    document.getElementById('target').value = '';
+    document.getElementById('target').focus();
+}
+
+function copyJSON() {
+    const textarea = document.getElementById('target');
+    textarea.select();
+    document.execCommand('copy');
+
+    // Visual feedback
+    const btn = event.target.closest('button');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = 'Copied!';
+    btn.style.background = 'var(--accent-success)';
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.background = '';
+    }, 1500);
+}
+</script>

@@ -3,15 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Developer tools: JWT Debugger, JSON Prettier, Unix Timestamp Converter">
+    <meta name="theme-color" content="#0d1117">
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <!-- Base theme CSS (minima) -->
     <link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}">
-    <link rel="stylesheet" href="{{ "/assets/style.css" | relative_url }}">
+
+    <!-- Custom styles (loaded after to override) -->
     <link rel="stylesheet" href="{{ "/assets/reset.css" | relative_url }}">
-<!--    <link rel="stylesheet" href="/assets/style.css">-->
-<!--    <link rel="stylesheet" href="/assets/reset.css">-->
+    <link rel="stylesheet" href="{{ "/assets/style.css" | relative_url }}">
+
+    <!-- Canonical & RSS -->
     <link rel="canonical" href="{{ page.url | replace:'index.html','' | absolute_url }}">
     <link rel="alternate" type="application/rss+xml" title="{{ site.title | escape }}" href="{{ "/feed.xml" | relative_url }}">
-    <link href="{{ site.asset_url }}/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon"/>
-    <title>jyp90's github</title>
-<!--    <link rel="stylesheet" href="/blog/assets/style.css">-->
+
+    <!-- Favicon -->
+    <link href="{{ site.asset_url }}/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
+
+    <title>{% if page.title %}{{ page.title }} | {% endif %}DevTools by jypark</title>
 </head>
 </html>

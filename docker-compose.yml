@@ -1,0 +1,20 @@
+services:
+  jekyll:
+    build: .
+    container_name: jyp90-blog
+    environment:
+      - JEKYLL_ENV=development
+    command: >
+      sh -c "bundle install &&
+             bundle exec jekyll serve --host 0.0.0.0 --livereload --force_polling"
+    ports:
+      - "4000:4000"
+      - "35729:35729"
+    volumes:
+      - .:/srv/jekyll
+      - bundle_cache:/usr/local/bundle
+    stdin_open: true
+    tty: true
+
+volumes:
+  bundle_cache:
