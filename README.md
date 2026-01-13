@@ -55,11 +55,26 @@ $ vi .zshrc
 $ bundle install && bundle update jekyll
 ```
 
-4. 실행 
+4. 실행
 
+**방법 1: Docker Compose (권장)**
+```shell
+# 첫 실행 시 (이미지 빌드)
+$ docker compose up --build
+
+# 이후 실행
+$ docker compose up
+
+# 백그라운드 실행
+$ docker compose up -d
+```
+
+**방법 2: 로컬 Ruby**
 ```shell
 $ bundle exec jekyll serve
 ```
+
+접속: http://localhost:4000 (LiveReload 자동 활성화)
 
 * Constraint
 
@@ -67,3 +82,5 @@ ruby version 의 제약 조건이 있음
 ```
 ruby : 2.6.4 이상이여야 함
 ```
+
+Docker를 사용하면 Ruby 환경 설정 없이 바로 실행 가능합니다.

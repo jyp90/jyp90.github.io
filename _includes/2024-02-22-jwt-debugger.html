@@ -1,43 +1,88 @@
+<div class="tool-card">
+    <div class="tool-card-header">
+        <div class="tool-card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+            </svg>
+        </div>
+        <div>
+            <h2 class="tool-card-title">JWT Debugger</h2>
+            <p style="color: #8b949e; font-size: 14px; margin-top: 4px;">Decode and inspect JSON Web Tokens</p>
+        </div>
+    </div>
+
+    <div id="custom-div">
+        <div class="jwt-panel">
+            <p class="head">Encoded Token</p>
+            <textarea
+                name="area"
+                class="pretty"
+                id="target"
+                rows="16"
+                placeholder="Paste your JWT token here...
+
+Example:
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"></textarea>
+        </div>
+
+        <div class="jwt-panel">
+            <p class="head">Decoded Output</p>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; color: #8b949e; font-size: 13px; margin-bottom: 8px; font-weight: 500;">
+                    HEADER
+                    <span style="background: #238636; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">ALGORITHM & TOKEN TYPE</span>
+                </label>
+                <textarea name="header" id="header" class="pretty" rows="6" readonly placeholder="Header will appear here..."></textarea>
+            </div>
+
+            <div>
+                <label style="display: block; color: #8b949e; font-size: 13px; margin-bottom: 8px; font-weight: 500;">
+                    PAYLOAD
+                    <span style="background: #a371f7; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">DATA</span>
+                </label>
+                <textarea name="payload" id="payload" class="pretty" rows="8" readonly placeholder="Payload will appear here..."></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="description-div">
+    <p class="head">Token Information</p>
+    <hr>
+
+    <div>
+        <b>Subject (sub)</b>
+        <p id="sub">-</p>
+    </div>
+    <div>
+        <b>Issued At (iat)</b>
+        <p id="iat">-</p>
+    </div>
+    <div>
+        <b>Not Before (nbf)</b>
+        <p id="nbf">-</p>
+    </div>
+    <div>
+        <b>Expiration (exp)</b>
+        <p id="exp">-</p>
+    </div>
+</div>
+
 <style>
-.pretty {
-    background: none;
-    border: none;
-    width: 80%;
-    height: auto;
-    color: rgb(231, 222, 222);
-    resize: none;
+.jwt-panel {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 20px;
 }
-p.head {
-    font-size: 20px;
+
+#custom-div .pretty {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-secondary);
+}
+
+#custom-div .pretty:focus {
+    border-color: var(--accent-primary);
 }
 </style>
-<div id="custom-div" style="width: 100%;display: flex;">
-    <div style="width: 50%;display: flex; flex-direction: column;">
-        <p class="head">Encoded</p>
-        <textarea name="area" class="pretty" id="target" rows="20" placeholder="Token 입력"></textarea>
-    </div>
-    <div style="width: 50%; display: flex; flex-direction: column;">
-        <p class="head">Decoded</p>
-        <div>Header</div>
-        <textarea name="header" id="header" class="pretty" rows="10"></textarea>
-        <div>Payload</div>
-        <textarea name="header" id="payload" class="pretty" rows="10"></textarea>
-    </div>
-</div>
-<div id="description-div" style="width: 100%;">
-    <p class="head">Token Info</p>
-    <hr>
-    <div style="padding-top: 20px;"></div>
-    <div style="display: flex;justify-content: space-between;">
-        <b>Subject: </b><p id="sub"></p>
-    </div>
-    <div style="display: flex;justify-content: space-between;">
-        <b>Issued At: </b><p id="iat"></p>
-    </div>
-    <div style="display: flex;justify-content: space-between;">
-        <b>Not Valid Before At: </b><p id="nbf"></p>
-    </div>
-    <div style="display: flex;justify-content: space-between;">
-        <b>Expiration Time: </b><p id="exp"></p>
-    </div>
-</div>

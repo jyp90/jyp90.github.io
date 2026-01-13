@@ -1,16 +1,28 @@
+/* ===================================
+   Modern Reset & Base Styles
+   =================================== */
+
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     padding: 0;
     width: 100%;
-    background-color: #1a1b1e;
-    color: white;
+    background-color: #0d1117;
+    color: #e6edf3;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
     font-weight: 400;
-    font-size: 13px;
-    line-height: 1.4;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 main {
-    background-color: black;
+    background-color: #0d1117;
+    min-height: calc(100vh - 180px);
 }
 
 ol, ul {
@@ -23,9 +35,52 @@ a {
     text-decoration: none;
     cursor: pointer;
     outline: none;
-    color: white;
+    color: #58a6ff;
+    transition: color 0.2s ease;
 }
 
-footer {
-    height: 250px;
+a:hover {
+    color: #79c0ff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #e6edf3;
+    font-weight: 600;
+    margin: 0;
+}
+
+p {
+    margin: 0;
+}
+
+button {
+    cursor: pointer;
+    font-family: inherit;
+}
+
+input, textarea {
+    font-family: inherit;
+}
+
+::selection {
+    background-color: #388bfd40;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #21262d;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #484f58;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6e7681;
 }
