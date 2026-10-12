@@ -7,7 +7,7 @@ One global Claude Code skill that turns what the user actually did — git histo
 
 ## Hard rule: what may and may not appear
 - Never: employer or client names, internal service/product/codename names, internal domains/hostnames/IPs, repo names of private repos, ticket keys, people's names, work email addresses, customer data, account IDs, secrets, screenshots of internal tools, code copied verbatim from a private repo.
-- Allowed: the general technique and domain knowledge needed to build such a service (e.g. "멱등 키로 중복 메시지 처리", "DRM 라이선스 갱신 흐름의 일반 구조"), public library/framework names, rewritten minimal code examples, numbers that are not business metrics.
+- Allowed: the general technique and domain knowledge needed to build such a service (e.g. "멱등 키로 중복 메시지 처리", "외부 결제 웹훅 재시도 흐름의 일반 구조"), public library/framework names, rewritten minimal code examples, numbers that are not business metrics.
 - Precedent: the 2026-01 RabbitMQ/Worker series on this blog — generic architecture, no company named.
 
 ## Location and files
