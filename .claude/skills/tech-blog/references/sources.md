@@ -57,5 +57,22 @@ EOF
 ```
 Good learnings-post evidence: a memory or CLAUDE.md rule with its "why", the commit that added a skill or hook, and the transcript turn where the failure happened.
 
+## Knowledge base notes
+A private notes vault (Obsidian-style markdown) as a source. Its paths live only in `~/.config/tech-blog/kb.txt` (private, never commit or print the paths into a draft):
+```
+root=<absolute path of the vault>
+candidates=<absolute path of a backlog note>   # optional
+```
+The backlog note lists one candidate per line: `- [ ] [[note name]] — <angle>`; `- [x]` marks a published one.
+```bash
+SP=<scratchpad>; K=~/.config/tech-blog/kb.txt
+R=$(sed -n 's/^root=//p' "$K"); C=$(sed -n 's/^candidates=//p' "$K")
+[ -n "$C" ] && grep -E '^- \[ \]' "$C" > "$SP/kb-candidates.txt"                # open candidates
+grep -rl --include='*.md' -i '<topic term>' "$R" | head -50 > "$SP/kb-hits.txt" # no backlog: search by topic
+```
+Note names in the backlog resolve with `find "$R" -name '<note name>.md'`.
+
+Work notes carry far more identifiers than commits: service and feature names, partner and customer names, internal hosts, DB/table names, ticket keys, people, business numbers. Take only the technique and the reasoning behind a decision, then write every sentence fresh; never paste or lightly paraphrase a note sentence, table, or diagram label. Note names and folder names are identifiers too: the draft never cites them, and candidates in chat are named by angle only.
+
 ## Sweeping several repos
 Delegate to an Explore or general-purpose subagent with: the date range, the scratchpad path, the 「Repo discovery」 / author-email commands above (they write `repos.txt` / `emails.txt` there), "read-only", "write evidence to <scratchpad path>", "return 2–4 candidate angles with commit hashes or file paths; no repo, company or ticket names in the summary".
