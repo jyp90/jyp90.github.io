@@ -24,21 +24,20 @@
     });
   }
 
-  function initDropdown() {
-    var btn = document.querySelector('.dropdown-toggle');
-    var menu = document.getElementById('tools-menu');
-    if (!btn || !menu) return;
-    function set(open) { btn.setAttribute('aria-expanded', String(open)); menu.hidden = !open; }
-    var canHover = window.matchMedia('(hover: hover)').matches;
-    // With hover, a mouse click lands on an already open menu; keep it open instead of toggling it shut.
-    btn.addEventListener('click', function (e) { e.stopPropagation(); set(canHover && e.detail > 0 ? true : menu.hidden); });
-    if (canHover) {
-      var item = btn.closest('.has-dropdown');
-      item.addEventListener('mouseenter', function () { set(true); });
-      item.addEventListener('mouseleave', function () { set(false); });
-    }
-    document.addEventListener('click', function (e) { if (!menu.contains(e.target)) set(false); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { set(false); btn.focus(); } });
+  var ICONS = {
+    chevronLeft: '<path d="M15 18l-6-6 6-6"/>',
+    chevronRight: '<path d="M9 18l6-6-6-6"/>',
+    chevronDown: '<path d="M6 9l6 6 6-6"/>',
+    list: '<path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
+    tag: '<path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><path d="M7.5 7.5h.01"/>',
+    x: '<path d="M18 6L6 18M6 6l12 12"/>',
+    copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+    check: '<path d="M20 6L9 17l-5-5"/>'
+  };
+
+  function icon(name, size) {
+    var s = size || 18;
+    return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[name] + '</svg>';
   }
 
   var PAGE_SIZE = 20;
@@ -56,6 +55,8 @@
     var empty = home.querySelector('.filter-empty');
     var groups = home.querySelectorAll('.year-group');
     var viewBtns = home.querySelectorAll('.view-btn');
+    // Tag blocks start folded on phones so they do not push posts off screen.
+    var narrow = window.matchMedia('(max-width: 640px)');
 
     var counts = {};
     items.forEach(function (li) {
@@ -97,7 +98,13 @@
     // Tag chips sit between posts (after every 6th, which fills 2- and 3-column grid rows) instead of in one bar above the list.
     function tagBreak(chunk, first) {
       var li = el('li', 'tag-break');
-      li.appendChild(el('p', 'tag-break-title', '태그로 둘러보기'));
+      var details = el('details');
+      details.open = !narrow.matches;
+      var summary = el('summary', 'tag-break-title');
+      summary.innerHTML = icon('tag', 16) + '<span>태그로 둘러보기</span>';
+      summary.appendChild(el('span', 'tag-count', String(chunk.length)));
+      summary.insertAdjacentHTML('beforeend', '<span class="fold-chevron">' + icon('chevronDown', 16) + '</span>');
+      details.appendChild(summary);
       var box = el('div', 'tag-break-chips');
       if (first && state.tag) box.appendChild(chip('', '전체'));
       chunk.forEach(function (t) {
@@ -105,13 +112,15 @@
         c.appendChild(el('span', 'tag-count', String(counts[t])));
         box.appendChild(c);
       });
-      li.appendChild(box);
+      details.appendChild(box);
+      li.appendChild(details);
       return li;
     }
 
-    function pageLink(page, label, current, disabled) {
-      if (disabled) return el('span', 'pager-link is-disabled', label);
-      var a = el('a', 'pager-link', label);
+    function pageLink(page, label, current, disabled, iconName) {
+      var a = el(disabled ? 'span' : 'a', 'pager-link' + (disabled ? ' is-disabled' : ''), iconName ? null : label);
+      if (iconName) { a.innerHTML = icon(iconName); a.setAttribute('aria-label', label); a.title = label; }
+      if (disabled) { a.setAttribute('aria-disabled', 'true'); return a; }
       a.href = href(state.tag, page);
       a.dataset.page = page;
       if (current) a.setAttribute('aria-current', 'page');
@@ -141,11 +150,13 @@
 
       status.textContent = '';
       if (state.tag) {
-        status.appendChild(el('strong', null, '#' + state.tag));
-        status.appendChild(document.createTextNode(' 글 ' + filtered.length + '편 · '));
-        var all = chip('', '전체 보기');
-        all.className = 'list-status-reset';
-        status.appendChild(all);
+        var reset = chip('', '#' + state.tag);
+        reset.className = 'filter-pill';
+        reset.setAttribute('aria-label', '#' + state.tag + ' 필터 해제');
+        reset.title = '필터 해제';
+        reset.insertAdjacentHTML('beforeend', icon('x', 14));
+        status.appendChild(reset);
+        status.appendChild(document.createTextNode(' ' + filtered.length + '편'));
       } else {
         status.textContent = '글 ' + filtered.length + '편';
       }
@@ -154,9 +165,9 @@
       pager.textContent = '';
       pager.hidden = pages < 2;
       if (pages > 1) {
-        pager.appendChild(pageLink(state.page - 1, '이전', false, state.page === 1));
+        pager.appendChild(pageLink(state.page - 1, '이전 쪽', false, state.page === 1, 'chevronLeft'));
         for (var p = 1; p <= pages; p++) pager.appendChild(pageLink(p, String(p), p === state.page, false));
-        pager.appendChild(pageLink(state.page + 1, '다음', false, state.page === pages));
+        pager.appendChild(pageLink(state.page + 1, '다음 쪽', false, state.page === pages, 'chevronRight'));
       }
     }
 
@@ -184,6 +195,9 @@
       if (v) setView(v.dataset.view);
     });
     window.addEventListener('popstate', function () { state = readState(); render(); });
+    narrow.addEventListener('change', function () {
+      home.querySelectorAll('.tag-break details').forEach(function (d) { d.open = !narrow.matches; });
+    });
 
     viewBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === (root.getAttribute('data-home-view') || 'list'))); });
     toolbar.hidden = false;
@@ -218,7 +232,7 @@
     var details = document.createElement('details');
     details.className = 'toc-inline';
     var summary = document.createElement('summary');
-    summary.textContent = '목차';
+    summary.innerHTML = icon('list', 16) + '<span>목차</span><span class="fold-chevron">' + icon('chevronDown', 16) + '</span>';
     details.appendChild(summary);
     details.appendChild(list.cloneNode(true));
     content.insertBefore(details, content.firstChild);
@@ -263,15 +277,16 @@
       bar.className = 'code-bar';
       if (m) { var lang = document.createElement('span'); lang.className = 'code-lang'; lang.textContent = m[1]; bar.appendChild(lang); }
       var btn = document.createElement('button');
-      btn.type = 'button'; btn.className = 'code-copy'; btn.textContent = '복사';
-      btn.setAttribute('aria-label', '코드 복사');
-      function flash(label) {
-        btn.textContent = label;
-        btn.setAttribute('aria-label', label);
-        setTimeout(function () { btn.textContent = '복사'; btn.setAttribute('aria-label', '코드 복사'); }, 1500);
+      btn.type = 'button'; btn.className = 'code-copy';
+      function show(name, label) { btn.innerHTML = icon(name, 16); btn.setAttribute('aria-label', label); btn.title = label; }
+      show('copy', '코드 복사');
+      function flash(name, label) {
+        show(name, label);
+        btn.classList.toggle('is-done', name === 'check');
+        setTimeout(function () { show('copy', '코드 복사'); btn.classList.remove('is-done'); }, 1500);
       }
       btn.addEventListener('click', function () {
-        navigator.clipboard.writeText(pre.innerText).then(function () { flash('복사됨'); }, function () { flash('복사 실패'); });
+        navigator.clipboard.writeText(pre.innerText).then(function () { flash('check', '복사됨'); }, function () { flash('x', '복사 실패'); });
       });
       bar.appendChild(btn);
       wrap.parentNode.insertBefore(bar, wrap);
@@ -302,7 +317,6 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     initTheme();
-    initDropdown();
     initHomeList();
     initPost();
   });

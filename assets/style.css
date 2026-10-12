@@ -184,8 +184,7 @@ body > header {
 }
 
 .header-items li a:hover,
-.header-items li button:hover,
-.header-items li button[aria-expanded="true"] {
+.header-items li button:hover {
     color: var(--text-primary);
     background-color: var(--bg-tertiary);
     box-shadow: none;
@@ -204,9 +203,9 @@ body > header {
     margin: 0 8px;
 }
 
-/* Theme toggle: sun in dark (switch to light), moon in light */
+/* Icon-only header items: square hit area */
 .header-items li .theme-toggle,
-.header-items li a[aria-label="GitHub"] {
+.header-items li a[aria-label] {
     padding: 8px;
 }
 
@@ -234,68 +233,6 @@ body > header {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-}
-
-/* Dropdown Menu */
-.has-dropdown {
-    position: relative;
-    z-index: 10000;
-}
-
-.dropdown-menu {
-    display: block;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
-    min-width: 200px;
-    padding: 8px 0;
-    margin-top: 8px;
-    z-index: 10001;
-    transform-origin: top left;
-    animation: menu-in 150ms var(--ease-out);
-}
-
-/* Bridges the margin gap so mouseleave does not fire between trigger and menu */
-.dropdown-menu::before {
-    content: '';
-    position: absolute;
-    top: -9px;
-    left: 0;
-    right: 0;
-    height: 9px;
-}
-
-.dropdown-menu[hidden] {
-    display: none;
-}
-
-@keyframes menu-in {
-    from { opacity: 0; transform: scale(0.97); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.header-items .dropdown-menu li {
-    padding: 0;
-    margin: 0;
-    width: 100%;
-}
-
-.header-items .dropdown-menu li a {
-    display: block;
-    padding: 10px 16px;
-    color: var(--text-primary);
-    border-radius: 0;
-    text-align: left;
-    white-space: nowrap;
-}
-
-.header-items .dropdown-menu li a:hover {
-    background-color: var(--bg-tertiary);
-    color: var(--accent-primary);
 }
 
 /* ===================================
@@ -356,19 +293,33 @@ body > header {
 }
 
 .list-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
     margin: 0;
     color: var(--text-secondary);
     font-size: 14px;
     font-variant-numeric: tabular-nums;
 }
 
-.list-status strong {
-    color: var(--text-primary);
+/* Active tag; the whole pill clears the filter */
+.filter-pill,
+.filter-pill:visited {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 0 10px 0 14px;
+    border-radius: var(--radius-lg);
+    background: var(--gradient-primary);
+    color: var(--bg-primary);
+    font-weight: 600;
+    text-decoration: none;
 }
 
-.list-status-reset,
-.list-status-reset:visited {
-    color: var(--accent-primary);
+.filter-pill:hover {
+    opacity: 0.9;
 }
 
 .view-toggle {
@@ -380,13 +331,13 @@ body > header {
 }
 
 .view-btn {
+    justify-content: center;
+    width: 44px;
+    height: 40px;
+    padding: 0;
     background: transparent;
     border-radius: var(--radius-sm);
-    padding: 8px 14px;
-    min-height: 40px;
     color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 500;
 }
 
 .view-btn:hover {
@@ -404,22 +355,45 @@ body > header {
 /* Tag chips placed between posts */
 .tag-break {
     margin: 20px 0;
-    padding: 16px;
     background: var(--bg-secondary);
     border-radius: var(--radius-lg);
 }
 
 .tag-break-title {
-    margin-bottom: 10px;
-    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 16px;
+    color: var(--text-secondary);
     font-size: 13px;
     font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tag-break-title::-webkit-details-marker,
+.toc-inline summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Chevron on a <details> summary; points up while open */
+.fold-chevron {
+    display: inline-flex;
+    margin-left: auto;
+    transition: transform var(--transition-fast);
+}
+
+details[open] > summary .fold-chevron {
+    transform: rotate(180deg);
 }
 
 .tag-break-chips {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    padding: 0 16px 16px;
 }
 
 .tag-chip,
@@ -580,6 +554,10 @@ a.pager-link:hover {
 
 .pager-link.is-disabled {
     opacity: 0.4;
+}
+
+.pager-link svg {
+    flex-shrink: 0;
 }
 
 /* Grid view (data-home-view is set from localStorage in head.html before paint) */
@@ -1080,16 +1058,16 @@ p.head {
         padding: 8px;
     }
 
-    .dropdown-menu {
-        max-width: calc(100vw - 24px);
-    }
-
     .wrapper {
         padding: 0 16px;
     }
 
     .home {
         padding: 24px 0;
+    }
+
+    .tag-chip {
+        min-height: 40px;
     }
 }
 
@@ -1217,7 +1195,7 @@ p.head {
 
 .toc-inline {
     margin: 0 0 32px;
-    padding: 12px 16px;
+    padding: 0 16px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-md);
@@ -1225,6 +1203,11 @@ p.head {
 }
 
 .toc-inline summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    list-style: none;
     cursor: pointer;
     font-weight: 600;
     color: var(--text-secondary);
@@ -1238,7 +1221,7 @@ p.head {
 }
 
 .post-content .toc-inline ol {
-    margin-top: 8px;
+    margin: 0 0 12px;
 }
 
 .post-content .toc-inline li,
@@ -1467,8 +1450,11 @@ p.head {
 }
 
 .code-copy {
+    justify-content: center;
     margin-left: auto;
-    padding: 4px 10px;
+    width: 36px;
+    height: 32px;
+    padding: 0;
     background: transparent;
     border: 1px solid transparent;
     border-radius: var(--radius-sm);
@@ -1488,6 +1474,10 @@ p.head {
 
 .code-copy:active {
     transform: scale(0.97);
+}
+
+.code-copy.is-done {
+    color: var(--accent-success);
 }
 
 /* Rouge syntax highlighting (colours from the --hl-* tokens; overrides minima's light-only palette) */
@@ -1708,7 +1698,9 @@ p.head {
 
 .btn-back,
 .btn-back:visited {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     padding: 12px 24px;
     background: var(--bg-secondary);
     color: var(--text-primary);
