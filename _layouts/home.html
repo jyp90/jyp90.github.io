@@ -9,18 +9,13 @@ layout: default
 
   {%- assign listed = "" | split: "" -%}
   {%- for p in site.posts -%}{%- unless p.categories contains 'article' -%}{%- assign listed = listed | push: p -%}{%- endunless -%}{%- endfor -%}
-  {%- assign all_tags = "" | split: "" -%}
-  {%- for p in listed -%}{%- for t in p.tags -%}{%- assign all_tags = all_tags | push: t -%}{%- endfor -%}{%- endfor -%}
-  {%- assign uniq_tags = all_tags | uniq | sort_natural -%}
-
-  {%- if uniq_tags.size > 0 -%}
-  <div class="tag-filter" role="group" aria-label="태그 필터" hidden>
-    <button type="button" class="tag-chip" data-tag="" aria-pressed="true">전체</button>
-    {%- for t in uniq_tags -%}
-    <button type="button" class="tag-chip" data-tag="{{ t | escape }}" aria-pressed="false">#{{ t }}</button>
-    {%- endfor -%}
+  <div class="list-toolbar" hidden>
+    <p class="list-status" aria-live="polite"></p>
+    <div class="view-toggle" role="group" aria-label="보기 방식">
+      <button type="button" class="view-btn" data-view="list" aria-pressed="true">목록</button>
+      <button type="button" class="view-btn" data-view="grid" aria-pressed="false">격자</button>
+    </div>
   </div>
-  {%- endif -%}
 
   {%- assign by_year = listed | group_by_exp: "p", "p.date | date: '%Y'" -%}
   {%- for y in by_year -%}
@@ -38,4 +33,5 @@ layout: default
   </section>
   {%- endfor -%}
   <p class="filter-empty" hidden>이 태그의 글이 없습니다.</p>
+  <nav class="pager" aria-label="페이지" hidden></nav>
 </div>

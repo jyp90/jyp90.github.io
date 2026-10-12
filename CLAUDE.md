@@ -78,7 +78,7 @@ python3 -m http.server 4010 -d $D
 - `assets/`: 정적 파일
   - `js/`: JavaScript 파일
     - `common.js`: 날짜 포맷팅 등 공통 유틸리티 함수
-    - `blog.js`: 테마 토글, 개발 도구 드롭다운, 메인 태그 필터(`?tag=`), 상세 목차·제목 앵커·코드 복사·진행 바·맨 위로
+    - `blog.js`: 테마 토글, 개발 도구 드롭다운, 메인 목록(태그 필터 `?tag=`·20개 페이징 `?page=`·목록/격자 보기, 태그 칩은 5편마다 목록 사이에 삽입), 상세 목차·제목 앵커·코드 복사·진행 바·맨 위로
     - `YYYY/MM/DD/[tool-name].js`: 각 도구별 JavaScript 로직
   - `css/`: 스타일시트 (`main.css`, `style.css`, `reset.css`)
 - `templates/`: 새 포스트 작성용 템플릿
