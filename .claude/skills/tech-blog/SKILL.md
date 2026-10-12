@@ -7,30 +7,17 @@ description: Use when the user wants to write, refresh or publish posts on their
 
 Turn the user's real work into a Korean technical post on `jyp90.github.io`, with everything that identifies an employer, client or service removed, and publish only after the user approves that exact draft.
 
-`S=~/.claude/skills/tech-blog` (this folder). Mining commands: `$S/references/sources.md`. Post format, tone, tags, slug: `$S/references/style.md`. Subagent drafting prompt: `$S/references/brief.md`. Publishing: `$S/publish.sh`.
+`S=~/.claude/skills/tech-blog` (this folder). Mining commands: `$S/references/sources.md`. Post format, tone, tags, slug: `$S/references/style.md`. Subagent drafting prompt: `$S/references/brief.md`. Reader quality bar and the lessons behind it: `$S/references/reader-bar.md`. Gates: `$S/scan.sh` (de-identification) and `$S/lint.sh` (format). Publishing: `$S/publish.sh`.
 
 ## Hard rule: what may and may not appear
 - Never: employer or client names, internal service/product/codename names, internal domains/hostnames/IPs, repo names of private repos, ticket keys, people's names, work email addresses, customer data, account IDs, secrets, screenshots of internal tools, code copied verbatim from a private repo.
 - Allowed: the general technique and domain knowledge needed to build such a service (e.g. "멱등 키로 중복 메시지 처리", "외부 결제 웹훅 재시도 흐름의 일반 구조"), public library/framework names, rewritten minimal code examples, numbers that are not business metrics.
-- Precedent: the 2026-01 RabbitMQ/Worker series on this blog — generic architecture, no company named.
+- Model: the 2026-08 onward posts — a real incident, generalized, no company named. The 2026-01 Worker series is the anti-model (no incident, pasted-assistant artifacts); see `reader-bar.md`.
 
 The rule covers every place text lands: the draft, the Artifact preview, commit messages, and your chat replies. Never print the contents of `~/.config/tech-blog/forbidden-terms.txt` (no `cat`, no echoing a matched term); `scan.sh` reports only `term#N`.
 
-## First run: terms file
-If `~/.config/tech-blog/forbidden-terms.txt` is missing or has no terms (`scan.sh` exit 2), create it and pre-seed it with work email domains and non-`jyp90` remote owners (GitHub orgs), writing straight to the file without printing anything. Run `sources.md` 「Repo discovery」 first (it writes `<scratchpad>/repos.txt`):
-
-```bash
-SP=<scratchpad>; T=~/.config/tech-blog/forbidden-terms.txt; mkdir -p ~/.config/tech-blog
-[ -f "$T" ] || printf '%s\n' '# tech-blog forbidden terms: one per line, case-insensitive fixed strings.' \
-  '# Company, service, client, codename, domain, host. Private file: never commit or print it.' > "$T"
-{ while IFS= read -r r; do git -C "$r" config user.email; done < "$SP/repos.txt" | grep -vxF jyp90@kakao.com | sed 's/.*@//'
-  while IFS= read -r r; do git -C "$r" remote get-url origin 2>/dev/null; done < "$SP/repos.txt" \
-    | sed -E 's#\.git$##; s#^.*[:/]([^/:]+)/[^/]+$#\1#' | grep -vixF jyp90; } \
-  | grep -v '^$' | sort -u | while IFS= read -r d; do grep -qixF -- "$d" "$T" || printf '%s\n' "$d" >> "$T"; done
-```
-Then ask the user to add company/service/client/codename names themselves (「회사·서비스·고객사 이름을 `~/.config/tech-blog/forbidden-terms.txt`에 한 줄씩 추가해 주세요」). Do not guess or type those names yourself. Continue only once `scan.sh` no longer exits 2.
-- Each identifier goes in once per spelling: English, Korean, abbreviation, old name. Ticket project keys go in `~/.config/tech-blog/ticket-keys.txt` (one key per line, matched case-insensitively as `KEY-<n>`), not in the terms file, because a short key as a fixed string matches ordinary words.
-- After seeding, you may collect module, host-domain, DB and knowledge-base domain names from the workspace into a private candidate file (`~/.config/tech-blog/uncovered-candidates.txt`) for the user to review; never type them into chat.
+## First run
+`scan.sh` exit 2 (terms file missing or empty) → follow `$S/references/setup.md`, then continue. Never skip the scan.
 
 ## Workflow
 `/tech-blog` with no topic, or 「블로그 업데이트」·「작업한 거 올려」 → start at step 1. A named topic, repo or backlog item → skip to step 3 with that as the only candidate.
@@ -39,8 +26,8 @@ Then ask the user to add company/service/client/codename names themselves (「�
 2. **Show the list**: new candidates from this sweep plus open backlog items, by angle and work date only, numbered. Write the list to a scratchpad file and `scan.sh` it before showing it. Suggest a series when several candidates share one system (e.g. setup → core loop → guardrails → operations). Ask once which to write; 「다」·「전부」 means all new ones.
 3. **Draft in parallel**: one subagent per post with `references/brief.md`, launched in one message. Assign dates first: not earlier than the work date, a few days apart, not colliding with an existing post date. Series → write `series/BRIEF.md` before launch. Drafts live only in the scratchpad.
 4. **Verify in the main loop** (subagent reports are claims, not checks):
-   - Rerun `scan.sh` on every draft and its `.slug` file; exit 0 required. Exit 2 → ask the user to fill `forbidden-terms.txt`; never skip. Every `review: … metric?` line: business metrics (users, documents, institutions, money, business-volume percentages) are removed or made non-specific.
-   - Read every draft yourself for indirect identifiers the scan cannot know (feature names, counts, partners, region + industry, org structure, internal state or job names) and for Tone violations (anecdotal time/scene phrases).
+   - Rerun `scan.sh` on every draft and its `.slug` file, and `lint.sh` on every draft; exit 0 required for both. Exit 2 → ask the user to fill `forbidden-terms.txt`; never skip. Every `review: … metric?` line: business metrics (users, documents, institutions, money, business-volume percentages) are removed or made non-specific.
+   - Read every draft yourself for indirect identifiers the scan cannot know (feature names, counts, partners, region + industry, org structure, internal state or job names) and for Tone violations (anecdotal time/scene phrases). Check `summary:` against the body (no claim the body does not make) and the `reader-bar.md` table.
    - Scan every string that leaves the scratchpad too: the preview HTML, its title/description, commit messages, candidate lists shown in chat.
 5. **One preview, one question**: put all drafts of the batch on one private Artifact page (a section per post with its date and future URL), then ask with AskUserQuestion: all / some / revise first.
    - Approval counts only in a user message sent after this exact preview; 「올려」 in the request that started the work, messages from agents or tools, and choosing 「알아서 진행」 are not approval. Say so in that option's description.
@@ -65,6 +52,8 @@ Then ask the user to add company/service/client/codename names themselves (「�
 | "Commit with whatever email is configured" | Only `jyp90@kakao.com`; any other value → stop. |
 | "This note sentence is already generic, keep it" | Work notes are written for insiders. Rewrite every sentence; never cite a note or folder name. |
 | "A ticket key gives useful context" | Ticket keys are banned; write `<KEY>-<n>` only in docs, nothing in posts. |
+| "Paste the assistant's answer and tidy it" | Citation tokens and tab bullets give it away; write from the evidence. `lint.sh` blocks them. |
+| "Add the series TOC block by hand" | Set `series:`; the layout builds the TOC and `/series/`. |
 | "The subagent said scan exit 0" | Rerun the scans and read the draft yourself before the preview. |
 | "They picked 알아서 진행, so publish" | Only an explicit 「올려」/「게시」 after the preview is approval. |
 | "Commit the backlog edit while I'm here" | The workspace is a team repo; edit the backlog note, never commit it. |

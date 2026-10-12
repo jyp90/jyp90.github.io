@@ -20,6 +20,7 @@ git -C "$B" checkout -q -b "$BR" || exit 1
 undo() { git -C "$B" rm -q --cached "$P" 2>/dev/null; rm -f "$B/$P"; git -C "$B" checkout -q master; git -C "$B" branch -q -D "$BR"; }
 cp "$D" "$B/$P" && git -C "$B" add "$P"
 bash "$S/scan.sh" "$B/$P" || { undo; echo "post scan failed — stop"; exit 1; }
+bash "$S/lint.sh" "$B/$P" || { undo; echo "post lint failed — stop"; exit 1; }
 if [ -n "$TR" ]; then git -C "$B" commit -q -m "post: $TI" -m "$TR"; else git -C "$B" commit -q -m "post: $TI"; fi || { undo; exit 1; }
 git -C "$B" push -q -u origin "$BR" || { echo "push failed — stop and ask the user"; exit 1; }
 cd "$B" || exit 1
