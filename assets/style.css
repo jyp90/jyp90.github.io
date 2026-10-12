@@ -92,6 +92,19 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+/* Korean: break between words, not mid-word; still wrap long tokens */
+.post-title,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content p,
+.home-title,
+.post-item-title,
+.post-excerpt {
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+}
+
 :focus-visible {
     outline: 2px solid var(--accent-primary);
     outline-offset: 2px;
@@ -105,7 +118,8 @@ body {
    Header
    =================================== */
 
-header {
+/* Site header only — a bare `header` would also match .post-header */
+body > header {
     background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
     border-bottom: 1px solid var(--border-primary);
     min-height: var(--header-height);
@@ -686,7 +700,6 @@ p.head {
    Footer
    =================================== */
 
-footer,
 .site-footer {
     background: var(--bg-secondary);
     border-top: 1px solid var(--border-primary);
@@ -852,7 +865,7 @@ footer,
         gap: 24px;
     }
 
-    footer {
+    .site-footer {
         padding: 32px 16px;
     }
 }
@@ -1086,11 +1099,11 @@ footer,
 }
 
 @media (min-width: 1100px) {
-    .post:has(.post-toc:not([hidden])) {
+    .post.has-toc {
         max-width: calc(var(--measure) + 240px + 48px);
     }
 
-    .post-layout:has(.post-toc:not([hidden])) {
+    .post-layout.has-toc {
         display: grid;
         grid-template-columns: minmax(0, var(--measure)) 240px;
         gap: 48px;
