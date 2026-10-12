@@ -8,6 +8,8 @@
       var t = null;
       try { t = localStorage.getItem('theme'); } catch (e) {}
       if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      // Home list view, set before paint so a saved grid view does not flash as a list.
+      try { if (localStorage.getItem('home-view') === 'grid') document.documentElement.setAttribute('data-home-view', 'grid'); } catch (e) {}
     })();
   </script>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>

@@ -41,45 +41,153 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { set(false); btn.focus(); } });
   }
 
-  function initTagFilter() {
-    var bar = document.querySelector('.tag-filter');
-    if (!bar) return;
-    var chips = bar.querySelectorAll('.tag-chip');
-    var items = document.querySelectorAll('.post-item');
-    var groups = document.querySelectorAll('.year-group');
-    var empty = document.querySelector('.filter-empty');
-    var known = {};
-    chips.forEach(function (c) { known[c.dataset.tag] = true; });
+  var PAGE_SIZE = 20;
+  var BREAK_EVERY = 6;
+  var MAX_BREAKS = 3;
 
-    function apply(tag, scrollToPressed) {
-      if (!known[tag]) tag = '';
-      var pressed = null;
-      chips.forEach(function (c) {
-        var isPressed = c.dataset.tag === tag;
-        c.setAttribute('aria-pressed', String(isPressed));
-        if (isPressed) pressed = c;
-      });
-      var shown = 0;
-      items.forEach(function (li) {
-        var on = tag === '' || li.dataset.tags.split('|').indexOf(tag) !== -1;
-        li.hidden = !on;
-        if (on) shown++;
-      });
-      groups.forEach(function (g) { g.hidden = !g.querySelector('.post-item:not([hidden])'); });
-      if (empty) empty.hidden = shown > 0;
-      var url = new URL(window.location.href);
-      if (tag) url.searchParams.set('tag', tag); else url.searchParams.delete('tag');
-      history.replaceState(null, '', url);
-      if (scrollToPressed && pressed) pressed.scrollIntoView({ block: 'nearest', inline: 'center' });
+  function initHomeList() {
+    var home = document.querySelector('.home');
+    var items = Array.prototype.slice.call(document.querySelectorAll('.home .post-item'));
+    if (!home || !items.length) return;
+    var root = document.documentElement;
+    var toolbar = home.querySelector('.list-toolbar');
+    var status = home.querySelector('.list-status');
+    var pager = home.querySelector('.pager');
+    var empty = home.querySelector('.filter-empty');
+    var groups = home.querySelectorAll('.year-group');
+    var viewBtns = home.querySelectorAll('.view-btn');
+
+    var counts = {};
+    items.forEach(function (li) {
+      li._tags = li.dataset.tags ? li.dataset.tags.split('|') : [];
+      li._tags.forEach(function (t) { counts[t] = (counts[t] || 0) + 1; });
+    });
+    var tags = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b, 'ko'); });
+    var state = readState();
+
+    function readState() {
+      var q = new URL(window.location.href).searchParams;
+      var tag = q.get('tag') || '';
+      return { tag: counts[tag] ? tag : '', page: Math.max(1, parseInt(q.get('page'), 10) || 1) };
     }
 
-    bar.hidden = false;
-    bar.addEventListener('click', function (e) {
-      var c = e.target.closest('.tag-chip');
-      if (c) apply(c.dataset.tag, false);
+    function href(tag, page) {
+      var url = new URL(window.location.href);
+      url.hash = '';
+      if (tag) url.searchParams.set('tag', tag); else url.searchParams.delete('tag');
+      if (page > 1) url.searchParams.set('page', page); else url.searchParams.delete('page');
+      return url.pathname + url.search;
+    }
+
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text != null) e.textContent = text;
+      return e;
+    }
+
+    function chip(tag, label) {
+      var a = el('a', 'tag-chip', label);
+      a.href = href(tag, 1);
+      a.dataset.tag = tag;
+      if (tag === state.tag) a.setAttribute('aria-current', 'true');
+      return a;
+    }
+
+    // Tag chips sit between posts (after every 6th, which fills 2- and 3-column grid rows) instead of in one bar above the list.
+    function tagBreak(chunk, first) {
+      var li = el('li', 'tag-break');
+      li.appendChild(el('p', 'tag-break-title', '태그로 둘러보기'));
+      var box = el('div', 'tag-break-chips');
+      if (first && state.tag) box.appendChild(chip('', '전체'));
+      chunk.forEach(function (t) {
+        var c = chip(t, '#' + t);
+        c.appendChild(el('span', 'tag-count', String(counts[t])));
+        box.appendChild(c);
+      });
+      li.appendChild(box);
+      return li;
+    }
+
+    function pageLink(page, label, current, disabled) {
+      if (disabled) return el('span', 'pager-link is-disabled', label);
+      var a = el('a', 'pager-link', label);
+      a.href = href(state.tag, page);
+      a.dataset.page = page;
+      if (current) a.setAttribute('aria-current', 'page');
+      return a;
+    }
+
+    function render() {
+      var filtered = items.filter(function (li) { return !state.tag || li._tags.indexOf(state.tag) !== -1; });
+      var pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      if (state.page > pages) state.page = pages;
+      var visible = filtered.slice((state.page - 1) * PAGE_SIZE, state.page * PAGE_SIZE);
+      items.forEach(function (li) { li.hidden = visible.indexOf(li) === -1; });
+      groups.forEach(function (g) { g.hidden = !g.querySelector('.post-item:not([hidden])'); });
+      if (empty) empty.hidden = filtered.length > 0;
+
+      home.querySelectorAll('.tag-break').forEach(function (b) { b.remove(); });
+      var at = [];
+      for (var k = 1; k <= MAX_BREAKS && k * BREAK_EVERY <= visible.length; k++) at.push(k * BREAK_EVERY);
+      if (!at.length && visible.length) at.push(visible.length);
+      var size = Math.ceil(tags.length / (at.length || 1));
+      at.forEach(function (pos, i) {
+        var chunk = tags.slice(i * size, (i + 1) * size);
+        if (!chunk.length && !(i === 0 && state.tag)) return;
+        var after = visible[pos - 1];
+        after.parentNode.insertBefore(tagBreak(chunk, i === 0), after.nextSibling);
+      });
+
+      status.textContent = '';
+      if (state.tag) {
+        status.appendChild(el('strong', null, '#' + state.tag));
+        status.appendChild(document.createTextNode(' 글 ' + filtered.length + '편 · '));
+        var all = chip('', '전체 보기');
+        all.className = 'list-status-reset';
+        status.appendChild(all);
+      } else {
+        status.textContent = '글 ' + filtered.length + '편';
+      }
+      if (pages > 1) status.appendChild(document.createTextNode(' · ' + state.page + '/' + pages + '쪽'));
+
+      pager.textContent = '';
+      pager.hidden = pages < 2;
+      if (pages > 1) {
+        pager.appendChild(pageLink(state.page - 1, '이전', false, state.page === 1));
+        for (var p = 1; p <= pages; p++) pager.appendChild(pageLink(p, String(p), p === state.page, false));
+        pager.appendChild(pageLink(state.page + 1, '다음', false, state.page === pages));
+      }
+    }
+
+    function go(tag, page) {
+      state = { tag: tag, page: page };
+      history.pushState(null, '', href(tag, page));
+      render();
+      toolbar.scrollIntoView({ block: 'start' });
+    }
+
+    function setView(view) {
+      if (view === 'grid') root.setAttribute('data-home-view', 'grid'); else root.removeAttribute('data-home-view');
+      viewBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === view)); });
+      try { localStorage.setItem('home-view', view); } catch (e) {}
+    }
+
+    home.addEventListener('click', function (e) {
+      var a = e.target.closest('a[data-tag], a[data-page]');
+      if (a && !(e.metaKey || e.ctrlKey || e.shiftKey || e.button)) {
+        e.preventDefault();
+        if (a.dataset.page) go(state.tag, +a.dataset.page); else go(a.dataset.tag, 1);
+        return;
+      }
+      var v = e.target.closest('.view-btn');
+      if (v) setView(v.dataset.view);
     });
-    var initial = new URL(window.location.href).searchParams.get('tag');
-    apply(initial || '', initial !== null);
+    window.addEventListener('popstate', function () { state = readState(); render(); });
+
+    viewBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === (root.getAttribute('data-home-view') || 'list'))); });
+    toolbar.hidden = false;
+    render();
   }
 
   function slugId(h, used) {
@@ -195,7 +303,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     initTheme();
     initDropdown();
-    initTagFilter();
+    initHomeList();
     initPost();
   });
 })();
