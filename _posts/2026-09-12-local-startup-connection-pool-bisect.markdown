@@ -5,14 +5,12 @@ date: 2026-09-12 09:00:00 +0900
 categories: blog
 tags: [Java, Spring, DB, JDBC, 개발도구]
 excerpt: "로컬에서 첫 화면까지 100초 넘게 걸리던 레거시 웹 애플리케이션을 단계별로 재고 변수 하나씩 갈라 커넥션 풀 initialSize로 좁힌 과정과, 로그를 꺼도 남는 JDBC 로깅 프록시의 요청당 비용을 정리합니다."
+series: "레거시 Java 웹 애플리케이션에서 만난 함정"
+summary:
+  - "레거시 웹 애플리케이션의 로컬 기동 후 첫 화면까지 100초 넘게 걸렸습니다."
+  - "원인은 JSP 컴파일이 아니라 커넥션 풀 initialSize 200이 첫 요청에서 커넥션을 모두 여는 것이었습니다."
+  - "풀 크기를 10으로 낮춰 첫 응답을 106.7초에서 26.1초로 줄였습니다."
 ---
-
-> **시리즈: 레거시 Java 웹 애플리케이션에서 만난 함정**
->
-> 1. [(1) 타임아웃 없는 외부 HTTP 호출이 스레드를 하나씩 잡아먹는 과정](/blog/2026/08/11/http-client-no-timeout-thread-exhaustion.html)
-> 2. [(2) Integer == 비교가 127까지만 맞는 이유](/blog/2026/08/22/java-wrapper-equality-127.html)
-> 3. [(3) Spring 4 WAR를 Spring Boot 2.7로 옮길 때의 함정](/blog/2026/08/29/spring4-war-to-spring-boot-27.html)
-> 4. **(4) 로컬 기동 100초를 커넥션 풀 설정 하나로 좁히기**
 
 ## 문제와 배경
 

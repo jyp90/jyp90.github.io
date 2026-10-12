@@ -1,10 +1,15 @@
 ---
 layout: post
-title: "DB 기반 Worker/Job Queue 설계 시 고민 포인트"
+title: "메시지 큐 Worker 설계 노트 (2) DB 기반 Worker/Job Queue 설계 시 고민 포인트"
 date: 2026-01-14 09:00:00 +0900
 categories: blog
 tags: [Worker, Job Queue, Database, RabbitMQ, 아키텍처]
 excerpt: "Worker/Job Queue를 DB 기반으로 설계할 때 고려해야 할 주요 포인트를 정리합니다."
+series: "메시지 큐 Worker 설계 노트"
+summary:
+  - "브로커 없이 DB 테이블을 큐로 쓰는 Worker 구조의 설계 포인트를 다룹니다."
+  - "폴링 부하와 동시 할당이 핵심이며, 행 잠금으로 한 Worker만 Job을 잡게 합니다."
+  - "Job 상태 흐름, 폴링과 push 방식, 모니터링과 참고 라이브러리를 정리했습니다."
 ---
 
 ## DB 기반 Worker/Job Queue란?
@@ -20,9 +25,9 @@ DB 기반 Worker는 보통 **주기적으로 테이블을 폴링해서 새로운
 그러나 잘못 설계하면 많은 쿼리가 발생하면서 DB 부하가 커질 수 있습니다.  
 
 예를 들어 Vendure는 기본적으로 DB에서 Job을 폴링하도록 구성되며, 여러 큐가 있다면 폴링 쿼리가 지속적으로 발생합니다.  
-이때 각 큐는 200ms 간격으로 DB를 조회하므로 큐가 많아지면 부하가 증가할 수 있습니다.  [oai_citation:0‡Vendure Docs](https://docs.vendure.io/guides/developer-guide/worker-job-queue/?utm_source=chatgpt.com)
+이때 각 큐는 200ms 간격으로 DB를 조회하므로 큐가 많아지면 부하가 증가할 수 있습니다. ([출처: Vendure Docs](https://docs.vendure.io/guides/developer-guide/worker-job-queue/))
 
-이 문제를 해결하기 위해서는 **push 기반 큐나 Redis 같은 별도 메시지 큐를 도입하는 전략**을 고민해볼 수 있습니다.  [oai_citation:1‡Vendure Docs](https://docs.vendure.io/guides/developer-guide/worker-job-queue/?utm_source=chatgpt.com)
+이 문제를 해결하기 위해서는 **push 기반 큐나 Redis 같은 별도 메시지 큐를 도입하는 전략**을 고민해볼 수 있습니다. ([출처: Vendure Docs](https://docs.vendure.io/guides/developer-guide/worker-job-queue/))
 
 ---
 
@@ -32,9 +37,9 @@ DB 기반 Worker는 보통 **주기적으로 테이블을 폴링해서 새로운
 예를 들어 여러 Worker가 동시에 같은 Job을 가져가면 **중복 처리 또는 Lock 경쟁** 문제가 발생할 수 있습니다.
 
 PostgreSQL과 같은 관계형 DB에서는 `SELECT … FOR UPDATE SKIP LOCKED` 등의 SQL 문을 활용해,  
-한 Worker가 선택한 Job을 잠금 처리하고 다른 Worker가 해당 로우를 건너뛰도록 할 수 있습니다.  [oai_citation:2‡while true do;](https://www.danieleteti.it/post/building-a-simple-yet-robust-job-queue-system-using-postgresql/?utm_source=chatgpt.com)
+한 Worker가 선택한 Job을 잠금 처리하고 다른 Worker가 해당 로우를 건너뛰도록 할 수 있습니다. ([출처: while true do;](https://www.danieleteti.it/post/building-a-simple-yet-robust-job-queue-system-using-postgresql/))
 
-이 방법은 동시에 여러 Worker가 있는 상황에서 작업을 **단일 Worker가 담당하도록 보장**해 주기 때문에 매우 유용합니다.  [oai_citation:3‡Stack Overflow](https://stackoverflow.com/questions/297280/the-best-way-to-use-a-db-table-as-a-job-queue-a-k-a-batch-queue-or-message-queu?utm_source=chatgpt.com)
+이 방법은 동시에 여러 Worker가 있는 상황에서 작업을 **단일 Worker가 담당하도록 보장**해 주기 때문에 매우 유용합니다. ([출처: Stack Overflow](https://stackoverflow.com/questions/297280/the-best-way-to-use-a-db-table-as-a-job-queue-a-k-a-batch-queue-or-message-queu))
 
 ---
 
@@ -85,7 +90,7 @@ DB 기반 Worker는 **DB 연결과 쿼리 성능에 크게 의존**합니다.
 
 DB 기반 Worker/Queue를 구현할 때 참고할 수 있는 오픈소스 툴도 존재합니다.  
 예를 들어 **yoomoney/db-queue**는 Java 기반으로 **DB를 Queue 저장소로 사용하는 작업자 패턴**을 구현해 놓은 라이브러리입니다.  
-이 라이브러리는 PostgreSQL, Oracle 등 여러 DB를 지원하며, 강력한 신뢰성 요소(지연 실행, 리트라이, 실행 추적 등)를 제공합니다.  [oai_citation:4‡GitHub](https://github.com/yoomoney/db-queue?utm_source=chatgpt.com)
+이 라이브러리는 PostgreSQL, Oracle 등 여러 DB를 지원하며, 강력한 신뢰성 요소(지연 실행, 리트라이, 실행 추적 등)를 제공합니다. ([출처: GitHub](https://github.com/yoomoney/db-queue))
 
 이처럼 이미 검증된 라이브러리를 참고하거나 활용하면 **직접 모든 구조를 설계/구현하는 부담**을 줄일 수 있습니다.
 

@@ -1,10 +1,15 @@
 ---
 layout: post
-title: "다중 서버 환경에서 Worker 실패 대응 전략 (RabbitMQ 기반)"
+title: "메시지 큐 Worker 설계 노트 (3) 다중 서버 환경에서 Worker 실패 대응 전략"
 date: 2026-01-15 09:00:00 +0900
 categories: blog
 tags: [RabbitMQ, Worker, 장애복구, 분산시스템, 메시지큐]
 excerpt: "다중 서버 환경에서 Worker가 작업 중 중단될 때 나머지 서버 Worker가 어떻게 대응해야 하는지를 정리합니다."
+series: "메시지 큐 Worker 설계 노트"
+summary:
+  - "여러 서버의 Worker 중 하나가 처리 도중 멈추면 메시지가 다른 Worker로 재전달됩니다."
+  - "ACK 시점을 처리 완료 뒤로 두는 것이 재전달과 중복 처리의 출발점입니다."
+  - "멱등성 확인, Dead Letter와 재시도, 프로세스 매니저 감시로 대응합니다."
 ---
 
 ## 배경
@@ -21,7 +26,7 @@ RabbitMQ를 기반으로 여러 서버가 동시에 Worker로 동작하는 시�
 
 RabbitMQ의 Work Queue 패턴은 여러 Worker가 **하나의 큐에서 메시지를 분배받아 처리**하도록 설계됩니다.  
 RabbitMQ는 기본적으로 **한 메시지는 하나의 Worker에게만 전달**되며, Worker가 ACK(처리완료) 전까지는 삭제되지 않습니다.  
-즉, Worker가 메시지를 받아 처리 중이라도 ACK을 보내지 않으면 **다른 Worker로 동일 메시지를 재전달**합니다.  [oai_citation:0‡DevOps Knowledge Hub](https://devops.aibit.im/article/rabbitmq-message-patterns-explained?utm_source=chatgpt.com)
+즉, Worker가 메시지를 받아 처리 중이라도 ACK을 보내지 않으면 **다른 Worker로 동일 메시지를 재전달**합니다. ([출처: DevOps Knowledge Hub](https://devops.aibit.im/article/rabbitmq-message-patterns-explained))
 
 ---
 
@@ -31,7 +36,7 @@ Worker가 **메시지를 수신하고 작업을 시작했지만, 처리 완료 �
 
 1. RabbitMQ는 ACK을 받지 못했기 때문에 해당 메시지를 “미처리 상태”로 봅니다.
 2. RabbitMQ는 다른 살아 있는 Worker로 **메시지를 재전달**합니다.
-   → 이 과정은 중복 처리 가능성을 만들 수 있습니다.  [oai_citation:1‡DevOps Knowledge Hub](https://devops.aibit.im/article/rabbitmq-message-patterns-explained?utm_source=chatgpt.com)
+   → 이 과정은 중복 처리 가능성을 만들 수 있습니다. ([출처: DevOps Knowledge Hub](https://devops.aibit.im/article/rabbitmq-message-patterns-explained))
 
 > 요약하자면, 메시지를 받아서 처리 중인 Worker가 중단되면 RabbitMQ는 해당 메시지를 다시 큐에 남겨두고,  
 > 다른 Worker에 전달할 여지를 남깁니다. 이때 나머지 Worker는 **중복 처리 여부를 판단할 필요가 있습니다.**
@@ -82,7 +87,7 @@ RabbitMQ에는 **Dead-Letter Queue(DLQ)**를 설정하여 처리 실패 메시�
 - 재시도 로직을 수립하여 일시적 오류에 대해서는 자동 재시도
 - 장기 실패 메시지에 대해서 알람 및 수동 처리 도구 마련
 
-즉, Worker 처리 중 오류나 중단이 잦은 경우 DLQ와 재시도 정책은 복구 플로우의 핵심 요소가 됩니다.  [oai_citation:2‡Transdigital](https://www.transdigitaltech.com/post/handling-errors-and-dead-letter-queues-in-rabbitmq?utm_source=chatgpt.com)
+즉, Worker 처리 중 오류나 중단이 잦은 경우 DLQ와 재시도 정책은 복구 플로우의 핵심 요소가 됩니다. ([출처: Transdigital](https://www.transdigitaltech.com/post/handling-errors-and-dead-letter-queues-in-rabbitmq))
 
 ---
 

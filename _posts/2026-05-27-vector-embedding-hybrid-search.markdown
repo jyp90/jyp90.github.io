@@ -4,14 +4,13 @@ title: "고전 문헌 RAG 서비스를 만들며 배운 것 (2) 벡터 임베딩
 date: 2026-05-27 09:00:00 +0900
 categories: blog
 tags: [RAG, Elasticsearch, 임베딩, 벡터검색, Python, 배치]
-excerpt: "한문 고전 문헌 질의응답 서비스의 검색 계층을 만들면서 정한 임베딩 서버 교체 구조, 무엇을 임베딩할지, Elasticsearch dense_vector 설정, BM25와 kNN을 합치는 방법, 질의 구조화와 임베딩 상태 운영, 그리고 의미 기반 캐시를 끄게 된 이유를 정리합니다."
+excerpt: "고전 문헌 RAG의 검색 계층에서 무엇을 임베딩할지, Elasticsearch dense_vector 설정, BM25와 kNN을 합치는 방법, 의미 기반 캐시를 끈 이유를 정리합니다."
+series: "고전 문헌 RAG 서비스를 만들며 배운 것"
+summary:
+  - "고전 문헌 RAG의 검색 계층을 BM25와 kNN을 한 요청으로 합친 하이브리드 검색으로 만들었습니다."
+  - "임베딩 텍스트는 본문을 마지막에 둔 구조로 만들고, 질문에도 같은 「본문:」 접두어를 붙였습니다."
+  - "의미 기반 캐시는 비슷한 질문에 다른 답을 줘야 하는 위험이 있어 운영에서는 켜지 않았습니다."
 ---
-
-> **시리즈: 고전 문헌 RAG 서비스를 만들며 배운 것**
->
-> 1. [(1) LLM API 호출의 함정과 대응](/blog/2026/05/20/llm-api-backend-lessons.html)
-> 2. **(2) 벡터 임베딩과 하이브리드 검색**
-> 3. [(3) 한문 원문 채팅과 Prefect 배치 연동](/blog/2026/06/03/classical-chinese-rag-chat-prefect.html)
 
 ## 무엇을 다루나
 

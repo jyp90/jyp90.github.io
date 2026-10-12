@@ -5,14 +5,12 @@ date: 2026-08-25 09:00:00 +0900
 categories: blog
 tags: [ClaudeCode, 자동화, Jira, Slack, 보안, Hooks]
 excerpt: "무인 에이전트가 사람에게 결과를 알리는 경로(트래커 코멘트, Slack, 멘션, 배포 알림, 요약 보고)와 그 경로가 사고를 내지 않게 막는 안전장치, 그리고 게이트가 요청을 승인으로 오판한 사례를 정리합니다."
+series: "Mac mini에 이슈 자동 처리 에이전트 상주시키기"
+summary:
+  - "무인 에이전트의 알림 경로를 정리하고, 지켜야 할 규칙은 프롬프트 밖 장치로 옮겼습니다."
+  - "Jira 쓰기는 MCP 쓰기 도구를 막고 URL을 고정한 래퍼 스크립트 한 경로로 모았습니다."
+  - "게이트에서 사람에게 하는 요청을 승인으로 오판한 뒤, 행위 주체가 에이전트가 아니면 전이하지 않게 했습니다."
 ---
-
-> **연재: Mac mini에 이슈 자동 처리 에이전트 상주시키기**
->
-> 1. [(1) 구성과 상주 프로세스](/blog/2026/08/14/mac-mini-issue-agent-setup.html)
-> 2. [(2) 이슈 감지와 헤드리스 Claude 실행](/blog/2026/08/19/mac-mini-issue-agent-headless-claude.html)
-> 3. **(3) 통지와 안전장치**
-> 4. [(4) 운영하며 배운 것: 비용과 조용한 실패](/blog/2026/09/10/mac-mini-issue-agent-operations.html)
 
 ## 문제와 배경
 

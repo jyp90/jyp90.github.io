@@ -5,13 +5,12 @@ date: 2026-08-30 09:00:00 +0900
 categories: blog
 tags: [Git, SVN, 마이그레이션, 개발도구]
 excerpt: "SVN 저장소를 전체 이력째 git으로 옮기고, 외부에서 통째로 받은 코드를 공통 조상 기준 3-way merge로 합치는 절차를 정리합니다."
+series: "여러 git 저장소를 안전하게 다루기"
+summary:
+  - "SVN 저장소를 git으로 옮기면서 외부 팀 결과물과 내부 변경을 합쳐야 했습니다."
+  - "공통 조상 커밋이 있어야 3-way merge가 진짜 충돌만 남긴다는 원리에 따라 전체 이력 이관을 선택했습니다."
+  - "git svn으로 전체 이력을 옮기고 baseline 위에 외부 결과물을 올려 merge로 통합했습니다."
 ---
-
-> **시리즈: 여러 git 저장소를 안전하게 다루기**
->
-> 1. **(1) SVN을 전체 이력째 git으로 옮기기**
-> 2. [(2) worktree에 --git-dir을 넘기면 엉뚱한 브랜치에 커밋되는 이유](/blog/2026/09/08/git-worktree-git-dir-wrong-branch.html)
-> 3. [(3) 수십 개 저장소를 git grep 패턴 파일로 한 번에 훑기](/blog/2026/09/19/multi-repo-git-grep-pattern-file.html)
 
 ## 문제와 배경
 

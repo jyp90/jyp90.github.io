@@ -3,6 +3,7 @@ layout: post
 title:  "Jekyll github blog setting"
 date:   2023-10-01 18:20:15 +0900
 categories: blog
+published: false
 ---
 
 오늘은 Jekyll Blog를 설정하면서 참고한 사이트를 모아봤습니다.
