@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # De-identification gate for blog drafts.
-# Usage: scan.sh <file>...   Exit 0 clean, 1 findings, 2 terms file missing/empty.
+# Usage: scan.sh <file>...   Exit 0 clean, 1 findings, 2 terms file missing/empty or a file unreadable.
 # Terms: ~/.config/tech-blog/forbidden-terms.txt (one per line, # comments). Matched terms are never printed.
 set -u
 terms_file="${TECH_BLOG_TERMS:-$HOME/.config/tech-blog/forbidden-terms.txt}"
@@ -19,6 +19,7 @@ lines_matching() { # rule ERE file
 }
 
 for f in "$@"; do
+  [ -r "$f" ] || { echo "cannot read: $f" >&2; exit 2; }
   n=0
   while IFS= read -r t; do
     n=$((n+1))
@@ -27,7 +28,7 @@ for f in "$@"; do
   done <<< "$terms"
 
   hits=$(grep -noE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' "$f" \
-    | grep -vE ":(git@|${own_email//./\\.}$|[^:]*@example\.(com|org)$)" \
+    | grep -vE ":(git@github\.com$|${own_email//./\\.}$|[^:]*@example\.(com|org)$)" \
     | cut -d: -f1 | sort -un | while read -r l; do echo "$f:$l: email"; done)
   [ -n "$hits" ] && add "$hits"
 
