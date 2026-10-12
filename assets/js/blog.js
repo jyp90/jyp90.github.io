@@ -28,6 +28,7 @@
     chevronLeft: '<path d="M15 18l-6-6 6-6"/>',
     chevronRight: '<path d="M9 18l6-6-6-6"/>',
     chevronDown: '<path d="M6 9l6 6 6-6"/>',
+    list: '<path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
     tag: '<path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><path d="M7.5 7.5h.01"/>',
     x: '<path d="M18 6L6 18M6 6l12 12"/>',
     copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
@@ -102,7 +103,7 @@
       var summary = el('summary', 'tag-break-title');
       summary.innerHTML = icon('tag', 16) + '<span>태그로 둘러보기</span>';
       summary.appendChild(el('span', 'tag-count', String(chunk.length)));
-      summary.insertAdjacentHTML('beforeend', '<span class="tag-break-chevron">' + icon('chevronDown', 16) + '</span>');
+      summary.insertAdjacentHTML('beforeend', '<span class="fold-chevron">' + icon('chevronDown', 16) + '</span>');
       details.appendChild(summary);
       var box = el('div', 'tag-break-chips');
       if (first && state.tag) box.appendChild(chip('', '전체'));
@@ -231,7 +232,7 @@
     var details = document.createElement('details');
     details.className = 'toc-inline';
     var summary = document.createElement('summary');
-    summary.textContent = '목차';
+    summary.innerHTML = icon('list', 16) + '<span>목차</span><span class="fold-chevron">' + icon('chevronDown', 16) + '</span>';
     details.appendChild(summary);
     details.appendChild(list.cloneNode(true));
     content.insertBefore(details, content.firstChild);
