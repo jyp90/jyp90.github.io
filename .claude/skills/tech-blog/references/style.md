@@ -50,6 +50,10 @@ Claude Code learnings post:
 
 ## Tone
 - Korean, 합니다체. No filler intro (「오늘은 ~에 대해 알아보겠습니다」 금지); open with the problem.
+- State the situation as a fact, not as a story. No anecdotal time or scene phrases: 「어느 날 아침」, 「비슷한 시기에」, 「그날」, 「며칠째 ~라는 사실을 알게 됐습니다」. Write 「cron으로 도는 배치 하나가 실행 도중에 죽었습니다」, not 「어느 날 아침, 배치 하나가 죽었습니다」. (User correction, 2026-10-12.)
+- Calm, explanatory register: problem → mechanism → how to check → remedies and their limits. No exclamation marks, no hype (「충격적인」, 「완벽하게」), no first-person drama; 「저는」 only when a judgement call needs an owner.
+- Counts from work become qualitative (「거의 매번」, 「상당수」), and a claim that rests on observation rather than documentation says so (「공식 문서의 계약이 아니라 직접 관찰한 결과입니다」).
+- Post dates: never earlier than the source's work date, and leave a few days between posts published in one batch instead of stacking them on one day.
 - Code blocks always carry a language tag (` ```java `, ` ```yaml `, ` ```bash `).
 - Code is written from scratch for the post: minimal, generic names (`OrderService`, `payment-events`), no copied lines from a private repo.
 - Numbers only when they are not business metrics (timeouts, retry counts, batch sizes are fine; revenue, user counts, traffic volumes are not).
