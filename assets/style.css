@@ -458,6 +458,10 @@ body > header {
     color: var(--bg-primary);
 }
 
+.tag-chip[aria-current="true"] .tag-count {
+    color: inherit;
+}
+
 /* Year groups */
 .year-group + .year-group {
     margin-top: 40px;
@@ -591,6 +595,7 @@ a.pager-link:hover {
 
 :root[data-home-view="grid"] .post-item {
     position: relative;
+    margin: 0; /* minima's .post-list > li margin would add to the grid gap */
     display: flex;
     flex-direction: column;
     padding: 20px;

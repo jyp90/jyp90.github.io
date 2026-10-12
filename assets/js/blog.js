@@ -42,7 +42,7 @@
   }
 
   var PAGE_SIZE = 20;
-  var BREAK_EVERY = 5;
+  var BREAK_EVERY = 6;
   var MAX_BREAKS = 3;
 
   function initHomeList() {
@@ -94,7 +94,7 @@
       return a;
     }
 
-    // Tag chips sit between posts (after every 5th) instead of in one bar above the list.
+    // Tag chips sit between posts (after every 6th, which fills 2- and 3-column grid rows) instead of in one bar above the list.
     function tagBreak(chunk, first) {
       var li = el('li', 'tag-break');
       li.appendChild(el('p', 'tag-break-title', '태그로 둘러보기'));
@@ -129,7 +129,7 @@
 
       home.querySelectorAll('.tag-break').forEach(function (b) { b.remove(); });
       var at = [];
-      for (var k = 1; k <= MAX_BREAKS && k * BREAK_EVERY < visible.length; k++) at.push(k * BREAK_EVERY);
+      for (var k = 1; k <= MAX_BREAKS && k * BREAK_EVERY <= visible.length; k++) at.push(k * BREAK_EVERY);
       if (!at.length && visible.length) at.push(visible.length);
       var size = Math.ceil(tags.length / (at.length || 1));
       at.forEach(function (pos, i) {
