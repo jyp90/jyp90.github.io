@@ -30,7 +30,6 @@ jobs:
           bundler-cache: true
 
       - name: Setup Pages
-        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v4
 
       - name: Build with Jekyll
@@ -39,7 +38,6 @@ jobs:
           JEKYLL_ENV: production
 
       - name: Upload artifact
-        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
 
   deploy:
