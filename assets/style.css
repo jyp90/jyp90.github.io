@@ -100,7 +100,9 @@ body {
 .post-content p,
 .home-title,
 .post-item-title,
-.post-excerpt {
+.post-excerpt,
+.post-content li,
+.nav-title {
     word-break: keep-all;
     overflow-wrap: anywhere;
 }
@@ -234,19 +236,6 @@ body > header {
     background-clip: text;
 }
 
-/* Header Icons */
-.search:before {
-    content: "\\1F50D";
-    font-size: 16px;
-    opacity: 0.8;
-    transition: opacity var(--transition-fast);
-}
-
-.header-items li a:hover .search:before,
-.header-items li a.search:hover:before {
-    opacity: 1;
-}
-
 /* Dropdown Menu */
 .has-dropdown {
     position: relative;
@@ -359,6 +348,10 @@ body > header {
     margin-bottom: 32px;
 }
 
+.tag-filter[hidden] {
+    display: none;
+}
+
 .tag-chip {
     background: transparent;
     border: 1px solid var(--border-primary);
@@ -373,12 +366,15 @@ body > header {
 .tag-chip:hover {
     border-color: var(--accent-primary);
     color: var(--text-primary);
+    box-shadow: none;
+    transform: none;
 }
 
+/* bg-primary text on the gradient: >=5:1 in both themes (white on the dark-theme accents is 2.5:1) */
 .tag-chip[aria-pressed="true"] {
     background: var(--gradient-primary);
     border-color: transparent;
-    color: var(--on-accent);
+    color: var(--bg-primary);
 }
 
 /* Year groups */
@@ -414,7 +410,9 @@ body > header {
     line-height: 1.4;
 }
 
-.post-link {
+/* `:visited` restated: minima's a:visited (0,1,1) beats a single class */
+.post-link,
+.post-link:visited {
     color: var(--text-primary);
     transition: color var(--transition-fast);
 }
@@ -437,7 +435,7 @@ body > header {
     gap: 6px;
     margin-top: 10px;
     font-size: 13px;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-variant-numeric: tabular-nums;
 }
 
@@ -910,7 +908,7 @@ p.head {
         overscroll-behavior-x: contain;
         scrollbar-width: none;
         margin: 0 -16px 32px;
-        padding: 0 16px;
+        padding: 4px 16px;
     }
 
     .tag-filter::-webkit-scrollbar {
@@ -1282,7 +1280,8 @@ p.head {
 }
 
 .post-content .code-bar + pre,
-.post-content .code-bar + .highlighter-rouge pre.highlight {
+.post-content .code-bar + .highlighter-rouge pre.highlight,
+.post-content .code-bar + figure.highlight pre {
     margin-top: 0;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
@@ -1321,6 +1320,20 @@ p.head {
 /* Rouge syntax highlighting (colours from the --hl-* tokens; overrides minima's light-only palette) */
 .post-content .highlight {
     background: var(--code-bg) !important;
+}
+
+/* {% highlight %} output: figure.highlight > pre; the pre carries the block styling */
+.post-content figure.highlight {
+    background: none !important;
+    margin: 24px 0;
+}
+
+.post-content figure.highlight pre {
+    margin: 0;
+}
+
+.post-content .code-bar + figure.highlight {
+    margin-top: 0;
 }
 
 .post-content .highlight .err {
@@ -1520,7 +1533,8 @@ p.head {
     line-height: 1.4;
 }
 
-.btn-back {
+.btn-back,
+.btn-back:visited {
     display: inline-block;
     padding: 12px 24px;
     background: var(--bg-secondary);

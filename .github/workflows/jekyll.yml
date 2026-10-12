@@ -12,8 +12,9 @@ permissions:
   pages: write
   id-token: write
 
+# PR builds get their own group so they never queue behind or cancel a master deploy
 concurrency:
-  group: "pages"
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.ref) || 'pages' }}
   cancel-in-progress: false
 
 jobs:
