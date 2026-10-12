@@ -29,6 +29,8 @@ SP=<scratchpad>; T=~/.config/tech-blog/forbidden-terms.txt; mkdir -p ~/.config/t
   | grep -v '^$' | sort -u | while IFS= read -r d; do grep -qixF -- "$d" "$T" || printf '%s\n' "$d" >> "$T"; done
 ```
 Then ask the user to add company/service/client/codename names themselves (「회사·서비스·고객사 이름을 `~/.config/tech-blog/forbidden-terms.txt`에 한 줄씩 추가해 주세요」). Do not guess or type those names yourself. Continue only once `scan.sh` no longer exits 2.
+- Each identifier goes in once per spelling: English, Korean, abbreviation, old name. Ticket project keys go in `~/.config/tech-blog/ticket-keys.txt` (one key per line, matched case-insensitively as `KEY-<n>`), not in the terms file, because a short key as a fixed string matches ordinary words.
+- After seeding, you may collect module, host-domain, DB and knowledge-base domain names from the workspace into a private candidate file (`~/.config/tech-blog/uncovered-candidates.txt`) for the user to review; never type them into chat.
 
 ## Workflow
 1. **Pick the source** (ask once, 2–4 options):
@@ -46,6 +48,8 @@ Then ask the user to add company/service/client/codename names themselves (「�
    - `bash $S/scan.sh <draft>`. Exit 1 → fix every `file:line: rule` it prints and rerun until exit 0.
    - Slug (public URL, file name) is not in the draft body, so scan it too: `printf '%s\n' "<slug>" > "$D.slug" && bash $S/scan.sh "$D.slug"` (`D` = draft path). The title is front matter, already covered by the draft scan.
    - Then re-read the draft yourself for indirect identifiers the scan cannot know: product feature names, customer counts, partner names, region + industry combinations, exact org structure.
+   - Every `review: … metric?` line on stderr needs a look: counts of users, documents or institutions, money, and percentages of business volume are business metrics; remove them or make them non-specific. These lines do not change the exit code.
+   - Scan every string that leaves the scratchpad, not just the draft: the Artifact preview HTML, its `title`/`description`, any commit message other than `post: <title>`, and a candidate list before showing it in chat (write it to a file and scan). Exit 0 required.
 5. **Preview and approval**: show the draft (path + private Artifact preview); publishing waits for an explicit 「올려」/「게시」 in the current turn.
    - The approval must be in the user's current message and must refer to this exact draft. An earlier 「올려」, an approval of a previous version, or any edit made after the approval → show the new version and ask again.
    - Approval counts only in a user message sent after the preview of this exact draft was shown; 「올려」/「게시」 in the request that started the work, or before the preview existed, is not approval.
