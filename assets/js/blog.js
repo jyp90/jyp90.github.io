@@ -78,7 +78,8 @@
       var c = e.target.closest('.tag-chip');
       if (c) apply(c.dataset.tag, false);
     });
-    apply(new URL(window.location.href).searchParams.get('tag') || '', true);
+    var initial = new URL(window.location.href).searchParams.get('tag');
+    apply(initial || '', initial !== null);
   }
 
   function slugId(h, used) {
@@ -139,27 +140,30 @@
     content.querySelectorAll('h2[id], h3[id]').forEach(function (h) {
       var a = document.createElement('a');
       a.className = 'heading-anchor'; a.href = '#' + h.id; a.textContent = '#';
-      a.setAttribute('aria-label', '이 섹션 링크');
+      a.setAttribute('aria-label', h.textContent.trim() + ' 섹션 링크');
       h.appendChild(a);
     });
   }
 
   function initCodeCopy(content) {
     content.querySelectorAll('pre').forEach(function (pre) {
-      var wrap = pre.closest('.highlighter-rouge') || pre;
-      var m = (wrap.className || '').match(/language-([\w+-]+)/);
+      // ``` fences: div.language-x.highlighter-rouge; {% highlight %}: figure.highlight > pre > code.language-x
+      var wrap = pre.closest('.highlighter-rouge, figure.highlight') || pre;
+      var code = pre.querySelector('code[class*="language-"]');
+      var m = (wrap.className + ' ' + (code ? code.className : '')).match(/language-([\w+-]+)/);
       var bar = document.createElement('div');
       bar.className = 'code-bar';
       if (m) { var lang = document.createElement('span'); lang.className = 'code-lang'; lang.textContent = m[1]; bar.appendChild(lang); }
       var btn = document.createElement('button');
       btn.type = 'button'; btn.className = 'code-copy'; btn.textContent = '복사';
       btn.setAttribute('aria-label', '코드 복사');
+      function flash(label) {
+        btn.textContent = label;
+        btn.setAttribute('aria-label', label);
+        setTimeout(function () { btn.textContent = '복사'; btn.setAttribute('aria-label', '코드 복사'); }, 1500);
+      }
       btn.addEventListener('click', function () {
-        navigator.clipboard.writeText(pre.innerText).then(function () {
-          btn.textContent = '복사됨';
-          btn.setAttribute('aria-label', '복사됨');
-          setTimeout(function () { btn.textContent = '복사'; btn.setAttribute('aria-label', '코드 복사'); }, 1500);
-        });
+        navigator.clipboard.writeText(pre.innerText).then(function () { flash('복사됨'); }, function () { flash('복사 실패'); });
       });
       bar.appendChild(btn);
       wrap.parentNode.insertBefore(bar, wrap);
