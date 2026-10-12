@@ -14,7 +14,7 @@ excerpt: "메시지가 두 번 와도 결과가 한 번만 반영되도록 멱�
 ---
 ```
 - `categories: blog` always: it makes the URL `/blog/YYYY/MM/DD/<slug>.html`.
-- `date` matches the file name date; time `09:00:00 +0900` unless the user says otherwise.
+- `date` matches the file name date; time `09:00:00 +0900` unless the user says otherwise, and never earlier than 09:00 KST (earlier is the previous UTC day, so the URL date no longer matches the file name and the publish curl check fails).
 - `tags`: 3–7, prefer existing names (exact spelling and case). List them at run time:
   ```bash
   grep -h '^tags:' ~/Projects/jyp90.github.io/_posts/*.markdown | sed 's/^tags: *\[//; s/\] *$//' \
