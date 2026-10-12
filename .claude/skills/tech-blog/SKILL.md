@@ -1,6 +1,6 @@
 ---
 name: tech-blog
-description: Use when the user wants to write or publish a post on their tech blog (jyp90.github.io) from their own work — git history/branches of any repo, or what they learned using Claude Code (skills, hooks, CLAUDE.md rules, memories). Triggers - /tech-blog, 블로그 글, 블로그에 올려, 기술 블로그, 포스팅, TIL 써줘, 작업한 거 글로 정리.
+description: Use when the user wants to write or publish a post on their tech blog (jyp90.github.io) from their own work — git history/branches of any repo, or what they learned using Claude Code (skills, hooks, CLAUDE.md rules, memories), or notes in their private knowledge base. Triggers - /tech-blog, 블로그 글, 블로그에 올려, 기술 블로그, 포스팅, TIL 써줘, 작업한 거 글로 정리.
 ---
 
 # tech-blog
@@ -34,6 +34,7 @@ Then ask the user to add company/service/client/codename names themselves (「�
 1. **Pick the source** (ask once, 2–4 options):
    - Git: a repo + branch / commit range / date range. Default discovery: `.git` dirs under `~/Projects`, `~/IdeaProjects` (depth 3) plus `repos.txt`; author filter = every `user.email` found in those repos' configs (read, never printed into the draft).
    - Claude Code learnings: a date range over `~/.claude/projects/*/memory/*.md` (feedback/project memories), `~/.claude/skills/*/SKILL.md` and project `.claude/skills/*/SKILL.md`, `CLAUDE.md` 「Pitfalls」 sections, and session transcripts `~/.claude/projects/*/*.jsonl` (read-only; user prompts + final assistant summaries only).
+   - Knowledge base notes: open candidates from the backlog note, or notes matching a topic, in the vault set in `~/.config/tech-blog/kb.txt` (`sources.md` 「Knowledge base notes」). Missing file → ask the user for the vault path once and write it there.
    - A topic the user names.
 2. **Collect evidence** read-only (delegate the sweep to an Explore/general-purpose subagent when it spans several repos). Output: 2–4 candidate posts, each with angle, audience, and the evidence (commit hashes / file paths) kept in the scratchpad, not in the draft.
    - Commands: `sources.md`. Evidence files go in the session scratchpad directory (from the system prompt; none listed → `mktemp -d`), never inside a repo.
@@ -97,4 +98,5 @@ The URL path comes from `categories: blog` + the file date + slug (Jekyll defaul
 | "This code is short, copy it as is" | Rewrite examples from scratch with generic names. |
 | "Draft in the blog repo is easier" | Draft lives in the scratchpad until approved. |
 | "Commit with whatever email is configured" | Only `jyp90@kakao.com`; any other value → stop. |
+| "This note sentence is already generic, keep it" | Work notes are written for insiders. Rewrite every sentence; never cite a note or folder name. |
 | "A ticket key gives useful context" | Ticket keys are banned; write `<KEY>-<n>` only in docs, nothing in posts. |
