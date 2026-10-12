@@ -256,7 +256,7 @@ header {
     animation: menu-in 150ms var(--ease-out);
 }
 
-/* Bridges the margin gap so hover does not drop between trigger and menu */
+/* Bridges the margin gap so mouseleave does not fire between trigger and menu */
 .dropdown-menu::before {
     content: '';
     position: absolute;
@@ -268,12 +268,6 @@ header {
 
 .dropdown-menu[hidden] {
     display: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-    .has-dropdown:hover .dropdown-menu {
-        display: block;
-    }
 }
 
 @keyframes menu-in {
@@ -446,6 +440,7 @@ header {
     width: 48px;
     height: 48px;
     background: var(--gradient-primary);
+    color: var(--on-accent);
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;

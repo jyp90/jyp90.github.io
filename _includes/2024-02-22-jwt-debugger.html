@@ -1,13 +1,13 @@
 <div class="tool-card">
     <div class="tool-card-header">
         <div class="tool-card-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
             </svg>
         </div>
         <div>
             <h2 class="tool-card-title">JWT Debugger</h2>
-            <p style="color: #8b949e; font-size: 14px; margin-top: 4px;">Decode and inspect JSON Web Tokens</p>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">Decode and inspect JSON Web Tokens</p>
         </div>
     </div>
 
@@ -29,17 +29,17 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4
             <p class="head">Decoded Output</p>
 
             <div style="margin-bottom: 16px;">
-                <label style="display: block; color: #8b949e; font-size: 13px; margin-bottom: 8px; font-weight: 500;">
+                <label style="display: block; color: var(--text-secondary); font-size: 13px; margin-bottom: 8px; font-weight: 500;">
                     HEADER
-                    <span style="background: #238636; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">ALGORITHM & TOKEN TYPE</span>
+                    <span style="background: var(--accent-success); color: var(--on-accent); font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">ALGORITHM & TOKEN TYPE</span>
                 </label>
                 <textarea name="header" id="header" class="pretty" rows="6" readonly placeholder="Header will appear here..."></textarea>
             </div>
 
             <div>
-                <label style="display: block; color: #8b949e; font-size: 13px; margin-bottom: 8px; font-weight: 500;">
+                <label style="display: block; color: var(--text-secondary); font-size: 13px; margin-bottom: 8px; font-weight: 500;">
                     PAYLOAD
-                    <span style="background: #a371f7; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">DATA</span>
+                    <span style="background: var(--accent-secondary); color: var(--on-accent); font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">DATA</span>
                 </label>
                 <textarea name="payload" id="payload" class="pretty" rows="8" readonly placeholder="Payload will appear here..."></textarea>
             </div>
