@@ -81,9 +81,106 @@
     apply(new URL(window.location.href).searchParams.get('tag') || '', true);
   }
 
+  function slugId(h, used) {
+    if (h.id) return h.id;
+    var base = h.textContent.trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '') || 'section';
+    var id = base, n = 2;
+    while (used[id] || document.getElementById(id)) id = base + '-' + n++;
+    h.id = id;
+    return id;
+  }
+
+  function initToc(content) {
+    var heads = content.querySelectorAll('h2, h3');
+    var toc = document.querySelector('.post-toc');
+    if (!toc || heads.length < 3) return;
+    var used = {};
+    var list = document.createElement('ol');
+    var links = {};
+    heads.forEach(function (h) {
+      var id = slugId(h, used); used[id] = true;
+      var a = document.createElement('a');
+      a.href = '#' + id; a.textContent = h.textContent;
+      var li = document.createElement('li');
+      li.className = 'toc-' + h.tagName.toLowerCase();
+      li.appendChild(a); list.appendChild(li);
+      links[id] = a;
+    });
+    var details = document.createElement('details');
+    details.className = 'toc-inline';
+    var summary = document.createElement('summary');
+    summary.textContent = '목차';
+    details.appendChild(summary);
+    details.appendChild(list.cloneNode(true));
+    content.insertBefore(details, content.firstChild);
+    toc.appendChild(list);
+    toc.hidden = false;
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        Object.keys(links).forEach(function (k) { links[k].removeAttribute('aria-current'); });
+        links[e.target.id].setAttribute('aria-current', 'true');
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+    heads.forEach(function (h) { obs.observe(h); });
+  }
+
+  function initAnchors(content) {
+    content.querySelectorAll('h2[id], h3[id]').forEach(function (h) {
+      var a = document.createElement('a');
+      a.className = 'heading-anchor'; a.href = '#' + h.id; a.textContent = '#';
+      a.setAttribute('aria-label', '이 섹션 링크');
+      h.appendChild(a);
+    });
+  }
+
+  function initCodeCopy(content) {
+    content.querySelectorAll('pre').forEach(function (pre) {
+      var wrap = pre.closest('.highlighter-rouge') || pre;
+      var m = (wrap.className || '').match(/language-([\w+-]+)/);
+      var bar = document.createElement('div');
+      bar.className = 'code-bar';
+      if (m) { var lang = document.createElement('span'); lang.className = 'code-lang'; lang.textContent = m[1]; bar.appendChild(lang); }
+      var btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'code-copy'; btn.textContent = '복사';
+      btn.setAttribute('aria-label', '코드 복사');
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.textContent = '복사됨';
+          setTimeout(function () { btn.textContent = '복사'; }, 1500);
+        });
+      });
+      bar.appendChild(btn);
+      wrap.parentNode.insertBefore(bar, wrap);
+    });
+  }
+
+  function initScrollUi() {
+    var bar = document.querySelector('.reading-progress');
+    var top = document.querySelector('.back-to-top');
+    function onScroll() {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      if (bar) bar.style.transform = 'scaleX(' + (max > 0 ? window.scrollY / max : 0) + ')';
+      if (top) top.hidden = window.scrollY < window.innerHeight;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    if (top) top.addEventListener('click', function () { window.scrollTo({ top: 0 }); });
+    onScroll();
+  }
+
+  function initPost() {
+    var content = document.querySelector('.post-content');
+    if (!content) return;
+    initToc(content);
+    initAnchors(content);
+    initCodeCopy(content);
+    initScrollUi();
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     initTheme();
     initDropdown();
     initTagFilter();
+    initPost();
   });
 })();
