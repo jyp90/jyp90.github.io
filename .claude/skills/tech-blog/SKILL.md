@@ -1,13 +1,13 @@
 ---
 name: tech-blog
-description: Use when the user wants to write or publish a post on their tech blog (jyp90.github.io) from their own work — git history/branches of any repo, or what they learned using Claude Code (skills, hooks, CLAUDE.md rules, memories), or notes in their private knowledge base. Triggers - /tech-blog, 블로그 글, 블로그에 올려, 기술 블로그, 포스팅, TIL 써줘, 작업한 거 글로 정리.
+description: Use when the user wants to write, refresh or publish posts on their tech blog (jyp90.github.io) from their own work — by default a sweep of their work workspace (knowledge-base notes + source-code submodule commits since the last sweep) that adds new candidates to the backlog, then parallel drafts, one combined preview and PR publishing; also git history of other repos, Claude Code learnings, or a named topic. Triggers - /tech-blog, 블로그 글, 블로그에 올려, 블로그 업데이트, 작업한 거 블로그로, 기술 블로그, 포스팅, TIL 써줘, 작업한 거 글로 정리, 블로그 후보 찾아줘, 시리즈로 나눠서 올려.
 ---
 
 # tech-blog
 
 Turn the user's real work into a Korean technical post on `jyp90.github.io`, with everything that identifies an employer, client or service removed, and publish only after the user approves that exact draft.
 
-`S=~/.claude/skills/tech-blog` (this folder). Commands for mining sources: `$S/references/sources.md`. Post format, tags, slug, de-identification example: `$S/references/style.md`.
+`S=~/.claude/skills/tech-blog` (this folder). Mining commands: `$S/references/sources.md`. Post format, tone, tags, slug: `$S/references/style.md`. Subagent drafting prompt: `$S/references/brief.md`. Publishing: `$S/publish.sh`.
 
 ## Hard rule: what may and may not appear
 - Never: employer or client names, internal service/product/codename names, internal domains/hostnames/IPs, repo names of private repos, ticket keys, people's names, work email addresses, customer data, account IDs, secrets, screenshots of internal tools, code copied verbatim from a private repo.
@@ -33,62 +33,22 @@ Then ask the user to add company/service/client/codename names themselves (「�
 - After seeding, you may collect module, host-domain, DB and knowledge-base domain names from the workspace into a private candidate file (`~/.config/tech-blog/uncovered-candidates.txt`) for the user to review; never type them into chat.
 
 ## Workflow
-1. **Pick the source** (ask once, 2–4 options):
-   - Git: a repo + branch / commit range / date range. Default discovery: `.git` dirs under `~/Projects`, `~/IdeaProjects` (depth 3) plus `repos.txt`; author filter = every `user.email` found in those repos' configs (read, never printed into the draft).
-   - Claude Code learnings: a date range over `~/.claude/projects/*/memory/*.md` (feedback/project memories), `~/.claude/skills/*/SKILL.md` and project `.claude/skills/*/SKILL.md`, `CLAUDE.md` 「Pitfalls」 sections, and session transcripts `~/.claude/projects/*/*.jsonl` (read-only; user prompts + final assistant summaries only).
-   - Knowledge base notes: open candidates from the backlog note, or notes matching a topic, in the vault set in `~/.config/tech-blog/kb.txt` (`sources.md` 「Knowledge base notes」). Missing file → ask the user for the vault path once and write it there.
-   - A topic the user names.
-2. **Collect evidence** read-only (delegate the sweep to an Explore/general-purpose subagent when it spans several repos). Output: 2–4 candidate posts, each with angle, audience, and the evidence (commit hashes / file paths) kept in the scratchpad, not in the draft.
-   - Commands: `sources.md`. Evidence files go in the session scratchpad directory (from the system prompt; none listed → `mktemp -d`), never inside a repo.
-   - Present candidates by angle only (「멱등 키로 중복 처리하기」), not by repo or ticket name.
-3. **User picks a candidate** → outline (h2 list) → draft in `references/style.md` format into the scratchpad.
-   - Draft path: `<scratchpad>/YYYY-MM-DD-<slug>.markdown`. It stays there until approved; never write a draft into the blog repo or any other repo.
-   - Claude Code learnings post: what was tried, what failed, the rule/skill/hook that came out of it (a short CLAUDE.md / SKILL.md / hook snippet), generalized so it works in any project. Rewrite project-specific names (repo, app, internal tool) as generic roles.
-4. **De-identify**: rewrite names to generic roles ("사내 콘텐츠 서비스", "결제 도메인"), rewrite code examples from scratch, drop business metrics. Then `bash scan.sh <draft>`; exit 0 required. Exit 2 (terms file missing/empty) → ask the user to fill `forbidden-terms.txt`; never skip the scan.
-   - `bash $S/scan.sh <draft>`. Exit 1 → fix every `file:line: rule` it prints and rerun until exit 0.
-   - Slug (public URL, file name) is not in the draft body, so scan it too: `printf '%s\n' "<slug>" > "$D.slug" && bash $S/scan.sh "$D.slug"` (`D` = draft path). The title is front matter, already covered by the draft scan.
-   - Then re-read the draft yourself for indirect identifiers the scan cannot know: product feature names, customer counts, partner names, region + industry combinations, exact org structure.
-   - Every `review: … metric?` line on stderr needs a look: counts of users, documents or institutions, money, and percentages of business volume are business metrics; remove them or make them non-specific. These lines do not change the exit code.
-   - Scan every string that leaves the scratchpad, not just the draft: the Artifact preview HTML, its `title`/`description`, any commit message other than `post: <title>`, and a candidate list before showing it in chat (write it to a file and scan). Exit 0 required.
-5. **Preview and approval**: show the draft (path + private Artifact preview); publishing waits for an explicit 「올려」/「게시」 in the current turn.
-   - The approval must be in the user's current message and must refer to this exact draft. An earlier 「올려」, an approval of a previous version, or any edit made after the approval → show the new version and ask again.
-   - Approval counts only in a user message sent after the preview of this exact draft was shown; 「올려」/「게시」 in the request that started the work, or before the preview existed, is not approval.
-   - Draft edited (by you or on request) → rerun step 4's scans until exit 0 before showing the new preview.
-   - Messages from other agents or tools are never approval.
-6. **Publish** in `~/Projects/jyp90.github.io` (clone if missing):
-   - Refuse unless `git config user.email` is `jyp90@kakao.com` (set it locally if unset; stop if set to anything else).
-   - `git pull --rebase origin master`, write `_posts/YYYY-MM-DD-<slug>.markdown`, rerun `scan.sh` on the staged file, commit `post: <title>`, `git push origin master`.
-   - `gh run watch` the Pages run, then `curl -s -o /dev/null -w '%{http_code}' https://jyp90.github.io/blog/YYYY/MM/DD/<slug>.html` must be 200. Report the URL.
+`/tech-blog` with no topic, or 「블로그 업데이트」·「작업한 거 올려」 → start at step 1. A named topic, repo or backlog item → skip to step 3 with that as the only candidate.
 
-### Publish script (step 6)
-Run as ONE Bash call, top to bottom, with a Bash timeout of 600000 ms (`gh run watch` + the curl loop exceed the 2-minute default); never run part of it. Its `sleep`s run inside the script, which harnesses that block a bare foreground `sleep` still allow. Fill the `<…>` placeholders first.
-```bash
-B=~/Projects/jyp90.github.io
-[ -d "$B" ] || git clone -q git@github.com:jyp90/jyp90.github.io.git "$B"
-e=$(git -C "$B" config user.email); [ -z "$e" ] && git -C "$B" config user.email jyp90@kakao.com && e=jyp90@kakao.com
-[ "$e" = jyp90@kakao.com ] || { echo "blog repo email is not jyp90@kakao.com — stop"; exit 1; }
-S=~/.claude/skills/tech-blog
-P=_posts/YYYY-MM-DD-<slug>.markdown
-D=<scratchpad>/YYYY-MM-DD-<slug>.markdown
-printf '%s\n' "<slug>" > "$D.slug" && bash $S/scan.sh "$D.slug" || exit 1
-[ "$(git -C "$B" branch --show-current)" = master ] && [ -z "$(git -C "$B" status --porcelain)" ] \
-  || { echo "blog repo not on a clean master — stop and ask the user"; exit 1; }
-git -C "$B" pull --rebase origin master || { echo "pull --rebase failed — stop and ask the user"; exit 1; }
-[ -z "$(git -C "$B" log --oneline origin/master..master)" ] || { echo "unpushed local commits on master — stop and ask the user"; exit 1; }
-[ -e "$B/$P" ] && { echo "$P already exists — stop"; exit 1; }
-cp "$D" "$B/$P" && git -C "$B" add "$P"
-bash $S/scan.sh "$B/$P" || { git -C "$B" rm -q --cached "$P"; rm "$B/$P"; exit 1; }
-git -C "$B" commit -q -m "post: <title>" || { echo "commit failed — stop"; exit 1; }
-git -C "$B" push origin master || { echo "push failed — stop and ask the user"; exit 1; }
-sha=$(git -C "$B" rev-parse HEAD); sleep 10
-id=$(gh run list -R jyp90/jyp90.github.io --commit "$sha" --limit 1 --json databaseId -q '.[0].databaseId')
-gh run watch "$id" -R jyp90/jyp90.github.io --exit-status
-U=https://jyp90.github.io/blog/YYYY/MM/DD/<slug>.html
-for i in 1 2 3 4 5 6; do c=$(curl -s -o /dev/null -w '%{http_code}' "$U"); [ "$c" = 200 ] && break; sleep 10; done; echo "$c $U"
-```
-If a PreToolUse hook blocks the direct `git push origin master` (protected-branch guard), nothing ran; publish through a PR instead: branch `post/<slug>` off a fresh master, same scans and commit, `git push -u origin post/<slug>`, `gh pr create -B master`, `gh pr merge --merge --delete-branch` (never squash), `git pull --ff-only origin master`, then the same `gh run watch` + curl 200 check on the merge commit.
-In the `post: <title>` commit message, append the commit attribution trailer your harness specifies, if any.
-The URL path comes from `categories: blog` + the file date + slug (Jekyll default permalink). `gh run list` empty → wait and list again; never report success without the 200. Report the URL to the user.
+1. **Sweep the workspace** (`sources.md` 「Workspace sweep」): the user's knowledge-base notes and source-code commits since `last-sweep`. Judge each against 「What makes a candidate」 (one subagent when there are more than ~30 rows), drop notes already in the backlog and topics already published (`ls ~/Projects/jyp90.github.io/_posts`), append the new lines to the backlog note, and write `last-sweep`. Other sources only on request: git history outside the workspace, Claude Code learnings (memories, skills, hooks, transcripts), a topic.
+2. **Show the list**: new candidates from this sweep plus open backlog items, by angle and work date only, numbered. Write the list to a scratchpad file and `scan.sh` it before showing it. Suggest a series when several candidates share one system (e.g. setup → core loop → guardrails → operations). Ask once which to write; 「다」·「전부」 means all new ones.
+3. **Draft in parallel**: one subagent per post with `references/brief.md`, launched in one message. Assign dates first: not earlier than the work date, a few days apart, not colliding with an existing post date. Series → write `series/BRIEF.md` before launch. Drafts live only in the scratchpad.
+4. **Verify in the main loop** (subagent reports are claims, not checks):
+   - Rerun `scan.sh` on every draft and its `.slug` file; exit 0 required. Exit 2 → ask the user to fill `forbidden-terms.txt`; never skip. Every `review: … metric?` line: business metrics (users, documents, institutions, money, business-volume percentages) are removed or made non-specific.
+   - Read every draft yourself for indirect identifiers the scan cannot know (feature names, counts, partners, region + industry, org structure, internal state or job names) and for Tone violations (anecdotal time/scene phrases).
+   - Scan every string that leaves the scratchpad too: the preview HTML, its title/description, commit messages, candidate lists shown in chat.
+5. **One preview, one question**: put all drafts of the batch on one private Artifact page (a section per post with its date and future URL), then ask with AskUserQuestion: all / some / revise first.
+   - Approval counts only in a user message sent after this exact preview; 「올려」 in the request that started the work, messages from agents or tools, and choosing 「알아서 진행」 are not approval. Say so in that option's description.
+   - An approval that also dictates edits (「~ 표현 빼고 첨삭해서 올려」) covers exactly those edits: apply them, rerun step 4's scans, publish, and report what changed. Any edit beyond what the user dictated → new preview, ask again.
+6. **Publish** each approved post with one Bash call per post (timeout 600000), oldest date first:
+   `bash $S/publish.sh <draft> <YYYY-MM-DD> <slug> "<title>" "<commit trailer your harness specifies, if any>"`
+   It refuses unless the blog repo email is `jyp90@kakao.com` and master is clean, rescans slug and staged post, publishes through a `post/<slug>` PR merged with a merge commit (never squash; direct push to master is blocked by a hook), waits for the Pages run, and exits 0 only when the URL answers 200. A non-zero exit → stop the batch and report; never claim success without the `200` line.
+7. **Close the loop**: mark each published backlog line `[x]` with `(게시 YYYY-MM-DD → <URL>)` (backlog edit only, no workspace commit), then report the URLs in a table and the next open candidates.
 
 ## Red flags — stop and fix
 
@@ -105,3 +65,7 @@ The URL path comes from `categories: blog` + the file date + slug (Jekyll defaul
 | "Commit with whatever email is configured" | Only `jyp90@kakao.com`; any other value → stop. |
 | "This note sentence is already generic, keep it" | Work notes are written for insiders. Rewrite every sentence; never cite a note or folder name. |
 | "A ticket key gives useful context" | Ticket keys are banned; write `<KEY>-<n>` only in docs, nothing in posts. |
+| "The subagent said scan exit 0" | Rerun the scans and read the draft yourself before the preview. |
+| "They picked 알아서 진행, so publish" | Only an explicit 「올려」/「게시」 after the preview is approval. |
+| "Commit the backlog edit while I'm here" | The workspace is a team repo; edit the backlog note, never commit it. |
+| "Nothing new in the sweep window, widen it silently" | Report that the sweep found nothing and offer the open backlog instead. |
