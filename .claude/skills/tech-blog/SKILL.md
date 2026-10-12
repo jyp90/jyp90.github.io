@@ -50,28 +50,31 @@ Then ask the user to add company/service/client/codename names themselves (「�
    - `git pull --rebase origin master`, write `_posts/YYYY-MM-DD-<slug>.markdown`, rerun `scan.sh` on the staged file, commit `post: <title>`, `git push origin master`.
    - `gh run watch` the Pages run, then `curl -s -o /dev/null -w '%{http_code}' https://jyp90.github.io/blog/YYYY/MM/DD/<slug>.html` must be 200. Report the URL.
 
-### Publish commands (step 6)
+### Publish script (step 6)
+Run as ONE script, top to bottom; never run part of it. Fill the `<…>` placeholders first.
 ```bash
 B=~/Projects/jyp90.github.io
 [ -d "$B" ] || git clone -q git@github.com:jyp90/jyp90.github.io.git "$B"
 e=$(git -C "$B" config user.email); [ -z "$e" ] && git -C "$B" config user.email jyp90@kakao.com && e=jyp90@kakao.com
 [ "$e" = jyp90@kakao.com ] || { echo "blog repo email is not jyp90@kakao.com — stop"; exit 1; }
-```
-Then, with `P=_posts/YYYY-MM-DD-<slug>.markdown` and `D=<scratchpad>/YYYY-MM-DD-<slug>.markdown`:
-```bash
+S=~/.claude/skills/tech-blog
+P=_posts/YYYY-MM-DD-<slug>.markdown
+D=<scratchpad>/YYYY-MM-DD-<slug>.markdown
 [ "$(git -C "$B" branch --show-current)" = master ] && [ -z "$(git -C "$B" status --porcelain)" ] \
   || { echo "blog repo not on a clean master — stop and ask the user"; exit 1; }
-git -C "$B" pull --rebase origin master
+git -C "$B" pull --rebase origin master || { echo "pull --rebase failed — stop and ask the user"; exit 1; }
 [ -e "$B/$P" ] && { echo "$P already exists — stop"; exit 1; }
 cp "$D" "$B/$P" && git -C "$B" add "$P"
 bash $S/scan.sh "$B/$P" || { git -C "$B" rm -q --cached "$P"; rm "$B/$P"; exit 1; }
-git -C "$B" commit -q -m "post: <title>" && git -C "$B" push origin master
+git -C "$B" commit -q -m "post: <title>" || { echo "commit failed — stop"; exit 1; }
+git -C "$B" push origin master || { echo "push failed — stop and ask the user"; exit 1; }
 sha=$(git -C "$B" rev-parse HEAD); sleep 10
 id=$(gh run list -R jyp90/jyp90.github.io --commit "$sha" --limit 1 --json databaseId -q '.[0].databaseId')
 gh run watch "$id" -R jyp90/jyp90.github.io --exit-status
 U=https://jyp90.github.io/blog/YYYY/MM/DD/<slug>.html
 for i in 1 2 3 4 5 6; do c=$(curl -s -o /dev/null -w '%{http_code}' "$U"); [ "$c" = 200 ] && break; sleep 10; done; echo "$c $U"
 ```
+In the `post: <title>` commit message, append the commit attribution trailer your harness specifies, if any.
 The URL path comes from `categories: blog` + the file date + slug (Jekyll default permalink). `gh run list` empty → wait and list again; never report success without the 200. Report the URL to the user.
 
 ## Red flags — stop and fix
