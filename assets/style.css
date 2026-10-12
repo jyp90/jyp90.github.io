@@ -1921,6 +1921,10 @@ p.head {
     padding-left: 20px;
 }
 
+.post-content .post-summary ul {
+    list-style: disc;
+}
+
 .post-content .post-summary li,
 .post-content .series-box li {
     margin-bottom: 4px;
