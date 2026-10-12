@@ -25,6 +25,8 @@ printf 'db at 10.0.3.7 and 192.168.1.20\n' > "$tmp/ip.md"; check private-ip 1 ':
 printf 'see api.billing.internal\n' > "$tmp/host.md";       check internal-host 1 ':1: internal-host$' "$tmp/host.md"
 printf 'https://x.atlassian.net/browse/A\n' > "$tmp/link.md"; check internal-link 1 ':1: internal-link$' "$tmp/link.md"
 printf 'fixed in PAY-1234\n' > "$tmp/ticket.md";            check ticket-key 1 ':1: ticket-key$' "$tmp/ticket.md"
+printf 'remote git@gitlab.example-corp.io:team/repo.git\n' > "$tmp/gitat.md"; check git-at-other-host 1 ':1: email$' "$tmp/gitat.md"
+check missing-file 2 'cannot read' "$tmp/no-such-file.md"
 printf 'account 123456789012 here\n' > "$tmp/acct.md";      check account-id 1 ':1: account-id$' "$tmp/acct.md"
 printf 'key AKIAABCDEFGHIJKLMNOP\n' > "$tmp/secret.md";      check secret 1 ':1: secret$' "$tmp/secret.md"
 
