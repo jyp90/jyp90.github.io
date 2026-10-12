@@ -115,14 +115,24 @@
     content.insertBefore(details, content.firstChild);
     toc.appendChild(list);
     toc.hidden = false;
-    var obs = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        Object.keys(links).forEach(function (k) { links[k].removeAttribute('aria-current'); });
-        links[e.target.id].setAttribute('aria-current', 'true');
-      });
-    }, { rootMargin: '0px 0px -70% 0px' });
-    heads.forEach(function (h) { obs.observe(h); });
+    toc.parentNode.classList.add('has-toc');
+    toc.closest('.post').classList.add('has-toc');
+
+    var line = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) + 24;
+    var current = null, ticking = false;
+    function highlight() {
+      ticking = false;
+      var next = heads[0];
+      heads.forEach(function (h) { if (h.getBoundingClientRect().top <= line) next = h; });
+      if (next === current) return;
+      if (current) links[current.id].removeAttribute('aria-current');
+      links[next.id].setAttribute('aria-current', 'true');
+      current = next;
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(highlight); }
+    }, { passive: true });
+    highlight();
   }
 
   function initAnchors(content) {
@@ -147,7 +157,8 @@
       btn.addEventListener('click', function () {
         navigator.clipboard.writeText(pre.innerText).then(function () {
           btn.textContent = '복사됨';
-          setTimeout(function () { btn.textContent = '복사'; }, 1500);
+          btn.setAttribute('aria-label', '복사됨');
+          setTimeout(function () { btn.textContent = '복사'; btn.setAttribute('aria-label', '코드 복사'); }, 1500);
         });
       });
       bar.appendChild(btn);
