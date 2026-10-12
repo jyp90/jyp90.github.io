@@ -51,9 +51,14 @@
     var known = {};
     chips.forEach(function (c) { known[c.dataset.tag] = true; });
 
-    function apply(tag) {
+    function apply(tag, scrollToPressed) {
       if (!known[tag]) tag = '';
-      chips.forEach(function (c) { c.setAttribute('aria-pressed', String(c.dataset.tag === tag)); });
+      var pressed = null;
+      chips.forEach(function (c) {
+        var isPressed = c.dataset.tag === tag;
+        c.setAttribute('aria-pressed', String(isPressed));
+        if (isPressed) pressed = c;
+      });
       var shown = 0;
       items.forEach(function (li) {
         var on = tag === '' || li.dataset.tags.split('|').indexOf(tag) !== -1;
@@ -65,14 +70,15 @@
       var url = new URL(window.location.href);
       if (tag) url.searchParams.set('tag', tag); else url.searchParams.delete('tag');
       history.replaceState(null, '', url);
+      if (scrollToPressed && pressed) pressed.scrollIntoView({ block: 'nearest', inline: 'center' });
     }
 
     bar.hidden = false;
     bar.addEventListener('click', function (e) {
       var c = e.target.closest('.tag-chip');
-      if (c) apply(c.dataset.tag);
+      if (c) apply(c.dataset.tag, false);
     });
-    apply(new URL(window.location.href).searchParams.get('tag') || '');
+    apply(new URL(window.location.href).searchParams.get('tag') || '', true);
   }
 
   document.addEventListener('DOMContentLoaded', function () {
