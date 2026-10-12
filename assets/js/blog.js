@@ -41,8 +41,43 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { set(false); btn.focus(); } });
   }
 
+  function initTagFilter() {
+    var bar = document.querySelector('.tag-filter');
+    if (!bar) return;
+    var chips = bar.querySelectorAll('.tag-chip');
+    var items = document.querySelectorAll('.post-item');
+    var groups = document.querySelectorAll('.year-group');
+    var empty = document.querySelector('.filter-empty');
+    var known = {};
+    chips.forEach(function (c) { known[c.dataset.tag] = true; });
+
+    function apply(tag) {
+      if (!known[tag]) tag = '';
+      chips.forEach(function (c) { c.setAttribute('aria-pressed', String(c.dataset.tag === tag)); });
+      var shown = 0;
+      items.forEach(function (li) {
+        var on = tag === '' || li.dataset.tags.split('|').indexOf(tag) !== -1;
+        li.hidden = !on;
+        if (on) shown++;
+      });
+      groups.forEach(function (g) { g.hidden = !g.querySelector('.post-item:not([hidden])'); });
+      if (empty) empty.hidden = shown > 0;
+      var url = new URL(window.location.href);
+      if (tag) url.searchParams.set('tag', tag); else url.searchParams.delete('tag');
+      history.replaceState(null, '', url);
+    }
+
+    bar.hidden = false;
+    bar.addEventListener('click', function (e) {
+      var c = e.target.closest('.tag-chip');
+      if (c) apply(c.dataset.tag);
+    });
+    apply(new URL(window.location.href).searchParams.get('tag') || '');
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     initTheme();
     initDropdown();
+    initTagFilter();
   });
 })();

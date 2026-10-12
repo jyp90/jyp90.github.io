@@ -1,0 +1,6 @@
+<p class="post-meta">
+  <time datetime="{{ include.post.date | date_to_xmlschema }}">{{ include.post.date | date: "%Y.%m.%d" }}</time>
+  <span aria-hidden="true">·</span>
+  <span>{% include reading-time.html content=include.post.content %}</span>
+  {%- for t in include.post.tags -%}{%- assign tt = t | strip -%}{%- if tt != "" %} <a class="post-tag" href="{{ '/' | relative_url }}?tag={{ tt | url_encode }}">#{{ tt }}</a>{%- endif -%}{%- endfor -%}
+</p>

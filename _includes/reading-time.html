@@ -1,0 +1,6 @@
+{%- assign rt_words = include.content | strip_html | number_of_words -%}
+{%- assign rt_min = rt_words | divided_by: 300 -%}
+{%- assign rt_rest = rt_words | modulo: 300 -%}
+{%- if rt_rest > 0 -%}{%- assign rt_min = rt_min | plus: 1 -%}{%- endif -%}
+{%- if rt_min < 1 -%}{%- assign rt_min = 1 -%}{%- endif -%}
+{{- rt_min -}}분
