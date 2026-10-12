@@ -4,14 +4,13 @@ title: "고전 문헌 RAG 서비스를 만들며 배운 것 (3) 한문 원문 �
 date: 2026-06-03 09:00:00 +0900
 categories: blog
 tags: [RAG, LLM, FastAPI, Elasticsearch, Prefect, 배치, 아키텍처]
-excerpt: "한문 원문과 국역문이 짝을 이루는 고전 문헌 RAG 채팅 API에서 긴 LLM 요청 중의 클라이언트 이탈과 취소, 질문 선저장, 대명사 처리, 비본문 문서 제외, nori 설정의 함정을 다루고, Prefect로 번역·해설·임베딩 배치를 자동으로 잇는 방법을 정리합니다."
+excerpt: "고전 문헌 RAG 채팅 API에서 긴 LLM 요청 중 클라이언트 이탈과 취소, 대명사 처리, nori 설정의 함정을 다루고 Prefect로 배치를 잇는 방법을 정리합니다."
+series: "고전 문헌 RAG 서비스를 만들며 배운 것"
+summary:
+  - "nginx 뒤에서는 클라이언트 이탈이 전달되지 않아, 주기 폴링과 취소 API 두 겹으로 감지했습니다."
+  - "대명사·지시어가 있는 질문만 히스토리를 읽도록 정규식 필터를 두어 분류 비용을 줄였습니다."
+  - "Prefect 배치는 제출·감시·검증 flow로 나누고, 트리거 플래그는 호출하는 쪽이 매번 명시했습니다."
 ---
-
-> **시리즈: 고전 문헌 RAG 서비스를 만들며 배운 것**
->
-> 1. [(1) LLM API 호출의 함정과 대응](/blog/2026/05/20/llm-api-backend-lessons.html)
-> 2. [(2) 벡터 임베딩과 하이브리드 검색](/blog/2026/05/27/vector-embedding-hybrid-search.html)
-> 3. **(3) 한문 원문 채팅과 Prefect 배치 연동**
 
 ## 이 글에서 다루는 것
 

@@ -11,6 +11,11 @@ date: 2026-10-12 09:00:00 +0900
 categories: blog
 tags: [RabbitMQ, 멱등성, 분산시스템]
 excerpt: "메시지가 두 번 와도 결과가 한 번만 반영되도록 멱등 키를 설계하는 방법을 정리합니다."
+summary:
+  - "재시도 중 같은 메시지가 두 번 처리돼 결과가 중복 반영됐습니다."
+  - "브로커는 최소 한 번 전달만 보장하므로 소비자가 중복을 걸러야 합니다."
+  - "멱등 키에 유니크 제약을 걸어 두 번째 처리를 건너뛰게 했습니다."
+series: "메시지 중복 처리 설계"   # only for a series; the title must start with this name
 ---
 ```
 - `categories: blog` always: it makes the URL `/blog/YYYY/MM/DD/<slug>.html`.
@@ -20,7 +25,10 @@ excerpt: "메시지가 두 번 와도 결과가 한 번만 반영되도록 멱�
   grep -h '^tags:' ~/Projects/jyp90.github.io/_posts/*.markdown | sed 's/^tags: *\[//; s/\] *$//' \
     | tr ',' '\n' | sed 's/^ *//; s/ *$//' | sort | uniq -c | sort -rn
   ```
-- `excerpt`: one Korean sentence, ends with 「…합니다.」.
+- `excerpt`: one Korean sentence, ends with 「…합니다.」, ≤ 140 chars.
+- `summary`: required, 3 items; rules in `reader-bar.md` 「Front-matter fields」.
+- `series`: series parts only. Never write a TOC block into the body; the layout renders it from this field.
+- `featured`: never set by a draft; propose it in the report.
 - `title`: quoted; Korean, may contain public tech names.
 
 ## File name and slug

@@ -1,10 +1,15 @@
 ---
 layout: post
-title: "RabbitMQ 멱등성 아키텍처"
+title: "메시지 큐 Worker 설계 노트 (1) RabbitMQ 멱등성 아키텍처"
 date: 2026-01-13 20:50:00 +0900
 categories: blog
 tags: [RabbitMQ, 멱등성, 아키텍처, 분산시스템]
 excerpt: "AI PDF 서비스 개발 중 겪은 메시지 큐 중복 처리 문제와 멱등성 확보 전략을 공유합니다."
+series: "메시지 큐 Worker 설계 노트"
+summary:
+  - "RabbitMQ는 메시지를 중복 전달할 수 있어 소비자가 중복을 걸러야 합니다."
+  - "메시지 ID와 (job_id, step_name) 유니크 제약으로 처리 여부를 DB에 남깁니다."
+  - "DB 커밋 뒤에 ACK을 보내 실패 시 재전달되어도 결과가 한 번만 반영됩니다."
 ---
 
 ## 멱등성(Idempotency)이란?
@@ -58,22 +63,25 @@ RabbitMQ 메시지 처리 로직은 다음 순서로 수행하는 것이 안전�
 AI 파이프라인을 **단계별로 나누어 처리**한다고 가정합니다.
 
 Job 테이블
-	•	job_id (PK)
-	•	user_id
-	•	status
-	•	created_at
+
+- job_id (PK)
+- user_id
+- status
+- created_at
 
 Job_Step 테이블
-	•	job_id (FK)
-	•	step_name
-	•	status
-	•	processed_at
+
+- job_id (FK)
+- step_name
+- status
+- processed_at
 
 
-    - `(job_id, step_name)` 조합은 유니크해야 합니다.
+- `(job_id, step_name)` 조합은 유니크해야 합니다.
 - 메시지 소비 시 해당 조합으로 DB에서 insert 또는 select 처리를 수행하여 멱등성을 확인합니다.
 
 **예시 흐름:**
+
 1. Consumer에서 메시지를 받는다.
 2. `(job_id, step_name)`로 insert 시도
 3. insert 성공 → 비즈니스 로직 수행

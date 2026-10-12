@@ -5,7 +5,23 @@ layout: default
   <section class="home-intro">
     <h1 class="home-title">{{ site.title }}</h1>
     <p class="home-desc">{{ site.description }}</p>
+    <p class="home-links"><a href="{{ '/about/' | relative_url }}">소개</a> · <a href="{{ '/series/' | relative_url }}">시리즈 모아 보기</a></p>
   </section>
+
+  {%- assign featured = site.posts | where: "featured", true -%}
+  {%- if featured.size > 0 %}
+  <section class="featured" aria-labelledby="featured-heading">
+    <h2 id="featured-heading" class="featured-heading">먼저 읽어 볼 글</h2>
+    <ul class="featured-list">
+      {%- for post in featured -%}
+      <li class="featured-item">
+        <a class="featured-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
+        {%- if post.summary %}<p class="featured-summary">{{ post.summary | first | escape }}</p>{% endif -%}
+      </li>
+      {%- endfor -%}
+    </ul>
+  </section>
+  {%- endif %}
 
   {%- assign listed = "" | split: "" -%}
   {%- for p in site.posts -%}{%- unless p.categories contains 'article' -%}{%- assign listed = listed | push: p -%}{%- endunless -%}{%- endfor -%}

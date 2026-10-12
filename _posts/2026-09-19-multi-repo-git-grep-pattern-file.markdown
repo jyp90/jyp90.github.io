@@ -5,13 +5,12 @@ date: 2026-09-19 09:00:00 +0900
 categories: blog
 tags: [Git, Shell, 개발도구, 자동화]
 excerpt: "경로 수십 건이 어느 저장소에서 참조되는지 찾을 때, 패턴마다 grep을 돌리는 대신 패턴 파일 하나로 저장소당 한 번만 git grep을 실행하는 방법과 그 함정을 정리합니다."
+series: "여러 git 저장소를 안전하게 다루기"
+summary:
+  - "URL 경로 수십 건이 어느 저장소에서 참조되는지 찾는데 저장소별 grep -r이 10분을 넘겼습니다."
+  - "패턴을 파일 하나로 모으고 git grep으로 추적 파일만 읽으면 순회 비용이 크게 줄어든다는 것이 핵심이었습니다."
+  - "git grep -I -o -F -f로 전체 저장소를 2.5초에 훑고, 참조 출처별로 변경 위험을 판정했습니다."
 ---
-
-> **시리즈: 여러 git 저장소를 안전하게 다루기**
->
-> 1. [(1) SVN을 전체 이력째 git으로 옮기기](/blog/2026/08/30/svn-to-git-full-history-migration.html)
-> 2. [(2) worktree에 --git-dir을 넘기면 엉뚱한 브랜치에 커밋되는 이유](/blog/2026/09/08/git-worktree-git-dir-wrong-branch.html)
-> 3. **(3) 수십 개 저장소를 git grep 패턴 파일로 한 번에 훑기**
 
 ## 문제와 배경
 

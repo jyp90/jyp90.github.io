@@ -5,6 +5,11 @@ date: 2026-08-05 09:00:00 +0900
 categories: blog
 tags: [Java, JDBC, SQL Server, Unicode, 장애대응, DB]
 excerpt: "컬럼이 NVARCHAR인데도 일부 한자가 오류 없이 ?로 저장되는 문제를, 손실 지점을 좁혀 가는 방법과 복구 순서까지 함께 정리합니다."
+featured: true
+summary:
+  - "NVARCHAR 컬럼인데도 일부 한자가 오류 없이 ?로 저장되는 문제가 있었습니다."
+  - "sendStringParametersAsUnicode=false 설정 때문에 값이 CP949로 전송되며 깨진 것입니다."
+  - "setNString()으로 전송을 고치고, URL 대조와 원본 재적재로 값을 복구한 뒤 재색인합니다."
 ---
 
 ## 문제와 배경

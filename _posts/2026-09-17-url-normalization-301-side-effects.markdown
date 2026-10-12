@@ -5,13 +5,12 @@ date: 2026-09-17 09:00:00 +0900
 categories: blog
 tags: [JavaScript, 웹, Java, HTTP, SEO]
 excerpt: "끝 슬래시 같은 전 경로 URL 정규화 301이 XHR·fetch 엔드포인트까지 리다이렉트하고 폐지 URL의 410을 가리는 원리와, 규칙 순서·테스트 방법을 정리합니다."
+series: "브라우저와 URL에서 조용히 어긋나는 것들"
+summary:
+  - "전 경로에 301 URL 정규화를 걸었더니 XHR·fetch 요청과 폐지 URL의 410까지 영향을 받았습니다."
+  - "Accept 헤더로 화면 요청만 가려야 하고, 값에 따라 상태가 갈리는 옛 주소는 정규화에서 빼야 한다는 원리를 확인했습니다."
+  - "Accept에 text/html이 있는 GET·HEAD만 301 대상으로 하고, 판정 순서를 고정해 테스트로 검증했습니다."
 ---
-
-> **시리즈: 브라우저와 URL에서 조용히 어긋나는 것들**
->
-> 1. [(1) 뒤로가기 bfcache와 어긋나는 폼 상태](/blog/2026/08/04/bfcache-back-navigation-form-state.html)
-> 2. [(2) 초기화 시점에 전역 객체를 단정하는 함정](/blog/2026/09/01/global-object-init-time-assumption.html)
-> 3. **(3) URL 정규화 301의 두 가지 부작용**
 
 ## 문제와 배경
 

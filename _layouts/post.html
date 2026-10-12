@@ -9,6 +9,13 @@ layout: default
   </header>
   <div class="post-layout">
     <div class="post-content" itemprop="articleBody">
+      {%- if page.summary %}
+      <aside class="post-summary" aria-label="요약">
+        <p class="post-summary-title">요약</p>
+        <ul>{% for line in page.summary %}<li>{{ line | escape }}</li>{% endfor %}</ul>
+      </aside>
+      {%- endif %}
+      {%- if page.series %}{% include series-nav.html series=page.series current=page.url %}{% endif -%}
       {{ content }}
     </div>
     <aside class="post-toc" aria-label="목차" hidden></aside>

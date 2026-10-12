@@ -5,14 +5,12 @@ date: 2026-08-29 09:00:00 +0900
 categories: blog
 tags: [Java, Spring, Spring Boot, Tomcat, 마이그레이션]
 excerpt: "Spring 4 WAR 애플리케이션을 Spring Boot 2.7로 옮길 때 컨텍스트 병합, ErrorPageFilter, 내장·외부 톰캣의 비대칭에서 생기는 함정과 확인 방법을 정리합니다."
+series: "레거시 Java 웹 애플리케이션에서 만난 함정"
+summary:
+  - "Spring 4 WAR를 Spring Boot 2.7로 옮기며 스무 개 넘는 함정을 만났습니다."
+  - "루트·서블릿 두 컨텍스트가 하나로 합쳐지며 빈 이름 충돌과 타입 주입 선택이 조용히 틀어졌습니다."
+  - "주입 지점에 Qualifier로 이름을 못 박고, 전환 전후 의존성과 WAR 산출물을 대조해 확인했습니다."
 ---
-
-> **시리즈: 레거시 Java 웹 애플리케이션에서 만난 함정**
->
-> 1. [(1) 타임아웃 없는 외부 HTTP 호출이 스레드를 하나씩 잡아먹는 과정](/blog/2026/08/11/http-client-no-timeout-thread-exhaustion.html)
-> 2. [(2) Integer == 비교가 127까지만 맞는 이유](/blog/2026/08/22/java-wrapper-equality-127.html)
-> 3. **(3) Spring 4 WAR를 Spring Boot 2.7로 옮길 때의 함정**
-> 4. [(4) 로컬 기동 100초를 커넥션 풀 설정 하나로 좁히기](/blog/2026/09/12/local-startup-connection-pool-bisect.html)
 
 ## 문제와 배경
 

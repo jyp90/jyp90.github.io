@@ -5,14 +5,13 @@ date: 2026-08-11 09:00:00 +0900
 categories: blog
 tags: [Java, Spring, 장애대응, 동시성, HttpClient]
 excerpt: "기본값으로 만든 HTTP 클라이언트가 응답 없는 외부 서버 앞에서 요청 스레드를 영원히 붙잡는 원리와, 스레드 덤프로 알아보는 법, 타임아웃 설정과 최악 대기 시간 계산을 정리합니다."
+series: "레거시 Java 웹 애플리케이션에서 만난 함정"
+featured: true
+summary:
+  - "외부 인증 서버가 응답하지 않자 로그인 요청 스레드가 반환되지 않고 쌓였습니다."
+  - "기본값으로 만든 HTTP 클라이언트에는 connect·read 타임아웃이 없어 끝없이 기다렸기 때문입니다."
+  - "세 타임아웃을 명시하고, 최악 대기 시간은 타임아웃 × 순차 호출 수로 따로 계산했습니다."
 ---
-
-> **시리즈: 레거시 Java 웹 애플리케이션에서 만난 함정**
->
-> 1. **(1) 타임아웃 없는 외부 HTTP 호출이 스레드를 하나씩 잡아먹는 과정**
-> 2. [(2) Integer == 비교가 127까지만 맞는 이유](/blog/2026/08/22/java-wrapper-equality-127.html)
-> 3. [(3) Spring 4 WAR를 Spring Boot 2.7로 옮길 때의 함정](/blog/2026/08/29/spring4-war-to-spring-boot-27.html)
-> 4. [(4) 로컬 기동 100초를 커넥션 풀 설정 하나로 좁히기](/blog/2026/09/12/local-startup-connection-pool-bisect.html)
 
 ## 문제와 배경
 

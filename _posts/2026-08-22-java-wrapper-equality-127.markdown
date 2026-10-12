@@ -5,14 +5,13 @@ date: 2026-08-22 09:00:00 +0900
 categories: blog
 tags: [Java, Spring, 보안, 코드리뷰]
 excerpt: "Long·Integer 래퍼끼리 ==로 비교하면 -128~127 캐시 구간에서만 맞아 본인 여부 판정이 조용히 뒤집히는 원리와, 안전한 비교 방법·같은 패턴을 찾는 방법을 정리합니다."
+series: "레거시 Java 웹 애플리케이션에서 만난 함정"
+featured: true
+summary:
+  - "Long끼리 !=로 본인 여부를 비교해, 번호가 128 이상이면 자기 목록이 남의 목록으로 처리됐습니다."
+  - "래퍼끼리의 ==는 참조 비교이고, -128~127 구간만 valueOf 캐시 덕분에 우연히 맞습니다."
+  - "null 가능성에 따라 primitive 비교나 Objects.equals로 고치고, 같은 패턴은 정적 분석으로 찾습니다."
 ---
-
-> **시리즈: 레거시 Java 웹 애플리케이션에서 만난 함정**
->
-> 1. [(1) 타임아웃 없는 외부 HTTP 호출이 스레드를 하나씩 잡아먹는 과정](/blog/2026/08/11/http-client-no-timeout-thread-exhaustion.html)
-> 2. **(2) Integer == 비교가 127까지만 맞는 이유**
-> 3. [(3) Spring 4 WAR를 Spring Boot 2.7로 옮길 때의 함정](/blog/2026/08/29/spring4-war-to-spring-boot-27.html)
-> 4. [(4) 로컬 기동 100초를 커넥션 풀 설정 하나로 좁히기](/blog/2026/09/12/local-startup-connection-pool-bisect.html)
 
 ## 문제와 배경
 

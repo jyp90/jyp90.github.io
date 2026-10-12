@@ -5,13 +5,12 @@ date: 2026-08-04 09:00:00 +0900
 categories: blog
 tags: [JavaScript, 웹, 브라우저, bfcache, Playwright]
 excerpt: "뒤로가기로 bfcache에서 되살아난 페이지의 폼 상태가 URL과 어긋나는 원리와, pageshow 처리·autocomplete 오해·자동화 브라우저로 재현되지 않는 이유를 정리합니다."
+series: "브라우저와 URL에서 조용히 어긋나는 것들"
+summary:
+  - "뒤로가기 후 검색창에 제출하지 않은 입력이 남아 URL과 화면이 어긋나는 문제가 있었습니다."
+  - "bfcache가 떠나기 직전의 DOM을 그대로 되살려 서버 렌더와 autocomplete=off가 닿지 않습니다."
+  - "pageshow의 persisted를 보고 URL 기준으로 폼을 맞추고, 헤드리스가 아닌 실제 브라우저로 확인합니다."
 ---
-
-> **시리즈: 브라우저와 URL에서 조용히 어긋나는 것들**
->
-> 1. **(1) 뒤로가기 bfcache와 어긋나는 폼 상태**
-> 2. [(2) 초기화 시점에 전역 객체를 단정하는 함정](/blog/2026/09/01/global-object-init-time-assumption.html)
-> 3. [(3) URL 정규화 301의 두 가지 부작용](/blog/2026/09/17/url-normalization-301-side-effects.html)
 
 ## 문제와 배경
 

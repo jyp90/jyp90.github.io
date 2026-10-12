@@ -4,14 +4,13 @@ title: "여러 git 저장소를 안전하게 다루기 (2) worktree에 --git-dir
 date: 2026-09-08 09:00:00 +0900
 categories: blog
 tags: [Git, 개발도구, Shell, 장애복구]
-excerpt: "서브모듈 worktree에서 --git-dir로 공통 저장소를 지정하면 커밋이 메인 체크아웃의 브랜치에 쌓이는 원리와, HEAD가 어디로 풀리는지 확인하는 법, 남의 미커밋 변경 때문에 pull이 막혔을 때 임시 worktree로 push하는 방법을 정리합니다."
+excerpt: "서브모듈 worktree에서 --git-dir로 공통 저장소를 지정하면 커밋이 메인 체크아웃의 브랜치에 쌓이는 원리와, HEAD를 미리 확인하는 방법을 정리합니다."
+series: "여러 git 저장소를 안전하게 다루기"
+summary:
+  - "worktree에서 --git-dir로 공통 저장소를 지정해 merge하니 커밋이 엉뚱한 브랜치에 쌓였습니다."
+  - "공통 저장소는 메인 체크아웃의 HEAD도 겸해, git-dir을 직접 지정하면 그 HEAD가 커밋 대상이 됩니다."
+  - "git rev-parse --git-dir로 미리 확인하고, worktree에서는 cd 뒤 옵션 없는 git만 씁니다."
 ---
-
-> **시리즈: 여러 git 저장소를 안전하게 다루기**
->
-> 1. [(1) SVN을 전체 이력째 git으로 옮기기](/blog/2026/08/30/svn-to-git-full-history-migration.html)
-> 2. **(2) worktree에 --git-dir을 넘기면 엉뚱한 브랜치에 커밋되는 이유**
-> 3. [(3) 수십 개 저장소를 git grep 패턴 파일로 한 번에 훑기](/blog/2026/09/19/multi-repo-git-grep-pattern-file.html)
 
 ## 문제와 배경
 

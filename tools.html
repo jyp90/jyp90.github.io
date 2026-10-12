@@ -1,0 +1,15 @@
+---
+layout: page
+title: 도구
+permalink: /tools/
+---
+{%- assign tools = site.posts | where: "tool", true | sort: "title" -%}
+<p class="page-lead">개발하면서 자주 쓰는 변환·디코딩 작업을 브라우저에서 바로 할 수 있게 만든 도구입니다. 입력값은 서버로 보내지 않고 페이지 안에서만 처리합니다.</p>
+<ul class="tool-list">
+  {%- for t in tools -%}
+  <li class="tool-item">
+    <a class="post-link tool-link" href="{{ t.url | relative_url }}">{{ t.title | escape }}</a>
+    <p class="tool-desc">{{ t.description | escape }}</p>
+  </li>
+  {%- endfor -%}
+</ul>

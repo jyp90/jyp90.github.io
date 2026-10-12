@@ -5,13 +5,12 @@ date: 2026-08-19 09:00:00 +0900
 categories: blog
 tags: [ClaudeCode, 자동화, Jira, 아키텍처, 개발도구]
 excerpt: "폴러가 Jira에서 처리할 이슈를 고르고, 프롬프트를 조립해 claude -p를 서브프로세스로 띄우고, 이슈마다 세션과 사용량 기록을 이어 가는 구조를 정리합니다."
+series: "Mac mini에 이슈 자동 처리 에이전트 상주시키기"
+summary:
+  - "폴러는 Jira 상태로 트리거를 판정해 claude -p 세션을 띄우고 바로 끝나는 구조입니다."
+  - "AI 차례 상태는 진입할 때 한 번, 게이트 상태는 사람의 새 댓글에만 반응하게 했습니다."
+  - "단계 사이 맥락은 이슈 메모리 문서가 정본이고, --resume은 캐시가 따뜻할 때만 씁니다."
 ---
-
-> **연재 목차**
-> 1. [Mac mini에 이슈 자동 처리 에이전트 상주시키기 (1) 구성과 상주 프로세스](/blog/2026/08/14/mac-mini-issue-agent-setup.html)
-> 2. **Mac mini에 이슈 자동 처리 에이전트 상주시키기 (2) 이슈 감지와 헤드리스 Claude 실행**
-> 3. [Mac mini에 이슈 자동 처리 에이전트 상주시키기 (3) 통지와 안전장치](/blog/2026/08/25/mac-mini-issue-agent-guardrails.html)
-> 4. [Mac mini에 이슈 자동 처리 에이전트 상주시키기 (4) 운영하며 배운 것: 비용과 조용한 실패](/blog/2026/09/10/mac-mini-issue-agent-operations.html)
 
 ## 문제와 배경
 

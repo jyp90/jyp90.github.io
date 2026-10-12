@@ -22,7 +22,7 @@ title: 뇽이의 TIL
 lang: ko_KR
 email: jyp90@kakao.com
 description: >- # this means to ignore newlines until "baseurl:"
-  매일 배운 것을 기록하는 TIL(Today I Learned) 블로그
+  백엔드 개발자가 실무에서 만난 장애와 함정을 원리, 확인 방법, 해결책까지 기록합니다.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://jyp90.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: junyongpark90

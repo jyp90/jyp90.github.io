@@ -5,14 +5,13 @@ date: 2026-08-14 09:00:00 +0900
 categories: blog
 tags: [ClaudeCode, 자동화, macOS, launchd, cron, Monitoring]
 excerpt: "이슈 트래커를 감시하다가 헤드리스 Claude Code로 이슈를 처리하는 에이전트를 Mac mini 한 대에 올리면서 정한 디렉터리 구성, cron과 launchd 역할 분담, 설정과 비밀값 분리, 생존 판정 규칙을 정리합니다."
+series: "Mac mini에 이슈 자동 처리 에이전트 상주시키기"
+featured: true
+summary:
+  - "Jira 댓글을 지시로 받아 Claude Code가 코드를 고치는 에이전트를 전용 Mac mini에 올렸습니다."
+  - "잠깐 도는 작업은 cron, 상주하는 Slack 리스너는 launchd에 맡기고 파일은 세 계층으로 나눴습니다."
+  - "생존 판정은 로그가 아니라 스케줄 확인 후 하트비트 mtime을 보는 순서로 고정했습니다."
 ---
-
-> **시리즈: Mac mini에 이슈 자동 처리 에이전트 상주시키기**
->
-> 1. **(1) 구성과 상주 프로세스**
-> 2. [(2) 이슈 감지와 헤드리스 Claude 실행](/blog/2026/08/19/mac-mini-issue-agent-headless-claude.html)
-> 3. [(3) 통지와 안전장치](/blog/2026/08/25/mac-mini-issue-agent-guardrails.html)
-> 4. [(4) 운영하며 배운 것: 비용과 조용한 실패](/blog/2026/09/10/mac-mini-issue-agent-operations.html)
 
 ## 무엇을 만들었나
 
