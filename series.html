@@ -5,14 +5,14 @@ permalink: /series/
 ---
 {%- assign with_series = site.posts | where_exp: "p", "p.series" -%}
 {%- assign groups = with_series | group_by: "series" -%}
-<p class="page-lead">한 주제를 여러 편에 걸쳐 끝까지 따라간 글 묶음입니다. 최근에 이어진 시리즈부터 보여 줍니다.</p>
+<p class="page-lead">한 주제를 여러 편에 걸쳐 끝까지 따라간 글 묶음입니다. 한 프로젝트를 따라간 시리즈는 「완결」, 같은 주제의 글을 계속 모으는 시리즈는 「연재 중」으로 표시합니다.</p>
 {%- for g in groups -%}
 {%- assign parts = g.items | sort: "date" -%}
 {%- assign first = parts | first -%}
 {%- assign last = parts | last -%}
 <section class="series-group">
   <h2 class="series-group-title">{{ g.name | escape }}</h2>
-  <p class="series-group-meta">{{ parts.size }}편 · {{ first.date | date: "%Y.%m" }}{% if first.date != last.date %} – {{ last.date | date: "%Y.%m" }}{% endif %}</p>
+  <p class="series-group-meta">{{ parts.size }}편 · {{ first.date | date: "%Y.%m" }}{% if first.date != last.date %} – {{ last.date | date: "%Y.%m" }}{% endif %} {% include series-status.html series=g.name %}</p>
   <ol class="series-group-list">
     {%- for p in parts -%}
     <li><a class="post-link" href="{{ p.url | relative_url }}">{{ p.title | remove_first: g.name | strip | escape }}</a></li>

@@ -39,6 +39,11 @@ for t in [x.strip() for x in (field('tags') or '').strip('[]').split(',') if x.s
     if t not in allowed: bad(1, f'tag not in references/tags.txt: {t}')
 title = (field('title') or '').strip('"')
 series = (field('series') or '').strip('"')
+if series:
+    # The skill also runs through the ~/.claude/skills symlink, so point at the blog checkout directly (as publish.sh does)
+    sf = os.path.expanduser('~/Projects/jyp90.github.io/_data/series.yml')
+    names = re.findall(r'^"(.+?)":', open(sf, encoding='utf-8').read(), re.M) if os.path.exists(sf) else []
+    if names and series not in names: bad(1, f'series not in _data/series.yml (add it with a status): {series}')
 if series and not title.startswith(series):
     bad(1, 'title must start with the series name (series nav strips it)')
 fence = False
