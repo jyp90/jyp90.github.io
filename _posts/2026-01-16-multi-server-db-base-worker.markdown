@@ -1,137 +1,132 @@
 ---
 layout: post
-title: "메시지 큐 Worker 설계 노트 (4) 다중 서버 환경에서 DB 중심 Worker 장애 대응 전략"
+title: "PDF AI 분석 서비스 백엔드 설계 (4) 벡터 검색을 Elasticsearch 하나로 모으기"
 date: 2026-01-16 09:00:00 +0900
 categories: blog
-tags: [Worker, RabbitMQ, 장애복구, 멱등성, 분산시스템, DB]
-excerpt: "다중 서버 환경에서 Worker가 처리 중 중단되었을 때, DB 기반으로 안전하게 다시 처리하거나 재전달에 대응하는 전략을 정리합니다."
-series: "메시지 큐 Worker 설계 노트"
+tags: [Python, Elasticsearch, RAG, 벡터검색, 아키텍처]
+excerpt: "인메모리 벡터 라이브러리를 걷어 내고 벡터 검색을 Elasticsearch 하나로 모으면서 정한 인덱스 설계와 트레이드오프를 정리합니다."
+series: "PDF AI 분석 서비스 백엔드 설계"
 summary:
-  - "재전달된 메시지를 다른 서버의 Worker가 받아도 안전하게 이어 처리해야 합니다."
-  - "처리 상태를 DB에 기록하고, 이미 처리된 메시지는 스킵하고 ACK만 보냅니다."
-  - "DB 먼저 커밋하고 ACK하는 순서는 완전한 원자성은 아니지만 실용적인 기본값입니다."
+  - "벡터 검색을 메모리 누수가 있는 인메모리 엔진과 Elasticsearch로 나눠 운영해 운영 부담이 컸습니다."
+  - "메타데이터는 PostgreSQL에 그대로 두고 벡터만 Elasticsearch로 모아 검색 경로를 하나로 줄였습니다."
+  - "Int8 압축과 kNN으로 저장 공간과 응답 속도를 함께 얻었지만, 재색인 비용과 압축 손실은 트레이드오프로 남았습니다."
 ---
 
-## 개요
+## 문제와 배경
 
-RabbitMQ 기반 다중 서버 Worker 환경에서는 **한 서버에서 처리 중인 Work가 중단될 수 있습니다**.  
-RabbitMQ의 *at-least-once delivery* 특성 때문에, 메시지는 ACK이 오기 전까지 **다른 서버의 Worker로 재전달**될 수 있습니다. 그러므로 메시지 처리 상태를 **DB 기반으로 정합성 있게 유지**하는 것이 중요합니다. ([출처: Backend Engineering Chronicles](https://backend-engineering-chronicles.github.io/2025/10/31/reliable-rabbitmq-preventing-message-loss-duplicates-and-ordering-issues.html))
+PDF 문서를 업로드받아 청크 단위로 쪼개고 임베딩한 뒤, 그 벡터로 유사 청크를 찾아 RAG(Retrieval-Augmented Generation) 챗봇에 넘기는 파이프라인이 있었습니다. 초기 구성은 벡터 검색을 인메모리 벡터 라이브러리와 Elasticsearch 두 곳에 나눠 두는 형태였습니다.
 
----
+문제는 두 가지였습니다.
 
-## RabbitMQ 전달 보장과 DB 중심 상태 저장
+- 인메모리 벡터 라이브러리에서 메모리 누수가 있었습니다.
+- 벡터 저장소가 Elasticsearch와 별도로 하나 더 있다 보니 색인 로직도 장애 대응 절차도 저장소 수만큼 따로 챙겨야 했습니다.
 
-RabbitMQ는 기본적으로 **적어도 한 번(at-least-once)** 메시지를 전달합니다.  
-즉, 소비자가 ACK을 보내기 전까지 메시지는 *재전달 가능 상태*로 남아 있습니다. 이 때문에 메시지는 여러 번 소비될 수 있고, **중복 처리 위험**이 존재합니다. ([출처: Backend Engineering Chronicles](https://backend-engineering-chronicles.github.io/2025/10/31/reliable-rabbitmq-preventing-message-loss-duplicates-and-ordering-issues.html))
+벡터 검색 자체는 한 가지 일인데, 메모리 누수가 있는 엔진을 끼고 있다는 이유만으로 운영 부담이 늘어나고 있었습니다. 메타데이터(원문, 요약, 채팅 이력)는 처음부터 PostgreSQL을 단일 소스로 쓰고 있었으므로, 인메모리 엔진을 걷어내고 벡터 쪽도 Elasticsearch 하나로 모으는 쪽을 택했습니다.
 
-결론적으로 RabbitMQ는 메시지 전달 보증만 하고,  
-**실제 처리 상태와 작업 결과는 DB 수준에서 보존/판단**해야 합니다.
+## 접근
 
----
+결정은 단순합니다. 인메모리 벡터 엔진을 걷어내고, 벡터 검색을 Elasticsearch 하나로 모읍니다.
 
-## DB를 중심으로 한 Worker 처리 흐름
+- **벡터는 Elasticsearch에만 둡니다.** `dense_vector` 필드에 임베딩을 저장하고 kNN(k-최근접 이웃) 쿼리로 검색합니다.
+- **메타데이터는 그대로 PostgreSQL에 둡니다.** 원문·요약·번역·채팅 이력의 SSOT(Single Source of Truth)는 바꾸지 않고, Elasticsearch는 검색 전용 인덱스로만 씁니다. 둘을 하나의 저장소로 합치지는 않습니다 — 트랜잭션과 전문 검색은 역할이 다릅니다.
+- **임베딩은 사내 GPU 임베딩 API를 호출해 1024차원 고정 벡터로 받습니다.** 모델이 바뀌어도 서비스 쪽 벡터 차원 설정은 건드리지 않도록 차원을 고정값으로 둡니다.
+- **저장 공간을 줄이기 위해 벡터를 Int8로 압축해 저장합니다.** Elasticsearch의 `dense_vector`는 `element_type: byte`로 지정하면 8비트 정수로 양자화해 저장합니다. float32 대비 저장 공간이 크게 줄어듭니다.
 
-DB 중심 처리 흐름은 다음과 같습니다:
+## 구현
 
-1. **DB 트랜잭션 시작**
-2. **중복 처리 여부 체크**
-3. **비즈니스 로직 수행**
-4. **처리 상태 저장**
-5. **DB 트랜잭션 커밋**
-6. **RabbitMQ ACK 전송**
+### 인덱스 매핑
 
-이 순서를 지키면 메시지 재전달 상황에서도 **중복 처리를 방지**할 수 있습니다.  
-가령 워커가 처리 중 갑자기 실패했을 때, 트랜잭션이 커밋되지 않았다면 ACK이 보내지지 않습니다.  
-RabbitMQ는 이 메시지를 다시 다른 워커로 전달합니다.  
-그 경우 **DB에서 처리 상태를 보고 중복 여부를 판단**하여 처리 또는 건너뛸 수 있습니다. ([출처: Backend Engineering Chronicles](https://backend-engineering-chronicles.github.io/2025/10/31/reliable-rabbitmq-preventing-message-loss-duplicates-and-ordering-issues.html))
+청크 단위로 한 문서씩 저장하는 인덱스를 만듭니다. 이름은 역할을 그대로 드러내는 `pdf_chunks`로 둡니다.
 
----
-
-## 멱등성(Idempotency) 설계
-
-DB 기반 중복 체크는 **Idempotent Consumer 패턴**을 따릅니다.  
-이 패턴은 동일한 메시지가 여러 번 도착하더라도 결과는 처음 처리한 것과 동일하게 유지됩니다. ([출처: microservices.io](https://microservices.io/patterns/communication-style/idempotent-consumer.html))
-
-### 구현 전략 (DB)
-
-- **유니크 메시지 ID 저장소**
-  - 메시지를 처리할 때 유니크한 ID를 DB에 저장합니다.
-  - `(ConsumerName, MessageID)` 조합이나 `(job_id, step)` 같은 유니크 제약 조건을 둡니다.
-
--> 이미 존재하는 ID라면, 이는 **중복 메시지**로 간주합니다.  
--> Worker는 **처리 스킵 + ACK 전송**으로 응답합니다. ([출처: microservices.io](https://microservices.io/patterns/communication-style/idempotent-consumer.html))
-
-### 예시 테이블
-
-ProcessedMessages
-
-message_id (PK)
-consumer_name
-processed_at
-
-또는 워크플로우 기반으로:
-
-job_step
-
-job_id
-step_name
-status
-processed_at
-UNIQUE(job_id, step_name)
-
-이러한 구조는 메시지 재전달 상황에서도 **이미 처리된 작업 여부를 판단**하는 기반이 됩니다.
-
----
-
-## 다중 서버 Worker 장애 시 대응 요약
-
-아래는 일반적인 다중 서버 환경의 Worker 장애 상황과 처리 전략입니다:
-
-| 상황 | 문제점 | DB 기반 대응 |
-|------|---------|---------------|
-| Worker 처리 중 중단 | 메시지 ACK 누락 → 재전달 발생 | DB 상태 조회로 중복 확인 및 ACK |
-| 동일 메시지 중복 수신 | 중복 처리 위험 | 유니크키 기반 멱등 처리 |
-| 여러 Worker 경쟁 | 동시성/상태 불일치 | DB 트랜잭션 기반 상태 업데이트 |
-| 반복 오류 메시지 | 무한 재시도 | 재시도 횟수 및 Dead Letter Queue 정책 |
-
----
-
-## 재전달 메시지 처리 패턴
-
-RabbitMQ는 ACK이 없는 메시지를 다시 전달합니다.  
-따라서 Worker는 다시 받은 메시지를 아래처럼 처리해야 합니다:
-
-```text
-메시지 수신 → DB에서 상태 확인
-  | 이미 처리됨 → ACK + 스킵
-  | 미처리 → 트랜잭션 + 처리 + 상태 기록 + ACK
+```json
+PUT /pdf_chunks
+{
+  "mappings": {
+    "properties": {
+      "document_id": { "type": "keyword" },
+      "chunk_text": { "type": "text" },
+      "chunk_vector": {
+        "type": "dense_vector",
+        "dims": 1024,
+        "element_type": "byte",
+        "index": true,
+        "similarity": "cosine"
+      },
+      "created_at": { "type": "date" }
+    }
+  }
+}
 ```
 
-이 흐름은 대부분의 중복 수신 시나리오를 안전하게 처리할 수 있는 기본 패턴입니다.
+`element_type: byte`가 Int8 압축을 켜는 지점입니다. 임베딩 API가 돌려주는 값은 float이므로, 색인 전에 양자화 범위(-128~127)에 맞춰 스케일링해 줘야 합니다.
 
----
+### 색인
 
-## 고려할 점
+```python
+from elasticsearch import Elasticsearch, helpers
 
-### 트랜잭션 일관성
+es = Elasticsearch(ES_HOSTS)
 
-RabbitMQ ACK과 DB 우선 커밋 구조는 분산 트랜잭션이 아니므로 100% 원자성을 보장하지는 않습니다.
-그러나 DB 먼저 처리 + 그 뒤 ACK 패턴은 현재 업계에서도 표준으로 받아들여집니다.
+def index_chunks(document_id: str, chunks: list[str], embed_fn):
+    actions = []
+    for chunk_text in chunks:
+        vector = embed_fn(chunk_text)  # 사내 GPU 임베딩 API 호출, 1024차원 float 리스트
+        actions.append({
+            "_index": "pdf_chunks",
+            "_source": {
+                "document_id": document_id,
+                "chunk_text": chunk_text,
+                "chunk_vector": quantize_int8(vector),
+                "created_at": now_iso(),
+            },
+        })
+    helpers.bulk(es, actions)
+```
 
----
+`helpers.bulk`로 묶어 보내는 이유는 단순합니다. 청크 하나당 임베딩 호출 한 번, 색인 요청 한 번씩 따로 보내면 문서 한 건에 수십~수백 번의 왕복이 생깁니다.
 
-## 마무리
+### 검색과 RAG 챗봇 플로우
 
-다중 서버 Worker 환경에서는 메시지 재전달과 워커 실패 상황을 RabbitMQ 단의 처리 보장 범위 뿐 아니라,
-DB 기반 상태 저장 및 멱등성 설계로 보완해야 합니다. 이렇게 설계하면 중단된 워커 이후에도 다른 서버의 워커가 안전하게 작업을 이어갈 수 있습니다.
+챗봇 요청 하나는 다음 흐름을 탑니다.
 
-이번 글에서는 DB 중심으로 Worker 장애 대응 패턴을 정리했습니다.
-다음 글에서는 Retry, Dead Letter Message 설계와 모니터링 전략까지 이어서 다뤄보겠습니다.
+```text
+POST /chat
+  → 질문 텍스트를 임베딩 API로 벡터화
+  → Elasticsearch kNN 검색으로 관련 청크 조회
+  → 조회된 청크로 LLM 프롬프트(RAG 컨텍스트) 구성
+  → SSE(Server-Sent Events)로 토큰 스트리밍 응답
+  → 질문/응답을 PostgreSQL에 저장
+```
 
----
+kNN 검색 쿼리는 다음과 같은 모양입니다.
 
-### 포함된 핵심 포인트
+```python
+def search_similar_chunks(query_vector: list[int], document_id: str, k: int = 5):
+    return es.search(
+        index="pdf_chunks",
+        knn={
+            "field": "chunk_vector",
+            "query_vector": query_vector,
+            "k": k,
+            "num_candidates": k * 10,
+            "filter": {"term": {"document_id": document_id}},
+        },
+    )
+```
 
-- RabbitMQ는 **at-least-once delivery** 형태임을 전제로 설명했습니다 (재전달 발생 가능). ([출처: Backend Engineering Chronicles](https://backend-engineering-chronicles.github.io/2025/10/31/reliable-rabbitmq-preventing-message-loss-duplicates-and-ordering-issues.html))  
-- DB를 기준으로 **중복 처리 확인 + 상태 저장** 패턴으로 Worker 실패 대응을 정리했습니다. ([출처: microservices.io](https://microservices.io/patterns/communication-style/idempotent-consumer.html))  
-- 멱등성 디자인은 **DB의 유니크 제약/ID 저장**을 기반으로 처리합니다. ([출처: microservices.io](https://microservices.io/patterns/communication-style/idempotent-consumer.html))
+`filter`로 같은 문서 안에서만 검색 범위를 좁히는 점이 포인트입니다. 전체 인덱스를 대상으로 kNN을 돌리면 다른 문서의 청크가 섞여 들어오고, 응답 품질도 떨어집니다.
+
+## 함정과 트레이드오프
+
+| 항목 | 내용 |
+|---|---|
+| 압축 손실 | Int8 양자화는 손실 압축이라 float32 대비 유사도 계산 정밀도가 떨어집니다. 재현율이 민감한 검색이라면 양자화 전후로 검색 품질을 직접 비교해 봐야 합니다. |
+| 임베딩 버전 변경 | 임베딩 API의 모델 버전이 바뀌면 새 벡터와 기존 벡터가 같은 공간에 있지 않게 됩니다. 버전이 바뀌는 시점에는 전체 재색인이 필요하고, 이 비용을 미리 계획에 넣어야 합니다. |
+| 샤드 설계 | 운영 환경의 샤드 개수는 기본값을 그대로 쓰지 않고, 예상 데이터량을 분석한 뒤 정했습니다. 샤드를 늘린 뒤 줄이는 작업은 재색인 없이는 안 되므로, 처음부터 여유를 두고 설계하는 편이 유리합니다. |
+| 단일 장애점 | 벡터 검색 경로를 하나로 모은 대신, Elasticsearch 자체가 장애 지점이 됩니다. 두 엔진을 운영하던 시절의 복잡도는 사라졌지만, 이제는 이 한 곳의 가용성이 RAG 챗봇 전체의 가용성과 같아집니다. |
+
+## 정리
+
+- 벡터 검색 엔진을 인메모리 엔진과 Elasticsearch로 나눠 운영하면 배포·모니터링·장애 대응이 모두 두 벌로 늘어납니다. 역할이 같은 저장소는 가능하면 하나로 모으는 편이 운영 부담을 줄입니다.
+- 메타데이터의 SSOT와 벡터 검색 엔진은 분리해 두되, 벡터 자체는 한 곳에만 둡니다. PostgreSQL은 그대로 메타데이터의 원천으로, Elasticsearch는 검색 전용으로 역할을 나눴습니다.
+- Int8 압축과 kNN으로 저장 공간과 응답 속도를 함께 얻을 수 있지만, 압축 손실과 임베딩 버전 변경에 따른 재색인 비용은 그대로 남는 트레이드오프입니다. 샤드 설계도 기본값이 아니라 예상 데이터량을 분석해 정해야 합니다.
