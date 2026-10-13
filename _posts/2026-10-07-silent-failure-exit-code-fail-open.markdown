@@ -3,7 +3,7 @@ layout: post
 title: "실패했는데 성공으로 끝나는 시스템 — 종료 코드 0과 fail-open 게이트"
 date: 2026-10-07 09:00:00 +0900
 categories: blog
-tags: [장애대응, Monitoring, Shell, 배치, 보안]
+tags: [Troubleshooting, Security, Batch, Monitoring, DevTools]
 excerpt: "실패해도 종료 코드 0을 내는 배치와 오류가 나면 통과시켜 버리는 게이트를 함께 놓고, 이런 시스템의 결과를 무엇으로 판정해야 하는지와 그 판정법이 새로 만드는 함정을 정리합니다."
 summary:
   - "적재 배치가 며칠째 아무것도 못 넣었는데 종료 코드는 매번 0이었습니다."

@@ -3,7 +3,7 @@ layout: post
 title: "레거시 WAR에서 웹폰트와 정적 파일 덜어내기 — 서빙 주체 판정부터 CDN 전환까지"
 date: 2026-10-08 09:00:00 +0900
 categories: blog
-tags: [Java, CDN, S3, 웹폰트, 정적리소스, 아키텍처]
+tags: [Java, AWS, Architecture, Web]
 excerpt: "레거시 웹 애플리케이션이 git과 WAR에 들고 있던 웹폰트·정적 파일을 오브젝트 스토리지와 CDN으로 옮기는 절차와, 응답 헤더로 서빙 주체를 가려내는 방법, 그 과정의 함정을 정리합니다."
 summary:
   - "레거시 WAR 여러 개가 웹폰트를 각자 커밋해 배포가 무거워지고 일부 포맷은 404였습니다."

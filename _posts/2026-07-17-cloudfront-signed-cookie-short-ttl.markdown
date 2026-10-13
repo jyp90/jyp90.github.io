@@ -3,7 +3,7 @@ layout: post
 title: "논문 본문 뷰어 만들기 (2) S3 본문을 CloudFront 서명 쿠키로 서빙하기"
 date: 2026-07-17 09:00:00 +0900
 categories: blog
-tags: [보안, 아키텍처, JavaScript, CDN, CloudFront, S3]
+tags: [JavaScript, AWS, Architecture, Security]
 excerpt: "학술 논문 본문 JSON을 CloudFront 서명 쿠키로 서빙하면서 인증 누락과 짧은 TTL 갱신에서 겪은 함정을 정리합니다."
 summary:
   - "본문·쿠키 재발급 API 일부에 로그인 확인이 빠져, 비로그인 상태로도 그대로 응답하는 경로가 있었습니다."

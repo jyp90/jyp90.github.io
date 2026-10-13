@@ -3,7 +3,7 @@ layout: post
 title: "브라우저와 URL에서 조용히 어긋나는 것들 (2) 초기화 시점에 전역 객체를 단정하는 함정"
 date: 2026-09-01 09:00:00 +0900
 categories: blog
-tags: [JavaScript, 웹, 장애대응, 프론트엔드]
+tags: [JavaScript, Troubleshooting, Web]
 excerpt: "전역 객체가 있는지를 초기화 시점에 상수로 굳혀 두면 스크립트 로드 순서가 바뀌는 순간 기능이 에러 없이 사라지는 이유와, 확인 방법·교정 방법을 정리합니다."
 series: "브라우저와 URL에서 조용히 어긋나는 것들"
 summary:

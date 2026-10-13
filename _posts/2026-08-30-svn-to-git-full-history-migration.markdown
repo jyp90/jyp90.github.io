@@ -3,7 +3,7 @@ layout: post
 title: "여러 git 저장소를 안전하게 다루기 (1) SVN을 전체 이력째 git으로 옮기기"
 date: 2026-08-30 09:00:00 +0900
 categories: blog
-tags: [Git, SVN, 마이그레이션, 개발도구]
+tags: [Git, DevTools, Migration]
 excerpt: "SVN 저장소를 전체 이력째 git으로 옮기고, 외부에서 통째로 받은 코드를 공통 조상 기준 3-way merge로 합치는 절차를 정리합니다."
 series: "여러 git 저장소를 안전하게 다루기"
 summary:

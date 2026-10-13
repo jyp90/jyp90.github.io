@@ -3,7 +3,7 @@ layout: post
 title: "논문 본문 뷰어 만들기 (1) XML과 OCR 두 본문을 한 화면에 그리기"
 date: 2026-07-14 09:00:00 +0900
 categories: blog
-tags: [JavaScript, 웹, 프론트엔드, 아키텍처, KaTeX]
+tags: [JavaScript, Architecture, Web]
 excerpt: "학술 논문 서비스에 본문 뷰어를 붙이며, 구조화 XML과 OCR 텍스트라는 서로 다른 두 본문 소스를 한 화면에서 그리고 노출 신호를 하나로 묶은 과정을 정리합니다."
 summary:
   - "OCR로 뽑은 수식 일부가 KaTeX 렌더에 실패해 수식 대신 LaTeX 원문 코드가 그대로 노출됐습니다."

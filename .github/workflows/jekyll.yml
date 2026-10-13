@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: ["master"]
   workflow_dispatch:
+  # Daily rebuild at 09:10 KST so posts dated in the future go live on their date (future: false hides them until then)
+  schedule:
+    - cron: "10 0 * * *"
 
 permissions:
   contents: read
@@ -34,7 +37,7 @@ jobs:
         uses: actions/configure-pages@v4
 
       - name: Build with Jekyll
-        run: bundle exec jekyll build --future
+        run: bundle exec jekyll build
         env:
           JEKYLL_ENV: production
 

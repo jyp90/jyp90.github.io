@@ -3,7 +3,7 @@ layout: post
 title: "메모리가 남아 있는데 JVM이 뜨지 않는 이유 — 엄격 오버커밋과 -Xms"
 date: 2026-10-03 09:00:00 +0900
 categories: blog
-tags: [Java, JVM, Linux, 메모리, 장애대응, 배치]
+tags: [Java, Linux, Troubleshooting, Performance, Batch]
 excerpt: "vm.overcommit_memory=2 서버에서 쓰지도 않는 -Xms 힙이 커밋 한도를 채워 새 JVM이 죽는 원리와, 확인 방법·대응·한계를 정리합니다."
 featured: true
 summary:

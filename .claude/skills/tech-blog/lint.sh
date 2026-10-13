@@ -6,10 +6,11 @@ set -u
 export LC_ALL=en_US.UTF-8
 [ $# -gt 0 ] || { echo "usage: lint.sh <draft.markdown>..." >&2; exit 2; }
 rc=0
+export TAGS_FILE="$(cd "$(dirname "$0")" && pwd)/references/tags.txt"
 for f in "$@"; do
   [ -f "$f" ] && [ -r "$f" ] || { echo "cannot read: $f" >&2; exit 2; }
   python3 - "$f" <<'EOF' || rc=1
-import re, sys
+import os, re, sys
 f = sys.argv[1]
 s = open(f, encoding='utf-8').read()
 out = []
@@ -33,6 +34,9 @@ if field('summary') is not None:
     for it in items:
         if len(it) > 75: bad(1, f'summary item {len(it)} chars > 75: {it[:30]}…')
         if not re.search(r'(니다|습니다)\.?$', it): bad(1, f'summary item not 합니다체: {it[:30]}…')
+allowed = open(os.environ['TAGS_FILE']).read().split()
+for t in [x.strip() for x in (field('tags') or '').strip('[]').split(',') if x.strip()]:
+    if t not in allowed: bad(1, f'tag not in references/tags.txt: {t}')
 title = (field('title') or '').strip('"')
 series = (field('series') or '').strip('"')
 if series and not title.startswith(series):

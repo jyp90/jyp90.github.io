@@ -3,7 +3,7 @@ layout: post
 title: "논문 본문 뷰어 만들기 (3) 열람 어뷰징을 세 가지 키로 막기"
 date: 2026-07-21 09:00:00 +0900
 categories: blog
-tags: [JavaScript, 웹, 보안, 아키텍처, 브라우저, Redis]
+tags: [JavaScript, Redis, Architecture, Security, Web]
 excerpt: "본문 뷰어 열람을 페이지 진입 단위로 세면서 생긴 정상 이용자 오차단 위험을, IP·회원·브라우저 세 키와 캡차 단계 차단으로 줄인 과정과 모바일 선택 차단 오판정 함정을 정리합니다."
 summary:
   - "열람 집계를 클릭 단위에서 페이지 진입 단위로 바꾸면서 정상 이용자도 임계값을 넘기기 쉬워졌습니다."

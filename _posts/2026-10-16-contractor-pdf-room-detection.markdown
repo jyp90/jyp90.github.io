@@ -3,7 +3,7 @@ layout: post
 title: "Claude Code로 만든 3D 인테리어 플래너 (3) 업체용 PDF와 방 영역 자동 인식"
 date: 2026-10-16 09:00:00 +0900
 categories: blog
-tags: [TypeScript, ClaudeCode, 사이드프로젝트, JavaScript, 웹폰트]
+tags: [JavaScript, TypeScript, ClaudeCode, Web, SideProject]
 excerpt: "전기 계획·체크리스트·업체용 PDF를 만들고, 설치 높이·바닥재·3D 문짝·코너장을 더한 뒤 닫힌 벽에서 방 영역을 찾는 기능까지 붙인 과정을 정리합니다."
 series: "Claude Code로 만든 3D 인테리어 플래너"
 summary:

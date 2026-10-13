@@ -3,7 +3,7 @@ layout: post
 title: "Claude Code로 만든 3D 인테리어 플래너 (2) 2D 평면 편집기와 배치안 비교"
 date: 2026-10-14 09:00:00 +0900
 categories: blog
-tags: [React, TypeScript, ClaudeCode, 사이드프로젝트, 마이그레이션]
+tags: [TypeScript, React, ClaudeCode, Migration, SideProject]
 excerpt: "3D 배치만 되던 플래너에 SVG 2D 편집기, 배치안 A/B 비교, PNG 내보내기, 복구 이력을 붙인 과정과 스펙을 라운드로 쌓는 방식을 정리합니다."
 series: "Claude Code로 만든 3D 인테리어 플래너"
 summary:

@@ -3,7 +3,7 @@ layout: post
 title: "고전 문헌 RAG 서비스를 만들며 배운 것 (3) 한문 원문 채팅과 Prefect 배치 연동"
 date: 2026-06-03 09:00:00 +0900
 categories: blog
-tags: [RAG, LLM, FastAPI, Elasticsearch, Prefect, 배치, 아키텍처]
+tags: [FastAPI, Elasticsearch, LLM, Architecture, Batch]
 excerpt: "고전 문헌 RAG 채팅 API에서 긴 LLM 요청 중 클라이언트 이탈과 취소, 대명사 처리, nori 설정의 함정을 다루고 Prefect로 배치를 잇는 방법을 정리합니다."
 series: "고전 문헌 RAG 서비스를 만들며 배운 것"
 summary:

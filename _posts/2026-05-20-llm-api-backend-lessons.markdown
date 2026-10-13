@@ -3,7 +3,7 @@ layout: post
 title: "고전 문헌 RAG 서비스를 만들며 배운 것 (1) LLM API 호출의 함정과 대응"
 date: 2026-05-20 09:00:00 +0900
 categories: blog
-tags: [RAG, LLM, Gemini, Python, FastAPI, 장애대응, 아키텍처]
+tags: [Python, FastAPI, LLM, Architecture, Troubleshooting]
 excerpt: "고전 문헌 질의응답 서비스에 Gemini API를 붙이며 겪은 함정을 2단 호출, 깨진 JSON 복구, 키 쿨다운과 모델 폴백, 프롬프트 회귀 검수, 근거 없는 답변 감지 순으로 정리합니다."
 series: "고전 문헌 RAG 서비스를 만들며 배운 것"
 summary:

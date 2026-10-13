@@ -3,7 +3,7 @@ layout: post
 title: "PDF AI 분석 서비스 백엔드 설계 (4) 벡터 검색을 Elasticsearch 하나로 모으기"
 date: 2026-01-16 09:00:00 +0900
 categories: blog
-tags: [Python, Elasticsearch, RAG, 벡터검색, 아키텍처]
+tags: [Python, Elasticsearch, LLM, Architecture]
 excerpt: "인메모리 벡터 라이브러리를 걷어 내고 벡터 검색을 Elasticsearch 하나로 모으면서 정한 인덱스 설계와 트레이드오프를 정리합니다."
 series: "PDF AI 분석 서비스 백엔드 설계"
 summary:

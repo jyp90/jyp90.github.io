@@ -3,7 +3,7 @@ layout: post
 title: "Claude Code 훅을 직접 써 보며 부딪힌 함정 6가지"
 date: 2026-09-30 09:00:00 +0900
 categories: blog
-tags: [ClaudeCode, Hooks, 동시성, 개발도구, Node.js]
+tags: [JavaScript, ClaudeCode, Performance, DevTools]
 excerpt: "세션마다 한 번만 안내를 넣는 Claude Code 훅을 만들면서 겪은 병렬 발화 경합, 플랫폼 차이, 실패 이벤트, 타임아웃 단위, 압축 뒤 재주입, 주입 확인 방법을 해결 패턴과 함께 정리합니다."
 summary:
   - "세션당 한 번만 안내를 넣는 Claude Code 훅이 중복 주입되거나 누락됐습니다."

@@ -3,7 +3,7 @@ layout: post
 title: "PDF AI 분석 서비스 백엔드 설계 (6) 대용량 PDF 업로드의 메모리 급증과 누수 잡기"
 date: 2026-10-20 09:00:00 +0900
 categories: blog
-tags: [Python, FastAPI, 메모리, 장애대응, 아키텍처]
+tags: [Python, FastAPI, Architecture, Troubleshooting, Performance]
 excerpt: "대용량 PDF 업로드가 서버 전체를 응답 불능으로 몰아넣은 장애를 계기로, 업로드 메모리 구조와 워커의 장기 메모리 누수를 함께 정리합니다."
 series: "PDF AI 분석 서비스 백엔드 설계"
 summary:

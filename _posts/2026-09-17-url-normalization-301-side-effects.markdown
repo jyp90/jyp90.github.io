@@ -3,7 +3,7 @@ layout: post
 title: "브라우저와 URL에서 조용히 어긋나는 것들 (3) URL 정규화 301의 두 가지 부작용"
 date: 2026-09-17 09:00:00 +0900
 categories: blog
-tags: [JavaScript, 웹, Java, HTTP, SEO]
+tags: [Java, JavaScript, Web]
 excerpt: "끝 슬래시 같은 전 경로 URL 정규화 301이 XHR·fetch 엔드포인트까지 리다이렉트하고 폐지 URL의 410을 가리는 원리와, 규칙 순서·테스트 방법을 정리합니다."
 series: "브라우저와 URL에서 조용히 어긋나는 것들"
 summary:
