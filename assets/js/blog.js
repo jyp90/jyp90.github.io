@@ -344,12 +344,58 @@
     });
   }
 
+  // ```mermaid fences render as SVG; mermaid (about 3MB) loads only on pages that have one. If it fails to load,
+  // the fence stays as a normal code block so the diagram source is still readable.
+  var MERMAID_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.15.0/mermaid.min.js';
+  var MERMAID_SRI = 'sha512-HH52omhHpZF6RfVnGiQwYgYm4H/ya2xsZYLl5xJ4+tLfX+rN4+8zF7V/H/KLeicPrKZYi1g6iBmVkk2AhXTGlg==';
+
+  function initMermaid(content) {
+    var blocks = Array.prototype.slice.call(content.querySelectorAll('div.language-mermaid'));
+    if (!blocks.length) return;
+    var figs = blocks.map(function (block) {
+      var fig = document.createElement('figure');
+      fig.className = 'mermaid-figure';
+      fig._src = block.textContent.trim();
+      fig._block = block;
+      block.parentNode.insertBefore(fig, block);
+      return fig;
+    });
+    function token(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+    var seq = 0;
+    function render() {
+      window.mermaid.initialize({
+        startOnLoad: false, securityLevel: 'strict', theme: 'base', fontFamily: token('--font-sans'),
+        flowchart: { htmlLabels: false, useMaxWidth: true }, sequence: { useMaxWidth: true },
+        themeVariables: {
+          background: token('--paper'), primaryColor: token('--bg-secondary'), primaryTextColor: token('--text-primary'),
+          primaryBorderColor: token('--ink-accent'), secondaryColor: token('--bg-tertiary'), tertiaryColor: token('--paper'),
+          lineColor: token('--text-secondary'), textColor: token('--text-primary'), fontSize: '15px'
+        }
+      });
+      figs.forEach(function (fig) {
+        window.mermaid.render('mermaid-' + (++seq), fig._src).then(function (r) {
+          fig.innerHTML = r.svg;
+          fig._block.hidden = true;
+        }).catch(function () { fig.remove(); fig._block.hidden = false; });
+      });
+    }
+    var s = document.createElement('script');
+    s.src = MERMAID_SRC; s.integrity = MERMAID_SRI; s.crossOrigin = 'anonymous'; s.referrerPolicy = 'no-referrer';
+    s.onload = function () {
+      render();
+      document.addEventListener('themechange', function () { requestAnimationFrame(render); });
+    };
+    s.onerror = function () { figs.forEach(function (fig) { fig.remove(); }); };
+    document.head.appendChild(s);
+  }
+
   function initPost() {
     var content = document.querySelector('.post-content');
     if (!content) return;
     initToc(content);
     initAnchors(content);
     initCodeCopy(content);
+    initMermaid(content);
     initScrollUi();
     initBackLink();
   }

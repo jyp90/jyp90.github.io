@@ -34,11 +34,15 @@ summary:
 
 전체 흐름은 다음과 같습니다.
 
-```text
-API Daemon (FastAPI) ── 큐 ──▶ Parse Worker
-                               Index Worker
-                               LLM Worker
-Manager Worker ─ (헬스 체크·로드밸런싱, 위 세 워커를 감시) ─┘
+```mermaid
+flowchart TD
+    api["업로드 API"] --> queue["큐"]
+    queue --> parse["Parse 워커"]
+    queue --> index["Index 워커"]
+    queue --> llm["LLM 워커"]
+    manager["Manager 워커"] -.->|"헬스체크"| parse
+    manager -.->|"헬스체크"| index
+    manager -.->|"헬스체크"| llm
 ```
 
 ### 핵심 코드

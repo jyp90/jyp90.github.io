@@ -89,13 +89,13 @@ def index_chunks(document_id: str, chunks: list[str], embed_fn):
 
 챗봇 요청 하나는 다음 흐름을 탑니다.
 
-```text
-POST /chat
-  → 질문 텍스트를 임베딩 API로 벡터화
-  → Elasticsearch kNN 검색으로 관련 청크 조회
-  → 조회된 청크로 LLM 프롬프트(RAG 컨텍스트) 구성
-  → SSE(Server-Sent Events)로 토큰 스트리밍 응답
-  → 질문/응답을 PostgreSQL에 저장
+```mermaid
+flowchart TD
+    req["질문 요청"] --> embed["질문 벡터화"]
+    embed --> search["ES kNN 검색"]
+    search --> prompt["프롬프트 구성"]
+    prompt --> stream["토큰 스트리밍"]
+    stream --> save["DB에 저장"]
 ```
 
 kNN 검색 쿼리는 다음과 같은 모양입니다.

@@ -1890,6 +1890,22 @@ p.head {
     transition: background-color var(--transition-fast);
 }
 
+/* Mermaid diagrams: drawn top-down so they stay readable at phone width */
+.mermaid-figure {
+    margin: 32px 0;
+    padding: 16px;
+    overflow-x: auto;
+    text-align: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+}
+
+.mermaid-figure svg {
+    max-width: min(100%, 640px);
+    height: auto;
+}
+
 /* Comments (giscus) */
 .post-comments {
     margin-top: 64px;

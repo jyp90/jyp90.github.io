@@ -24,6 +24,18 @@ PDF를 업로드하면 텍스트를 추출하고, 청크로 나눠 임베딩한 
 
 ## 접근
 
+Manager 워커가 나머지 워커의 생존을 확인하고 필요하면 재기동을 요청하는 흐름은 다음과 같습니다.
+
+```mermaid
+flowchart TD
+    manager["Manager 워커"] -->|"하트비트 확인"| parse["Parse 워커"]
+    manager -->|"하트비트 확인"| index["Index 워커"]
+    manager -->|"하트비트 확인"| llm["LLM 워커"]
+    parse -->|"지연 시"| restart["재기동 요청"]
+    index -->|"지연 시"| restart
+    llm -->|"지연 시"| restart
+```
+
 세 가지를 따로 설계했습니다.
 
 1. **감시 전용 워커**: 작업을 처리하지 않고 다른 워커들의 생존만 확인하는 프로세스를 하나 둡니다.

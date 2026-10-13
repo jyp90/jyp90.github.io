@@ -25,6 +25,23 @@ summary:
 
 ## 채팅 API — 긴 LLM 요청을 실서비스에서 다루기
 
+이 절에서 다루는 2겹 이탈 감지 중 1겹(주기 폴링)의 흐름은 다음과 같습니다.
+
+```mermaid
+sequenceDiagram
+  participant C as 클라이언트
+  participant S as 서버
+  participant L as LLM 태스크
+  C->>S: 질문 전송
+  S->>L: 분류검색생성 시작
+  loop 2초마다
+    S->>S: 연결 확인
+  end
+  C--xS: 연결 끊김
+  S->>L: 취소
+  S-->>C: 응답 없음
+```
+
 ### 요청 한 건의 흐름
 
 채팅 엔드포인트 한 건은 대략 다음 순서로 처리됩니다.

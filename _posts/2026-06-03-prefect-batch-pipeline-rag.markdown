@@ -18,6 +18,17 @@ summary:
 
 ### 파이프라인의 모양: 제출·감시·검증의 분리
 
+flow가 서로를 트리거하는 흐름을 그리면 다음과 같습니다.
+
+```mermaid
+flowchart TD
+  parse["parse"] --> submit["submit"]
+  submit --> monitor["monitor"]
+  monitor -->|"완료"| validate["validate"]
+  validate -->|"다음 단계"| submit
+  validate -->|"트리거"| embed["embedding"]
+```
+
 배치 프로젝트가 하는 일은 문헌 XML을 파싱해 DB에 넣고, LLM으로 번역과 해설을 만들고 해설을 한 번 더 확장한 뒤, 결과를 검색 인덱스에 싣고 임베딩하는 것입니다. LLM 호출은 Gemini Batch API를 씁니다. 요청을 JSONL로 묶어 클라우드 스토리지에 올리고 작업을 제출하면, 결과가 몇 분에서 몇 시간 뒤에 스토리지에 떨어집니다. 결과를 기다리며 프로세스를 잡아 두는 구조는 성립하지 않습니다.
 
 그래서 flow를 역할별로 쪼갰습니다.
