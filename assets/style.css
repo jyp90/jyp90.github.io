@@ -1890,6 +1890,43 @@ p.head {
     transition: background-color var(--transition-fast);
 }
 
+/* Mermaid diagrams: drawn top-down so they stay readable at phone width */
+.mermaid-figure {
+    margin: 32px 0;
+    padding: 16px;
+    overflow-x: auto;
+    text-align: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md);
+}
+
+.mermaid-figure svg {
+    height: auto;
+}
+
+/* Wider than the panel at a 12px label floor: say so, since a sideways scroll inside a figure is easy to miss */
+.mermaid-figure.is-scroll::before {
+    content: "옆으로 넘겨 보세요 →";
+    display: block;
+    position: sticky;
+    left: 0;
+    margin-bottom: 8px;
+    font-size: 0.8125rem;
+    text-align: left;
+    color: var(--text-secondary);
+}
+
+.code-bar[hidden] {
+    display: none;
+}
+
+@media (max-width: 480px) {
+    .mermaid-figure {
+        padding: 12px 8px;
+    }
+}
+
 /* Comments (giscus) */
 .post-comments {
     margin-top: 64px;

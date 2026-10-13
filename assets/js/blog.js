@@ -344,12 +344,78 @@
     });
   }
 
+  // ```mermaid fences render as SVG; mermaid (about 3MB) loads only on pages that have one. If it fails to load,
+  // the fence stays as a normal code block so the diagram source is still readable.
+  var MERMAID_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.15.0/mermaid.min.js';
+  var MERMAID_SRI = 'sha512-HH52omhHpZF6RfVnGiQwYgYm4H/ya2xsZYLl5xJ4+tLfX+rN4+8zF7V/H/KLeicPrKZYi1g6iBmVkk2AhXTGlg==';
+
+  function initMermaid(content) {
+    // Rouge has no mermaid lexer, so kramdown emits a bare pre > code.language-mermaid (no highlighter-rouge wrapper).
+    var blocks = Array.prototype.map.call(content.querySelectorAll('code.language-mermaid'), function (code) {
+      return code.closest('.highlighter-rouge') || code.closest('pre');
+    });
+    if (!blocks.length) return;
+    var figs = blocks.map(function (block) {
+      var fig = document.createElement('figure');
+      fig.className = 'mermaid-figure';
+      fig._src = block.textContent.trim();
+      var bar = block.previousElementSibling;
+      fig._parts = bar && bar.classList.contains('code-bar') ? [bar, block] : [block];
+      block.parentNode.insertBefore(fig, fig._parts[0]);
+      return fig;
+    });
+    function token(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+    var seq = 0;
+    function render() {
+      window.mermaid.initialize({
+        startOnLoad: false, securityLevel: 'strict', theme: 'base', fontFamily: token('--font-sans'),
+        flowchart: { htmlLabels: false, useMaxWidth: true }, sequence: { useMaxWidth: true },
+        themeVariables: {
+          background: token('--paper'), primaryColor: token('--bg-secondary'), primaryTextColor: token('--text-primary'),
+          primaryBorderColor: token('--ink-accent'), secondaryColor: token('--bg-tertiary'), tertiaryColor: token('--paper'),
+          lineColor: token('--text-secondary'), textColor: token('--text-primary'), fontSize: '15px'
+        }
+      });
+      figs.forEach(function (fig) {
+        window.mermaid.render('mermaid-' + (++seq), fig._src).then(function (r) {
+          fig.innerHTML = r.svg;
+          fig._parts.forEach(function (el) { el.hidden = true; });
+          fitMermaid(fig);
+        }).catch(function () { fig.remove(); fig._parts.forEach(function (el) { el.hidden = false; }); });
+      });
+    }
+    // Shrink to the panel width only while the smallest label stays at 12px or more; past that, scroll inside the figure.
+    function fitMermaid(fig) {
+      var svg = fig.querySelector('svg');
+      var vw = svg && svg.viewBox && svg.viewBox.baseVal ? svg.viewBox.baseVal.width : 0;
+      if (!vw) return;
+      var sizes = Array.prototype.map.call(svg.querySelectorAll('text, foreignObject span, foreignObject div'), function (t) {
+        return parseFloat(getComputedStyle(t).fontSize) || 0;
+      }).filter(function (x) { return x > 0; });
+      var smallest = sizes.length ? Math.min.apply(null, sizes) : 15;
+      svg.style.maxWidth = vw + 'px';
+      svg.style.minWidth = Math.min(vw, Math.ceil(vw * 12 / smallest)) + 'px';
+      svg.style.width = '100%';
+      fig.classList.toggle('is-scroll', fig.scrollWidth > fig.clientWidth + 1);
+    }
+
+    var s = document.createElement('script');
+    s.src = MERMAID_SRC; s.integrity = MERMAID_SRI; s.crossOrigin = 'anonymous'; s.referrerPolicy = 'no-referrer';
+    s.onload = function () {
+      render();
+      document.addEventListener('themechange', function () { requestAnimationFrame(render); });
+    };
+    s.onerror = function () { figs.forEach(function (fig) { fig.remove(); }); };
+    document.head.appendChild(s);
+  }
+
   function initPost() {
     var content = document.querySelector('.post-content');
     if (!content) return;
     initToc(content);
     initAnchors(content);
     initCodeCopy(content);
+    initMermaid(content);
     initScrollUi();
     initBackLink();
   }

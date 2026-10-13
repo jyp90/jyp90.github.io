@@ -16,6 +16,20 @@ summary:
 
 ## 세션 이어가기와 계측
 
+메모리 문서를 정본으로 두고 `--resume`을 캐시가 따뜻할 때만 쓰는 흐름은 다음과 같습니다.
+
+```mermaid
+flowchart TD
+  first["첫 발사"] --> sess["claude -p 세션"]
+  sess --> mem["메모리 문서"]
+  mem --> wait["사람 승인 대기"]
+  wait --> next["다음 트리거"]
+  next -->|"캐시 따뜻함"| resume["세션 재개"]
+  next -->|"캐시 식음"| coldstart["새 세션"]
+  resume --> sess
+  coldstart --> sess
+```
+
 ### 1. 이슈별 세션 이어 가기: `session_id`와 `--resume`
 
 초기 폴러는 트리거마다 완전히 새 대화로 세션을 띄웠습니다. 작업 디렉터리(이슈별 git worktree)는 이어졌지만, 앞 단계에서 Claude가 왜 그렇게 계획했는지, 설계에서 무엇을 버렸는지, 검수에서 무엇이 실패했는지는 대화에 남지 않았습니다.
