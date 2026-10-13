@@ -11,7 +11,7 @@
 | `--paper`, `--paper-edge` | 종이 바탕, 종이 테두리·점선·구분선 |
 | `--ink-accent` | 책 안의 강조색 (목차 번호, 연도 장 제목, 머리말, 현재 쪽수) |
 | `--cover`, `--cover-edge` | 표지 가죽색, 표지 테두리·어두운 끝 |
-| `--desk` | 책을 올려 둔 책상 바탕. `body`·헤더·푸터와 브라우저 `theme-color`가 함께 써요 |
+| `--desk` | 책을 올려 둔 책상 바탕. `body`·`main`(`assets/reset.css`)·헤더·푸터와 브라우저 `theme-color`가 함께 써요 |
 | `--font-serif` | 제목용 명조 (시스템 글꼴만 쓰고, 웹 폰트는 불러오지 않아요) |
 
 `.book` 안에서는 사이트 공용 표면 토큰(`--bg-secondary`, `--bg-tertiary`, `--bg-card`, `--border-primary`, `--border-secondary`, `--code-bg`)을 종이색에서 `color-mix`로 다시 만들어요. 그래서 코드 블록·요약·시리즈·태그 칩 같은 기존 컴포넌트는 따로 고치지 않아도 종이 톤을 따라가요. 책 안에 새 컴포넌트를 만들 때도 이 토큰을 그대로 쓰면 돼요.
@@ -23,7 +23,7 @@
 └ .home | .post  종이 (왼쪽 제본 그림자, 아래쪽에 겹친 종이 두 장)
 ```
 
-- `_layouts/home.html`, `_layouts/post.html`이 각각 `.book`으로 감싸요. 도구 페이지·소개·시리즈 페이지에는 표지를 씌우지 않아요.
+- `_layouts/home.html`, `_layouts/post.html`, `_layouts/page.html`(소개·시리즈·도구 목록)이 각각 `.book`으로 감싸요. `page.html`은 minima의 같은 이름 레이아웃을 덮어써요.
 - `.book`은 `width: fit-content`라서 폭은 안쪽 종이가 정해요. 종이 폭은 메인 760px, 격자 보기 1080px, 상세 `--measure + 144px`, 상세에 목차가 있으면 사이드 목차 폭(288px)을 더해요.
 
 ### 메인 목록 (책의 목차)
