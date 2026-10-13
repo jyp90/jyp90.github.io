@@ -1,0 +1,2 @@
+{%- assign st = site.data.series[include.series] -%}
+{%- if st == "complete" -%}<span class="series-status series-status--complete">완결</span>{%- elsif st == "ongoing" -%}<span class="series-status series-status--ongoing">연재 중</span>{%- endif -%}

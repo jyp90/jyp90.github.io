@@ -23,7 +23,7 @@ series: "메시지 중복 처리 설계"   # only for a series; the title must s
 - `tags`: 3–7, only names from `references/tags.txt` (English, exact case; `lint.sh` rejects others). Order: language/framework first (Java, Python …), then storage and infra, then topic. A new tag needs at least two posts that use it; add it to `tags.txt` in the same PR.
 - `excerpt`: one Korean sentence, ends with 「…합니다.」, ≤ 140 chars.
 - `summary`: required, 3 items; rules in `reader-bar.md` 「Front-matter fields」.
-- `series`: series parts only. Never write a TOC block into the body; the layout renders it from this field.
+- `series`: series parts only. Never write a TOC block into the body; the layout renders it from this field. The name must be a key in `_data/series.yml` (`lint.sh` checks); a new series adds itself there as `complete` (one project, closes) or `ongoing` (a theme that keeps collecting posts).
 - `featured`: never set by a draft; propose it in the report.
 - `title`: quoted; Korean, may contain public tech names.
 

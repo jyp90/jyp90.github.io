@@ -1,6 +1,7 @@
 ---
 layout: post
-title: "레거시 WAR에서 웹폰트와 정적 파일 덜어내기 — 서빙 주체 판정부터 CDN 전환까지"
+title: "레거시 Java 웹 애플리케이션에서 만난 함정 (6) WAR에서 웹폰트와 정적 파일 덜어내기"
+series: "레거시 Java 웹 애플리케이션에서 만난 함정"
 date: 2026-10-08 09:00:00 +0900
 categories: blog
 tags: [Java, AWS, Architecture, Web]

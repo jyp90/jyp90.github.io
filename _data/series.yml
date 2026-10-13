@@ -1,0 +1,10 @@
+# Series status shown on /series/ and in each part's series box: complete (완결) or ongoing (연재 중).
+# Story series follow one project and close; collection series keep gathering posts on one theme.
+"고전 문헌 RAG 서비스를 만들며 배운 것": complete
+"논문 본문 뷰어 만들기": complete
+"Mac mini에 이슈 자동 처리 에이전트 상주시키기": complete
+"Claude Code로 만든 3D 인테리어 플래너": complete
+"PDF AI 분석 서비스 백엔드 설계": complete
+"레거시 Java 웹 애플리케이션에서 만난 함정": ongoing
+"브라우저와 URL에서 조용히 어긋나는 것들": ongoing
+"여러 git 저장소를 안전하게 다루기": ongoing

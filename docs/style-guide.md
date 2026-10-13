@@ -45,6 +45,7 @@
 
 - 종이 왼쪽 위에 「‹ 목록」(`.post-back`)을 두고, 제목은 명조로 써요.
 - 하단의 「목록으로」(`.btn-back`)와 이전·다음 글 카드는 책 안 표면 토큰을 따라가요.
+- 시리즈 상태 배지(`.series-status`)는 `_data/series.yml`의 `complete`/`ongoing` 값을 「완결」/「연재 중」으로 시리즈 목차 상자와 `/series/`에 보여 줘요.
 - mermaid 다이어그램(`.mermaid-figure`)은 cdnjs의 mermaid로 그리고, 색은 테마 토큰에서 읽어 테마 토글 때 다시 그려요. 스크립트를 못 불러오면 원문 코드 블록을 그대로 보여 줘요.
 - 댓글(`.post-comments`, giscus)은 본문과 하단 내비게이션 사이에 둬요. giscus 테마는 `noborder_light`/`noborder_dark`이고 테마 토글을 따라가요. 설계: `docs/specs/2026-10-14-analytics-comments.md`
 
