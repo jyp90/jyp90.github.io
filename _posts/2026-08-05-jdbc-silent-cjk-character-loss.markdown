@@ -3,7 +3,7 @@ layout: post
 title: "한자가 조용히 ?로 바뀌는 곳 — JDBC 전송 계층의 문자 손실 추적기"
 date: 2026-08-05 09:00:00 +0900
 categories: blog
-tags: [Java, JDBC, SQL Server, Unicode, 장애대응, DB]
+tags: [Java, Database, Troubleshooting]
 excerpt: "컬럼이 NVARCHAR인데도 일부 한자가 오류 없이 ?로 저장되는 문제를, 손실 지점을 좁혀 가는 방법과 복구 순서까지 함께 정리합니다."
 featured: true
 summary:

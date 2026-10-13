@@ -3,7 +3,7 @@ layout: post
 title: "여러 git 저장소를 안전하게 다루기 (2) worktree에 --git-dir을 넘기면 엉뚱한 브랜치에 커밋되는 이유"
 date: 2026-09-08 09:00:00 +0900
 categories: blog
-tags: [Git, 개발도구, Shell, 장애복구]
+tags: [Git, Troubleshooting, DevTools]
 excerpt: "서브모듈 worktree에서 --git-dir로 공통 저장소를 지정하면 커밋이 메인 체크아웃의 브랜치에 쌓이는 원리와, HEAD를 미리 확인하는 방법을 정리합니다."
 series: "여러 git 저장소를 안전하게 다루기"
 summary:

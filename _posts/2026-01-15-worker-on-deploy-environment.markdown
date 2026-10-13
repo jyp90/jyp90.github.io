@@ -3,7 +3,7 @@ layout: post
 title: "PDF AI 분석 서비스 백엔드 설계 (3) API 데몬과 세 갈래 워커로 나눈 이유"
 date: 2026-01-15 09:00:00 +0900
 categories: blog
-tags: [Python, FastAPI, 아키텍처, 배치, 장애대응]
+tags: [Python, FastAPI, Architecture, Troubleshooting, Batch]
 excerpt: "PDF 파싱·임베딩·LLM 요약을 한 프로세스에서 처리할 때의 블로킹과 메모리 문제를 피하려고 API 데몬, 역할별 워커 3개, 감시 전담 매니저로 나눈 구조를 정리합니다."
 series: "PDF AI 분석 서비스 백엔드 설계"
 summary:

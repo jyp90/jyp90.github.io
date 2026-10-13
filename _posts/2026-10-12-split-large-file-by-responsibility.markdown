@@ -3,7 +3,7 @@ layout: post
 title: "1,800줄 파일을 책임 단위로 쪼개기 — 하루에 PR 4개로 끝낸 리팩터링 절차"
 date: 2026-10-12 09:00:00 +0900
 categories: blog
-tags: [리팩터링, TypeScript, React, 아키텍처, ClaudeCode]
+tags: [TypeScript, React, ClaudeCode, Architecture]
 excerpt: "기능을 쌓다 1,800줄까지 커진 파일들을 책임 목록, 순수 로직 우선 추출, 모듈 지도 갱신의 순서로 하루 만에 나눈 절차를 정리합니다."
 summary:
   - "기능을 계속 붙이다 보니 파일 하나가 1,800줄을 넘어 수정 범위를 잡기 어려워졌습니다."

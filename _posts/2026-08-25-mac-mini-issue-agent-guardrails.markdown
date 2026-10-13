@@ -3,7 +3,7 @@ layout: post
 title: "Mac mini에 이슈 자동 처리 에이전트 상주시키기 (3) 통지와 안전장치"
 date: 2026-08-25 09:00:00 +0900
 categories: blog
-tags: [ClaudeCode, 자동화, Jira, Slack, 보안, Hooks]
+tags: [ClaudeCode, Security, Automation]
 excerpt: "무인 에이전트가 사람에게 결과를 알리는 경로(트래커 코멘트, Slack, 멘션, 배포 알림, 요약 보고)와 그 경로가 사고를 내지 않게 막는 안전장치, 그리고 게이트가 요청을 승인으로 오판한 사례를 정리합니다."
 series: "Mac mini에 이슈 자동 처리 에이전트 상주시키기"
 summary:

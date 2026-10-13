@@ -3,7 +3,7 @@ layout: post
 title: "레거시 Java 웹 애플리케이션에서 만난 함정 (2) Integer == 비교가 127까지만 맞는 이유"
 date: 2026-08-22 09:00:00 +0900
 categories: blog
-tags: [Java, Spring, 보안, 코드리뷰]
+tags: [Java, Spring, Security]
 excerpt: "Long·Integer 래퍼끼리 ==로 비교하면 -128~127 캐시 구간에서만 맞아 본인 여부 판정이 조용히 뒤집히는 원리와, 안전한 비교 방법·같은 패턴을 찾는 방법을 정리합니다."
 series: "레거시 Java 웹 애플리케이션에서 만난 함정"
 featured: true

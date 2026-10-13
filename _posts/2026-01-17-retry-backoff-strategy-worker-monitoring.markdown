@@ -3,7 +3,7 @@ layout: post
 title: "PDF AI 분석 서비스 백엔드 설계 (5) 워커 감시, 타임아웃, 관측"
 date: 2026-01-17 09:00:00 +0900
 categories: blog
-tags: [Python, FastAPI, Redis, 아키텍처, 장애대응, 배치]
+tags: [Python, FastAPI, Redis, Architecture, Troubleshooting, Batch]
 excerpt: "비동기 워커를 여러 종류로 나눈 PDF 처리 파이프라인에서 감시 전용 워커의 생존 확인, 작업별 타임아웃, APM·로그 기반 관측을 어떻게 설계했는지 정리합니다."
 series: "PDF AI 분석 서비스 백엔드 설계"
 summary:

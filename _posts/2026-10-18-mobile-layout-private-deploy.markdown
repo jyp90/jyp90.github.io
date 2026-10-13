@@ -3,7 +3,7 @@ layout: post
 title: "Claude Code로 만든 3D 인테리어 플래너 (4) 모바일 결정 세 번과 공개 배포 분리"
 date: 2026-10-18 09:00:00 +0900
 categories: blog
-tags: [ClaudeCode, 사이드프로젝트, 보안, Git, 자동화]
+tags: [Git, ClaudeCode, Security, Automation, SideProject]
 excerpt: "모바일 화면 방침을 세 번 바꾼 과정, 실제 집 정보를 지키려고 소스와 배포 저장소를 나눈 과정, 그리고 이 모든 라운드를 돌린 Claude Code 작업 방식을 정리합니다."
 series: "Claude Code로 만든 3D 인테리어 플래너"
 summary:

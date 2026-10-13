@@ -9,7 +9,7 @@ layout: post
 title: "멱등 키로 메시지 중복 처리 막기"
 date: 2026-10-12 09:00:00 +0900
 categories: blog
-tags: [RabbitMQ, 멱등성, 분산시스템]
+tags: [Python, Architecture, Troubleshooting]
 excerpt: "메시지가 두 번 와도 결과가 한 번만 반영되도록 멱등 키를 설계하는 방법을 정리합니다."
 summary:
   - "재시도 중 같은 메시지가 두 번 처리돼 결과가 중복 반영됐습니다."
@@ -20,11 +20,7 @@ series: "메시지 중복 처리 설계"   # only for a series; the title must s
 ```
 - `categories: blog` always: it makes the URL `/blog/YYYY/MM/DD/<slug>.html`.
 - `date` matches the file name date; time `09:00:00 +0900` unless the user says otherwise, and never earlier than 09:00 KST (earlier is the previous UTC day, so the URL date no longer matches the file name and the publish curl check fails).
-- `tags`: 3–7, prefer existing names (exact spelling and case). List them at run time:
-  ```bash
-  grep -h '^tags:' ~/Projects/jyp90.github.io/_posts/*.markdown | sed 's/^tags: *\[//; s/\] *$//' \
-    | tr ',' '\n' | sed 's/^ *//; s/ *$//' | sort | uniq -c | sort -rn
-  ```
+- `tags`: 3–7, only names from `references/tags.txt` (English, exact case; `lint.sh` rejects others). Order: language/framework first (Java, Python …), then storage and infra, then topic. A new tag needs at least two posts that use it; add it to `tags.txt` in the same PR.
 - `excerpt`: one Korean sentence, ends with 「…합니다.」, ≤ 140 chars.
 - `summary`: required, 3 items; rules in `reader-bar.md` 「Front-matter fields」.
 - `series`: series parts only. Never write a TOC block into the body; the layout renders it from this field.

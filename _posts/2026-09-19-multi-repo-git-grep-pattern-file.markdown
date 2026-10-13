@@ -3,7 +3,7 @@ layout: post
 title: "여러 git 저장소를 안전하게 다루기 (3) 수십 개 저장소를 git grep 패턴 파일로 한 번에 훑기"
 date: 2026-09-19 09:00:00 +0900
 categories: blog
-tags: [Git, Shell, 개발도구, 자동화]
+tags: [Git, Automation, DevTools]
 excerpt: "경로 수십 건이 어느 저장소에서 참조되는지 찾을 때, 패턴마다 grep을 돌리는 대신 패턴 파일 하나로 저장소당 한 번만 git grep을 실행하는 방법과 그 함정을 정리합니다."
 series: "여러 git 저장소를 안전하게 다루기"
 summary:

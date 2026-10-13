@@ -3,7 +3,7 @@ layout: post
 title: "Mac mini에 이슈 자동 처리 에이전트 상주시키기 (2) 이슈 감지와 헤드리스 Claude 실행"
 date: 2026-08-19 09:00:00 +0900
 categories: blog
-tags: [ClaudeCode, 자동화, Jira, 아키텍처, 개발도구]
+tags: [ClaudeCode, Architecture, Automation, DevTools]
 excerpt: "폴러가 Jira에서 처리할 이슈를 고르고, 프롬프트를 조립해 claude -p를 서브프로세스로 띄우고, 이슈마다 세션과 사용량 기록을 이어 가는 구조를 정리합니다."
 series: "Mac mini에 이슈 자동 처리 에이전트 상주시키기"
 summary:

@@ -3,7 +3,7 @@ layout: post
 title: "Mac mini에 이슈 자동 처리 에이전트 상주시키기 (4) 운영하며 배운 것: 비용과 조용한 실패"
 date: 2026-09-10 09:00:00 +0900
 categories: blog
-tags: [ClaudeCode, 자동화, Monitoring, 관측성, 비용최적화]
+tags: [ClaudeCode, Automation, Monitoring]
 excerpt: "상주 에이전트를 운영하며 실행당 비용을 재는 원장의 결함, 컨텍스트와 캐시를 겨냥한 비용 설계, 조용히 틀리는 지표의 방어, 자동 검증과 배포의 경계, 이미 구현된 요구의 처리, 사람과 자동화의 비교 방법을 정리합니다."
 series: "Mac mini에 이슈 자동 처리 에이전트 상주시키기"
 summary:

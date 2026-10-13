@@ -3,7 +3,7 @@ layout: post
 title: "레거시 Java 웹 애플리케이션에서 만난 함정 (3) Spring 4 WAR를 Spring Boot 2.7로 옮길 때의 함정"
 date: 2026-08-29 09:00:00 +0900
 categories: blog
-tags: [Java, Spring, Spring Boot, Tomcat, 마이그레이션]
+tags: [Java, Spring, Migration]
 excerpt: "Spring 4 WAR 애플리케이션을 Spring Boot 2.7로 옮길 때 컨텍스트 병합, ErrorPageFilter, 내장·외부 톰캣의 비대칭에서 생기는 함정과 확인 방법을 정리합니다."
 series: "레거시 Java 웹 애플리케이션에서 만난 함정"
 summary:

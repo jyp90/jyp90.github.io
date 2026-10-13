@@ -3,7 +3,7 @@ layout: post
 title: "브라우저와 URL에서 조용히 어긋나는 것들 (1) 뒤로가기 bfcache와 어긋나는 폼 상태"
 date: 2026-08-04 09:00:00 +0900
 categories: blog
-tags: [JavaScript, 웹, 브라우저, bfcache, Playwright]
+tags: [JavaScript, Web]
 excerpt: "뒤로가기로 bfcache에서 되살아난 페이지의 폼 상태가 URL과 어긋나는 원리와, pageshow 처리·autocomplete 오해·자동화 브라우저로 재현되지 않는 이유를 정리합니다."
 series: "브라우저와 URL에서 조용히 어긋나는 것들"
 summary:

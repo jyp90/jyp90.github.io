@@ -32,7 +32,7 @@ github_username:  jyp90
 markdown: kramdown
 theme: minima
 asset_url: /assets
-future: true
+future: false
 plugins:
   - jekyll-feed
   - jekyll-seo-tag

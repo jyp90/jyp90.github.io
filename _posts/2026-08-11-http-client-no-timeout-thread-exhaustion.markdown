@@ -3,7 +3,7 @@ layout: post
 title: "레거시 Java 웹 애플리케이션에서 만난 함정 (1) 타임아웃 없는 외부 HTTP 호출이 스레드를 하나씩 잡아먹는 과정"
 date: 2026-08-11 09:00:00 +0900
 categories: blog
-tags: [Java, Spring, 장애대응, 동시성, HttpClient]
+tags: [Java, Spring, Troubleshooting, Performance]
 excerpt: "기본값으로 만든 HTTP 클라이언트가 응답 없는 외부 서버 앞에서 요청 스레드를 영원히 붙잡는 원리와, 스레드 덤프로 알아보는 법, 타임아웃 설정과 최악 대기 시간 계산을 정리합니다."
 series: "레거시 Java 웹 애플리케이션에서 만난 함정"
 featured: true

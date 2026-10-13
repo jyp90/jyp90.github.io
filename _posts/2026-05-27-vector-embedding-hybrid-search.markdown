@@ -3,7 +3,7 @@ layout: post
 title: "고전 문헌 RAG 서비스를 만들며 배운 것 (2) 벡터 임베딩과 하이브리드 검색"
 date: 2026-05-27 09:00:00 +0900
 categories: blog
-tags: [RAG, Elasticsearch, 임베딩, 벡터검색, Python, 배치]
+tags: [Python, Elasticsearch, LLM, Batch]
 excerpt: "고전 문헌 RAG의 검색 계층에서 무엇을 임베딩할지, Elasticsearch dense_vector 설정, BM25와 kNN을 합치는 방법, 의미 기반 캐시를 끈 이유를 정리합니다."
 series: "고전 문헌 RAG 서비스를 만들며 배운 것"
 summary:

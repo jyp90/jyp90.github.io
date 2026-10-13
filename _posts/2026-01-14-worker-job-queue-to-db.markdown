@@ -3,7 +3,7 @@ layout: post
 title: "PDF AI 분석 서비스 백엔드 설계 (2) 상태는 DB에, 큐는 전달만: 저장소 역할 나누기"
 date: 2026-01-14 09:00:00 +0900
 categories: blog
-tags: [Python, FastAPI, Redis, PostgreSQL, 아키텍처]
+tags: [Python, FastAPI, Database, Redis, Architecture]
 excerpt: "메시지 큐와 DB를 함께 쓰는 워커 파이프라인에서 처리 상태를 어디에 둬야 재전달과 재시작에도 안전한지 정리합니다."
 series: "PDF AI 분석 서비스 백엔드 설계"
 summary:

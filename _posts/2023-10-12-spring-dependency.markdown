@@ -3,6 +3,7 @@ layout: post
 title:  "Spring Dependency"
 date:   2023-10-12 15:37:15 +0900
 categories: spring
+tags: [Java, Spring]
 published: false
 ---
 

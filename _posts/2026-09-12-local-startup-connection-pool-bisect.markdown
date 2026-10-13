@@ -3,7 +3,7 @@ layout: post
 title: "레거시 Java 웹 애플리케이션에서 만난 함정 (4) 로컬 기동 100초를 커넥션 풀 설정 하나로 좁히기"
 date: 2026-09-12 09:00:00 +0900
 categories: blog
-tags: [Java, Spring, DB, JDBC, 개발도구]
+tags: [Java, Spring, Database, DevTools]
 excerpt: "로컬에서 첫 화면까지 100초 넘게 걸리던 레거시 웹 애플리케이션을 단계별로 재고 변수 하나씩 갈라 커넥션 풀 initialSize로 좁힌 과정과, 로그를 꺼도 남는 JDBC 로깅 프록시의 요청당 비용을 정리합니다."
 series: "레거시 Java 웹 애플리케이션에서 만난 함정"
 summary:

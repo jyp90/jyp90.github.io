@@ -3,7 +3,7 @@ layout: post
 title: "논문 본문 뷰어 만들기 (4) 본문 오류 신고를 받아 고치는 흐름"
 date: 2026-07-24 09:00:00 +0900
 categories: blog
-tags: [Elasticsearch, 장애대응, 아키텍처, 웹, DB]
+tags: [Database, Elasticsearch, Architecture, Troubleshooting, Web]
 excerpt: "본문 오류 신고를 운영자가 검토해 검색 색인 일부만 바꿔 반영하는 흐름과, 그 경로에서 만난 세 가지 문제를 정리합니다."
 summary:
   - "신고를 승인해 색인을 일부만 바꿔 반영했는데도 화면에 반영되지 않는 사례가 있었습니다."

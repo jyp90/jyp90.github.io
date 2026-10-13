@@ -3,7 +3,7 @@ layout: post
 title: "Claude Code로 만든 3D 인테리어 플래너 (1) 설계 문서에서 첫 3D 배치까지"
 date: 2026-10-11 09:00:00 +0900
 categories: blog
-tags: [React, TypeScript, ClaudeCode, 사이드프로젝트, 아키텍처]
+tags: [TypeScript, React, ClaudeCode, Architecture, SideProject]
 excerpt: "이사 갈 집에 가구·가전이 들어가는지 확인하려고 Claude Code로 3D 인테리어 플래너를 만든 과정 중, 설계 문서부터 첫 3D 배치 화면까지를 정리합니다."
 series: "Claude Code로 만든 3D 인테리어 플래너"
 summary:

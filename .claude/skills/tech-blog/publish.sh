@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Publish one approved draft through a PR (direct push to master is blocked by a protected-branch hook).
 # usage: publish.sh <draft.markdown> <YYYY-MM-DD> <slug> <title> [<commit trailer>]
-# Exit 0 only when the post URL answers 200. Run as ONE Bash call with a 600000 ms timeout.
+# Exit 0 only when the post URL answers 200, or the post is dated in the future (scheduled). Run as ONE Bash call with a 600000 ms timeout.
 set -u
 [ $# -ge 4 ] || { echo "usage: publish.sh <draft> <YYYY-MM-DD> <slug> <title> [trailer]" >&2; exit 2; }
 D=$1; DT=$2; SL=$3; TI=$4; TR=${5:-}
@@ -32,5 +32,7 @@ sha=$(git -C "$B" rev-parse HEAD); id=""
 for i in 1 2 3 4 5 6; do sleep 10; id=$(gh run list -R $GH --commit "$sha" --limit 1 --json databaseId -q '.[0].databaseId'); [ -n "$id" ] && break; done
 [ -n "$id" ] && gh run watch "$id" -R $GH --exit-status >/dev/null; echo "pages-run=${id:-none} exit=$?"
 U=https://jyp90.github.io/blog/${DT//-//}/$SL.html
+# future: false hides a post until its date; the daily 09:10 KST build publishes it then
+[ "$DT" \> "$(TZ=Asia/Seoul date +%F)" ] && { echo "scheduled $DT (goes live after the 09:10 KST build) $U"; exit 0; }
 for i in 1 2 3 4 5 6 7 8 9; do c=$(curl -s -o /dev/null -w '%{http_code}' "$U"); [ "$c" = 200 ] && break; sleep 10; done
 echo "$c $U"; [ "$c" = 200 ]

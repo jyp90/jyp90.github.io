@@ -3,7 +3,7 @@ layout: post
 title: "PDF AI 분석 서비스 백엔드 설계 (1) 업로드 처리 상태 머신과 다시 처리하기"
 date: 2026-01-13 09:00:00 +0900
 categories: blog
-tags: [Python, FastAPI, 아키텍처, PostgreSQL, Elasticsearch]
+tags: [Python, FastAPI, Database, Elasticsearch, Architecture]
 excerpt: "업로드한 PDF를 단계별 상태로 처리하는 구조에서, 실패하거나 다시 돌려야 하는 문서를 수동 DB 조작 없이 초기화하고 재처리하는 방법을 정리합니다."
 series: "PDF AI 분석 서비스 백엔드 설계"
 summary:
