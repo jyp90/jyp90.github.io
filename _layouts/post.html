@@ -2,7 +2,9 @@
 layout: default
 ---
 <div class="reading-progress" aria-hidden="true"></div>
+<div class="book">
 <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <a class="post-back" href="{{ '/' | relative_url }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>목록</a>
   <header class="post-header">
     <h1 class="post-title" itemprop="name headline">{{ page.title | escape }}</h1>
     {% include post-meta.html post=page %}
@@ -32,6 +34,7 @@ layout: default
     <a class="btn-back" href="{{ '/' | relative_url }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>목록으로</a>
   </footer>
 </article>
+</div>
 <button type="button" class="back-to-top" aria-label="맨 위로" hidden>
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
