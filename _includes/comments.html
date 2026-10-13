@@ -1,0 +1,8 @@
+{%- assign g = site.comments.giscus -%}
+{%- if g.enabled and page.comments != false -%}
+<section class="post-comments" aria-labelledby="comments-heading">
+  <h2 id="comments-heading" class="post-comments-title">댓글</h2>
+  <div class="giscus" data-repo="{{ g.repo }}" data-repo-id="{{ g.repo_id }}" data-category="{{ g.category }}" data-category-id="{{ g.category_id }}"></div>
+  <noscript><p class="post-comments-fallback">댓글은 <a href="https://github.com/{{ g.repo }}/discussions">GitHub Discussions</a>에서 볼 수 있습니다.</p></noscript>
+</section>
+{%- endif -%}

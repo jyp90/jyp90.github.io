@@ -1890,6 +1890,27 @@ p.head {
     transition: background-color var(--transition-fast);
 }
 
+/* Comments (giscus) */
+.post-comments {
+    margin-top: 64px;
+    padding-top: 48px;
+    border-top: 1px solid var(--border-primary);
+}
+
+.post-comments-title {
+    margin: 0 0 16px;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.post-comments-fallback {
+    color: var(--text-secondary);
+}
+
+.post-comments + .post-footer {
+    margin-top: 48px;
+}
+
 /* Post Footer */
 .post-footer {
     display: grid;

@@ -21,6 +21,29 @@
       document.documentElement.setAttribute('data-theme', next);
       try { localStorage.setItem('theme', next); } catch (e) {}
       syncThemeColor();
+      document.dispatchEvent(new CustomEvent('themechange', { detail: next }));
+    });
+  }
+
+  // giscus reads its theme once at load, so later toggles are pushed into its iframe.
+  function initComments() {
+    var box = document.querySelector('.post-comments .giscus');
+    if (!box) return;
+    var theme = function (t) { return t === 'light' ? 'noborder_light' : 'noborder_dark'; };
+    var s = document.createElement('script');
+    s.src = 'https://giscus.app/client.js';
+    s.async = true;
+    s.crossOrigin = 'anonymous';
+    var attrs = {
+      repo: box.dataset.repo, 'repo-id': box.dataset.repoId, category: box.dataset.category, 'category-id': box.dataset.categoryId,
+      mapping: 'pathname', strict: '1', 'reactions-enabled': '1', 'emit-metadata': '0', 'input-position': 'bottom',
+      theme: theme(currentTheme()), lang: 'ko', loading: 'lazy'
+    };
+    Object.keys(attrs).forEach(function (k) { s.setAttribute('data-' + k, attrs[k]); });
+    box.appendChild(s);
+    document.addEventListener('themechange', function (e) {
+      var frame = document.querySelector('iframe.giscus-frame');
+      if (frame) frame.contentWindow.postMessage({ giscus: { setConfig: { theme: theme(e.detail) } } }, 'https://giscus.app');
     });
   }
 
@@ -335,5 +358,6 @@
     initTheme();
     initHomeList();
     initPost();
+    initComments();
   });
 })();

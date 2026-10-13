@@ -28,6 +28,20 @@ url: "https://jyp90.github.io" # the base hostname & protocol for your site, e.g
 twitter_username: junyongpark90
 github_username:  jyp90
 
+# Comments: giscus (GitHub Discussions). Turn on only after the giscus GitHub App is installed on the repo.
+# Set `comments: false` in a post's front matter to hide them there.
+comments:
+  giscus:
+    enabled: false
+    repo: jyp90/jyp90.github.io
+    repo_id: MDEwOlJlcG9zaXRvcnkzNTk0MTA2NDc=
+    category: Announcements
+    category_id: DIC_kwDOFWwr184DIVCn
+
+# Analytics: GoatCounter site code (the <code> in https://<code>.goatcounter.com). Empty = off. Production builds only.
+analytics:
+  goatcounter: ""
+
 # Build settings
 markdown: kramdown
 theme: minima
