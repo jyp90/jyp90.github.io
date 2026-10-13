@@ -131,9 +131,11 @@ body {
    Page turn (cross-document view transition)
    =================================== */
 
-/* A clipped stack of papers: the top sheet is lifted from its bottom-right corner and folded
-   toward the top-left. forward peels the old page off; backward lays the previous page back down.
-   The clip line is x + y = c, c running 2 -> 0; the flap is the peeled part mirrored over that line. */
+/* A clipped stack of papers: the top sheet is lifted from its bottom-right corner and folded toward the
+   top-left. forward peels the old page off; backward lays the previous page back down.
+   The fold line is x + y = c at 45 degrees on any screen shape (lengths, not percentages, so a tall phone
+   does not turn it into a near-vertical wipe), with c running from 100vw + 100vh down to 0.
+   The flap is the peeled part reflected over that line: translate(c, c) matrix(0,-1,-1,0,0,0). */
 @media (prefers-reduced-motion: no-preference) {
     @view-transition { navigation: auto; }
 }
@@ -150,7 +152,7 @@ body {
 ::view-transition-new(root) {
     mix-blend-mode: normal;
     animation-duration: 0.6s;
-    animation-timing-function: linear;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
     animation-fill-mode: both;
 }
 
@@ -167,25 +169,32 @@ body {
 
 ::view-transition-image-pair(page-flap) {
     background: linear-gradient(135deg, var(--paper) 30%, var(--paper-edge));
-    clip-path: polygon(100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%);
-    animation: 0.6s linear both page-flap;
+    transform-origin: 0 0;
+    clip-path: polygon(0 0, 0 0, 0 0);
 }
 
-html:active-view-transition-type(forward)::view-transition-old(root) { z-index: 1; animation-name: page-peel; }
-html:active-view-transition-type(forward)::view-transition-new(root) { animation-name: page-under; }
-html:active-view-transition-type(backward)::view-transition-old(root) { animation-name: page-under; animation-direction: reverse; }
-html:active-view-transition-type(backward)::view-transition-new(root) { z-index: 1; animation-name: page-peel; animation-direction: reverse; }
-html:active-view-transition-type(backward)::view-transition-image-pair(page-flap) { animation-direction: reverse; }
+html[data-turn]::view-transition-image-pair(page-flap) { animation: 0.6s cubic-bezier(0.45, 0, 0.25, 1) both page-flap; }
+html[data-turn="forward"]::view-transition-old(root) { z-index: 1; animation-name: page-peel; }
+html[data-turn="forward"]::view-transition-new(root) { animation-name: page-under; }
+html[data-turn="backward"]::view-transition-old(root) { animation-name: page-under; animation-direction: reverse; }
+html[data-turn="backward"]::view-transition-new(root) { z-index: 1; animation-name: page-peel; animation-direction: reverse; }
+html[data-turn="backward"]::view-transition-image-pair(page-flap) { animation-direction: reverse; }
 
+/* What stays of the sheet: the half-plane x + y <= c */
 @keyframes page-peel {
-    0%   { clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%); }
-    50%  { clip-path: polygon(0 0, 100% 0, 100% 0, 0 100%, 0 100%); }
-    100% { clip-path: polygon(0 0, 0 0, 0 0, 0 0, 0 0); }
+    from { clip-path: polygon(-100vmax -100vmax, calc(100vw + 100vh + 100vmax) -100vmax, -100vmax calc(100vw + 100vh + 100vmax)); }
+    to   { clip-path: polygon(-100vmax -100vmax, 100vmax -100vmax, -100vmax 100vmax); }
 }
+/* The lifted part (x + y >= c), mirrored over the fold line */
 @keyframes page-flap {
-    0%   { clip-path: polygon(100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%); }
-    50%  { clip-path: polygon(100% 0, 100% 0, 0 0, 0 100%, 0 100%); }
-    100% { clip-path: polygon(0 0, 0 -100%, -100% -100%, -100% 0, 0 0); }
+    from {
+        clip-path: polygon(calc(100vw + 100vh + 100vmax) -100vmax, 300vmax -100vmax, 300vmax 300vmax, -100vmax 300vmax, -100vmax calc(100vw + 100vh + 100vmax));
+        transform: translate(calc(100vw + 100vh), calc(100vw + 100vh)) matrix(0, -1, -1, 0, 0, 0);
+    }
+    to {
+        clip-path: polygon(100vmax -100vmax, 300vmax -100vmax, 300vmax 300vmax, -100vmax 300vmax, -100vmax 100vmax);
+        transform: translate(0, 0) matrix(0, -1, -1, 0, 0, 0);
+    }
 }
 @keyframes page-under {
     from { filter: brightness(0.85); }
@@ -354,6 +363,9 @@ body > header {
     --border-primary: var(--paper-edge);
     --border-secondary: color-mix(in srgb, var(--paper-edge) 60%, var(--paper));
     --code-bg: var(--bg-secondary);
+    /* Links, tags and accents on paper use the ink colour */
+    --accent-primary: var(--ink-accent);
+    --gradient-primary: var(--ink-accent);
 }
 
 /* A sheet of paper: binding shadow on the left, a few page edges stacked under the bottom */

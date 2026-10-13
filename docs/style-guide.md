@@ -16,6 +16,8 @@
 
 `.book` 안에서는 사이트 공용 표면 토큰(`--bg-secondary`, `--bg-tertiary`, `--bg-card`, `--border-primary`, `--border-secondary`, `--code-bg`)을 종이색에서 `color-mix`로 다시 만들어요. 그래서 코드 블록·요약·시리즈·태그 칩 같은 기존 컴포넌트는 따로 고치지 않아도 종이 톤을 따라가요. 책 안에 새 컴포넌트를 만들 때도 이 토큰을 그대로 쓰면 돼요.
 
+`.book` 안에서는 `--accent-primary`와 `--gradient-primary`도 `--ink-accent`로 바꿔요. 그래서 종이 위의 링크·태그·선택된 태그 칩·버튼은 파란색 대신 잉크색(갈색)으로 보여요.
+
 ## 2. 페이지 구조
 
 ```
@@ -75,15 +77,15 @@
 
 | 위치 | 하는 일 |
 |---|---|
-| `_includes/head.html` 인라인 스크립트 | `pageswap`·`pagereveal`에서 방향 타입(`forward`/`backward`)을 붙여요. 첫 렌더 전에 실행돼야 해서 `blog.js`(defer)로 옮기지 않아요 |
+| `_includes/head.html` 인라인 스크립트 | 새 페이지의 `pagereveal`에서 `<html data-turn="forward\|backward">`를 붙이고, 전환이 끝나면 지워요. 첫 렌더 전에 실행돼야 해서 `blog.js`(defer)로 옮기지 않아요 |
 | `_layouts/default.html`의 `.page-flap` | 넘어가는 종이 뒷면을 그릴 투명 고정 요소예요 (`view-transition-name: page-flap`) |
-| `assets/style.css` "Page turn" 섹션 | 잘라 내는 선 `x + y = c`를 `c = 2 → 0`으로 움직여요 |
+| `assets/style.css` "Page turn" 섹션 | 접는 선 `x + y = c`를 `c = 100vw + 100vh → 0`으로 움직여요. 퍼센트가 아니라 길이 단위라서 세로로 긴 휴대폰에서도 선이 45도예요 |
 
-- **방향**: 목록으로 가는 이동과 히스토리 뒤로가기는 `backward`, 나머지는 `forward`예요.
-- **forward**: 이전 화면이 오른쪽 아래부터 좌상단으로 잘려 나가고(`page-peel`), 잘린 부분을 선 기준으로 뒤집은 삼각형이 종이 뒷면(`page-flap`)으로 보여요. 아래 새 화면은 살짝 어두웠다가 밝아져요(`page-under`).
+- **방향**: 새 페이지가 목록이면 `backward`, 나머지는 `forward`예요. Navigation API가 있으면 히스토리 이동은 앞뒤 순서로 정해요. 전환은 새 페이지가 그리므로 방향도 새 페이지에서만 정해요. view-transition types 대신 속성을 쓰는 이유는, Safari에 Navigation API가 없으면 이전 페이지가 목적지를 몰라 뒤로 갈 때 앞으로 넘기는 장면이 나왔기 때문이에요.
+- **forward**: 이전 화면이 오른쪽 아래부터 좌상단으로 잘려 나가고(`page-peel`), 잘린 부분을 접는 선에 대해 뒤집은 모양이 종이 뒷면(`page-flap`)으로 보여요. 뒤집기는 `translate(c, c) matrix(0, -1, -1, 0, 0, 0)`이에요. 아래 새 화면은 살짝 어두웠다가 밝아져요(`page-under`).
 - **backward**: 같은 애니메이션을 `animation-direction: reverse`로 돌려, 새 화면이 위에서 내려앉아요.
 - **꺼지는 경우**: `prefers-reduced-motion: reduce`이면 `@view-transition`을 켜지 않아요. Firefox처럼 지원하지 않는 브라우저는 효과 없이 이동해요.
-- **한계**: 넘김 선이 화면 대각선을 따라가서 화면 비율에 따라 각도가 달라져요. 종이가 휘는 곡면은 없고 평평한 접힘이에요.
+- **한계**: 종이가 휘는 곡면은 없고 평평한 접힘이에요. iOS·Android에서 가장자리를 밀어 뒤로 가면 브라우저 자체 애니메이션이 나오고, 이때 브라우저가 이 전환을 건너뛰어요.
 
 ### 뒤로 가기
 
@@ -99,4 +101,4 @@
 1. PR 빌드 산출물을 받아 로컬에서 띄워요 (`CLAUDE.md` 방법 3).
 2. Playwright로 라이트·다크 × 1280px·375px, 격자 보기를 스크린샷으로 확인해요. 375px에서 `document.documentElement.scrollWidth`가 화면 폭을 넘지 않아야 해요.
 3. 전환 중간 장면은 CDP `Animation.setPlaybackRate`를 `0.1`로 낮춘 뒤 클릭하고 1~3초 뒤에 찍어요.
-4. 방향 타입은 `pagereveal`에서 `setTimeout(0)` 뒤에 `viewTransition.types`를 읽어 확인해요. 바로 읽으면 head 스크립트보다 먼저 실행돼 빈 값이 나와요.
+4. 방향은 `pagereveal`에서 `setTimeout(0)` 뒤에 `<html>`의 `data-turn`을 읽어 확인해요. 바로 읽으면 head 스크립트보다 먼저 실행돼 빈 값이 나와요. 모바일은 `isMobile`·`hasTouch` 컨텍스트(390×844)에서 `tap()`으로 확인해요.

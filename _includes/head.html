@@ -11,19 +11,19 @@
       // Home list view, set before paint so a saved grid view does not flash as a list.
       try { if (localStorage.getItem('home-view') === 'grid') document.documentElement.setAttribute('data-home-view', 'grid'); } catch (e) {}
     })();
-    // Page-turn direction for cross-document view transitions; must run before first render, so it cannot live in deferred blog.js.
+    // Page-turn direction, set on <html> before first render (so not in deferred blog.js). The new page draws the
+    // transition, so only pagereveal matters. A data attribute instead of view-transition types: Safari lacks the
+    // Navigation API that told the old page where it was going, so going back played the forward turn there.
     (function () {
       var home = '{{ "/" | relative_url }}';
-      function turnType(act) {
-        if (!act || !act.entry) return 'forward';
-        if (act.navigationType === 'traverse' && act.from) return act.entry.index < act.from.index ? 'backward' : 'forward';
-        return new URL(act.entry.url).pathname === home ? 'backward' : 'forward';
-      }
-      window.addEventListener('pageswap', function (e) {
-        if (e.viewTransition) e.viewTransition.types.add(turnType(e.activation));
-      });
       window.addEventListener('pagereveal', function (e) {
-        if (e.viewTransition) e.viewTransition.types.add(turnType(window.navigation && navigation.activation));
+        if (!e.viewTransition) return;
+        var act = window.navigation && navigation.activation;
+        var turn = location.pathname === home ? 'backward' : 'forward';
+        if (act && act.navigationType === 'traverse' && act.from && act.entry) turn = act.entry.index < act.from.index ? 'backward' : 'forward';
+        var root = document.documentElement;
+        root.setAttribute('data-turn', turn);
+        e.viewTransition.finished.finally(function () { root.removeAttribute('data-turn'); });
       });
     })();
   </script>
