@@ -12,6 +12,7 @@
     --on-accent: #ffffff;
     --paper: #1a1916; --paper-edge: #2e2b25; --ink-accent: #d6a86c;
     --cover: #3a2a1e; --cover-edge: #22180f;
+    --desk: #12110f;
     --shadow-rgb: 0, 0, 0;
     --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px;
     --measure: 72ch; --header-height: 60px;
@@ -31,6 +32,7 @@
     --shadow-rgb: 31, 35, 40;
     --paper: #fcfaf5; --paper-edge: #e6dfd0; --ink-accent: #8c5a24;
     --cover: #5b3a24; --cover-edge: #3b2416;
+    --desk: #f1ece2;
     color-scheme: light;
 }
 
@@ -45,6 +47,7 @@
         --shadow-rgb: 31, 35, 40;
         --paper: #fcfaf5; --paper-edge: #e6dfd0; --ink-accent: #8c5a24;
         --cover: #5b3a24; --cover-edge: #3b2416;
+        --desk: #f1ece2;
         color-scheme: light;
     }
 }
@@ -90,8 +93,9 @@
    Base
    =================================== */
 
+/* The desk the book lies on; header and footer share it */
 body {
-    background: var(--bg-primary);
+    background: var(--desk);
     color: var(--text-primary);
     font-family: var(--font-sans);
     font-size: 17px;
@@ -194,8 +198,8 @@ html:active-view-transition-type(backward)::view-transition-image-pair(page-flap
 
 /* Site header only — a bare `header` would also match .post-header */
 body > header {
-    background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
-    border-bottom: 1px solid var(--border-primary);
+    background: color-mix(in srgb, var(--desk) 88%, transparent);
+    border-bottom: 1px solid var(--paper-edge);
     min-height: var(--header-height);
     position: sticky;
     top: 0;
@@ -257,8 +261,8 @@ body > header {
 
 .header-items li a:hover,
 .header-items li button:hover {
-    color: var(--text-primary);
-    background-color: var(--bg-tertiary);
+    color: var(--ink-accent);
+    background-color: color-mix(in srgb, var(--paper-edge) 55%, transparent);
     box-shadow: none;
     transform: none;
 }
@@ -270,7 +274,7 @@ body > header {
 .header-items li.division {
     width: 1px;
     height: 20px;
-    background-color: var(--border-primary);
+    background-color: var(--paper-edge);
     padding: 0;
     margin: 0 8px;
 }
@@ -300,11 +304,16 @@ body > header {
     margin-right: 24px;
 }
 
-.site-logo a {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.site-logo a,
+.site-logo a:visited {
+    font-family: var(--font-serif);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.site-logo a:hover {
+    color: var(--ink-accent);
 }
 
 /* ===================================
@@ -1068,26 +1077,25 @@ p.head {
    =================================== */
 
 .site-footer {
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border-primary);
+    background: var(--desk);
+    border-top: 3px double var(--paper-edge);
     padding: 48px 24px;
     margin-top: 64px;
 }
 
 .footer-heading {
+    font-family: var(--font-serif);
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 24px;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--text-primary);
 }
 
 .footer-subheading {
-    color: var(--text-secondary);
+    font-family: var(--font-serif);
+    color: var(--ink-accent);
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 700;
     margin-bottom: 16px;
 }
 
@@ -1120,13 +1128,17 @@ p.head {
     font-size: 14px;
 }
 
-.contact-list a {
-    color: var(--accent-primary);
+.contact-list a,
+.contact-list a:visited,
+.footer-col-3 a,
+.footer-col-3 a:visited {
+    color: var(--ink-accent);
     transition: color var(--transition-fast);
 }
 
-.contact-list a:hover {
-    color: var(--accent-secondary);
+.contact-list a:hover,
+.footer-col-3 a:hover {
+    color: var(--text-primary);
 }
 
 .social-media-list {
@@ -1154,8 +1166,8 @@ p.head {
 }
 
 .social-media-list a:hover {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
+    background: color-mix(in srgb, var(--paper-edge) 55%, transparent);
+    color: var(--ink-accent);
 }
 
 .svg-icon {
@@ -1176,7 +1188,7 @@ p.head {
 }
 
 .footer-bottom {
-    border-top: 1px solid var(--border-primary);
+    border-top: 1px solid var(--paper-edge);
     max-width: var(--container-width);
     margin: 32px auto 0;
     padding-top: 24px;
@@ -1364,7 +1376,7 @@ p.head {
     left: 0;
     right: 0;
     height: 2px;
-    background: var(--gradient-primary);
+    background: var(--ink-accent);
     transform-origin: left;
     transform: scaleX(0);
     z-index: 10002;
@@ -2245,7 +2257,10 @@ p.head {
 }
 
 .header-items li a[aria-current="page"] {
-    color: var(--text-primary);
+    color: var(--ink-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
 }
 
 @media (max-width: 480px) {

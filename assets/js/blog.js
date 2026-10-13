@@ -8,7 +8,7 @@
   }
 
   function syncThemeColor() {
-    var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+    var bg = getComputedStyle(document.documentElement).getPropertyValue('--desk').trim();
     document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', bg); });
   }
 
