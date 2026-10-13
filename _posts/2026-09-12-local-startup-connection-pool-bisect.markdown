@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "레거시 Java 웹 애플리케이션에서 만난 함정 (4) 로컬 기동 100초를 커넥션 풀 설정 하나로 좁히기"
+title: "레거시 Java 웹 애플리케이션에서 만난 함정 (5) 로컬 기동 100초를 커넥션 풀 설정 하나로 좁히기"
 date: 2026-09-12 09:00:00 +0900
 categories: blog
 tags: [Java, Spring, Database, DevTools]
