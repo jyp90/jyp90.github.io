@@ -308,15 +308,16 @@
 
   // Came from the list: go back in history so the page turns backward and the list keeps its page, tag and scroll.
   function initBackLink() {
-    var back = document.querySelector('.btn-back');
-    if (!back || !document.referrer) return;
+    if (!document.referrer) return;
     var from;
     try { from = new URL(document.referrer); } catch (e) { return; }
-    if (from.origin !== location.origin || from.pathname !== back.pathname) return;
-    back.addEventListener('click', function (e) {
-      if (history.length < 2) return;
-      e.preventDefault();
-      history.back();
+    document.querySelectorAll('.post-back, .btn-back').forEach(function (back) {
+      if (from.origin !== location.origin || from.pathname !== back.pathname) return;
+      back.addEventListener('click', function (e) {
+        if (history.length < 2) return;
+        e.preventDefault();
+        history.back();
+      });
     });
   }
 

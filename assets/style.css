@@ -11,6 +11,7 @@
     --code-bg: #161b22;
     --on-accent: #ffffff;
     --paper: #1a1916; --paper-edge: #2e2b25; --ink-accent: #d6a86c;
+    --cover: #3a2a1e; --cover-edge: #22180f;
     --shadow-rgb: 0, 0, 0;
     --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px;
     --measure: 72ch; --header-height: 60px;
@@ -29,6 +30,7 @@
     --code-bg: #f6f8fa;
     --shadow-rgb: 31, 35, 40;
     --paper: #fcfaf5; --paper-edge: #e6dfd0; --ink-accent: #8c5a24;
+    --cover: #5b3a24; --cover-edge: #3b2416;
     color-scheme: light;
 }
 
@@ -42,6 +44,7 @@
         --code-bg: #f6f8fa;
         --shadow-rgb: 31, 35, 40;
         --paper: #fcfaf5; --paper-edge: #e6dfd0; --ink-accent: #8c5a24;
+        --cover: #5b3a24; --cover-edge: #3b2416;
         color-scheme: light;
     }
 }
@@ -124,40 +127,65 @@ body {
    Page turn (cross-document view transition)
    =================================== */
 
-/* forward: the old page turns away to the left; backward: the new page turns back in over it */
+/* A clipped stack of papers: the top sheet is lifted from its bottom-right corner and folded
+   toward the top-left. forward peels the old page off; backward lays the previous page back down.
+   The clip line is x + y = c, c running 2 -> 0; the flap is the peeled part mirrored over that line. */
 @media (prefers-reduced-motion: no-preference) {
     @view-transition { navigation: auto; }
+}
+
+.page-flap {
+    position: fixed;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    view-transition-name: page-flap;
 }
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
     mix-blend-mode: normal;
-    transform-origin: left center;
-    animation-duration: 0.55s;
-    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+    animation-duration: 0.6s;
+    animation-timing-function: linear;
     animation-fill-mode: both;
 }
 
-html:active-view-transition-type(forward)::view-transition-old(root) { z-index: 1; animation-name: page-turn-away; }
-html:active-view-transition-type(forward)::view-transition-new(root) { animation-name: page-under; }
-html:active-view-transition-type(backward)::view-transition-old(root) { animation-name: page-under-reverse; }
-html:active-view-transition-type(backward)::view-transition-new(root) { z-index: 1; animation-name: page-turn-back; }
-
-@keyframes page-turn-away {
-    from { transform: perspective(1800px) rotateY(0); filter: brightness(1); }
-    to   { transform: perspective(1800px) rotateY(-90deg); filter: brightness(0.55); }
+::view-transition-old(page-flap),
+::view-transition-new(page-flap) {
+    animation: none;
+    opacity: 0;
 }
-@keyframes page-turn-back {
-    from { transform: perspective(1800px) rotateY(-90deg); filter: brightness(0.55); }
-    to   { transform: perspective(1800px) rotateY(0); filter: brightness(1); }
+
+::view-transition-group(page-flap) {
+    animation: none;
+    filter: drop-shadow(-6px -6px 10px rgba(var(--shadow-rgb), 0.35));
+}
+
+::view-transition-image-pair(page-flap) {
+    background: linear-gradient(135deg, var(--paper) 30%, var(--paper-edge));
+    clip-path: polygon(100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%);
+    animation: 0.6s linear both page-flap;
+}
+
+html:active-view-transition-type(forward)::view-transition-old(root) { z-index: 1; animation-name: page-peel; }
+html:active-view-transition-type(forward)::view-transition-new(root) { animation-name: page-under; }
+html:active-view-transition-type(backward)::view-transition-old(root) { animation-name: page-under; animation-direction: reverse; }
+html:active-view-transition-type(backward)::view-transition-new(root) { z-index: 1; animation-name: page-peel; animation-direction: reverse; }
+html:active-view-transition-type(backward)::view-transition-image-pair(page-flap) { animation-direction: reverse; }
+
+@keyframes page-peel {
+    0%   { clip-path: polygon(0 0, 100% 0, 100% 100%, 100% 100%, 0 100%); }
+    50%  { clip-path: polygon(0 0, 100% 0, 100% 0, 0 100%, 0 100%); }
+    100% { clip-path: polygon(0 0, 0 0, 0 0, 0 0, 0 0); }
+}
+@keyframes page-flap {
+    0%   { clip-path: polygon(100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%); }
+    50%  { clip-path: polygon(100% 0, 100% 0, 0 0, 0 100%, 0 100%); }
+    100% { clip-path: polygon(0 0, 0 -100%, -100% -100%, -100% 0, 0 0); }
 }
 @keyframes page-under {
-    from { filter: brightness(0.7); }
+    from { filter: brightness(0.85); }
     to   { filter: brightness(1); }
-}
-@keyframes page-under-reverse {
-    from { filter: brightness(1); }
-    to   { filter: brightness(0.7); }
 }
 
 /* ===================================
@@ -297,20 +325,45 @@ body > header {
    Home Page
    =================================== */
 
-.home {
-    max-width: 760px;
-    margin: 48px auto 64px;
-    padding: 64px 72px 48px;
-    /* A sheet of paper: binding shadow on the left, a few page edges stacked under the bottom */
+/* The book: a hard cover with the paper sheet (.home or .post) laid on it */
+.book {
+    width: fit-content;
+    max-width: 100%;
+    margin: 40px auto 64px;
+    padding: 18px 18px 26px 22px;
+    background:
+        linear-gradient(90deg, rgba(var(--shadow-rgb), 0.35), transparent 14px),
+        linear-gradient(160deg, color-mix(in srgb, var(--cover) 82%, var(--on-accent)), var(--cover) 45%, var(--cover-edge));
+    border-radius: 6px 12px 12px 6px;
+    box-shadow: inset 0 0 0 1px var(--cover-edge), var(--shadow-lg);
+
+    /* Surfaces inside the book take the paper's tone instead of the site's grey */
+    --bg-secondary: color-mix(in srgb, var(--paper-edge) 40%, var(--paper));
+    --bg-tertiary: color-mix(in srgb, var(--paper-edge) 75%, var(--paper));
+    --bg-card: var(--bg-secondary);
+    --bg-card-hover: var(--bg-tertiary);
+    --border-primary: var(--paper-edge);
+    --border-secondary: color-mix(in srgb, var(--paper-edge) 60%, var(--paper));
+    --code-bg: var(--bg-secondary);
+}
+
+/* A sheet of paper: binding shadow on the left, a few page edges stacked under the bottom */
+.home,
+.post {
     background:
         linear-gradient(90deg, rgba(var(--shadow-rgb), 0.14), transparent 28px),
         var(--paper);
     border: 1px solid var(--paper-edge);
-    border-radius: 2px 6px 6px 2px;
+    border-radius: 2px 4px 4px 2px;
     box-shadow:
         0 3px 0 -1px var(--paper), 0 3px 0 0 var(--paper-edge),
-        0 6px 0 -2px var(--paper), 0 6px 0 -1px var(--paper-edge),
-        var(--shadow-lg);
+        0 6px 0 -2px var(--paper), 0 6px 0 -1px var(--paper-edge);
+}
+
+.home {
+    width: 760px;
+    max-width: 100%;
+    padding: 64px 72px 48px;
 }
 
 /* Title page */
@@ -639,6 +692,12 @@ details[open] > summary .fold-chevron {
     display: none;
 }
 
+.pager {
+    padding-top: 24px;
+    border-top: 3px double var(--paper-edge);
+}
+
+/* Page numbers at the foot of a book page */
 .pager-link,
 .pager-link:visited {
     display: inline-flex;
@@ -646,24 +705,25 @@ details[open] > summary .fold-chevron {
     justify-content: center;
     min-width: 44px;
     min-height: 44px;
-    padding: 0 12px;
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
+    padding: 0 8px;
     color: var(--text-secondary);
-    font-size: 14px;
-    font-variant-numeric: tabular-nums;
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-variant-numeric: lining-nums tabular-nums;
     text-decoration: none;
+    transition: color var(--transition-fast);
 }
 
 a.pager-link:hover {
-    border-color: var(--accent-primary);
-    color: var(--text-primary);
+    color: var(--ink-accent);
 }
 
 .pager-link[aria-current="page"] {
-    background: var(--gradient-primary);
-    border-color: transparent;
-    color: var(--bg-primary);
+    color: var(--ink-accent);
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
 }
 
 .pager-link.is-disabled {
@@ -676,7 +736,7 @@ a.pager-link:hover {
 
 /* Grid view (data-home-view is set from localStorage in head.html before paint) */
 :root[data-home-view="grid"] .home {
-    max-width: 1080px;
+    width: 1080px;
 }
 
 :root[data-home-view="grid"] .toc-leader,
@@ -1203,9 +1263,13 @@ p.head {
         padding: 0 16px;
     }
 
-    .home {
+    .book {
         margin: 16px auto 32px;
-        padding: 36px 20px 28px;
+        padding: 8px 8px 14px 10px;
+    }
+
+    .home {
+        padding: 36px 18px 28px;
     }
 
     .home-title {
@@ -1308,9 +1372,30 @@ p.head {
 }
 
 .post {
-    max-width: var(--measure);
-    margin: 0 auto;
-    padding: 48px 0;
+    width: calc(var(--measure) + 144px);
+    max-width: 100%;
+    padding: 40px 72px 56px;
+}
+
+/* Back to the list, top-left of the sheet */
+.post-back,
+.post-back:visited {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    margin: 0 0 16px -10px;
+    padding: 0 12px 0 6px;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 14px;
+    text-decoration: none;
+    transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.post-back:hover {
+    color: var(--ink-accent);
+    background: var(--bg-secondary);
 }
 
 .post-header {
@@ -1320,6 +1405,7 @@ p.head {
 }
 
 .post-title {
+    font-family: var(--font-serif);
     font-size: 36px;
     font-weight: 700;
     line-height: 1.3;
@@ -1400,7 +1486,7 @@ p.head {
 
 @media (min-width: 1100px) {
     .post.has-toc {
-        max-width: calc(var(--measure) + 240px + 48px);
+        width: calc(var(--measure) + 240px + 48px + 144px);
     }
 
     .post-layout.has-toc {
@@ -1859,9 +1945,9 @@ p.head {
 }
 
 .btn-back:hover {
-    background: var(--accent-primary);
-    color: var(--bg-primary);
-    border-color: var(--accent-primary);
+    background: var(--bg-tertiary);
+    color: var(--ink-accent);
+    border-color: var(--ink-accent);
     transform: translateX(-4px);
 }
 
@@ -1903,7 +1989,7 @@ p.head {
 
 @media (max-width: 768px) {
     .post {
-        padding: 32px 0;
+        padding: 24px 32px 40px;
     }
 
     .post-title {
@@ -1946,6 +2032,10 @@ p.head {
 }
 
 @media (max-width: 480px) {
+    .post {
+        padding: 16px 18px 32px;
+    }
+
     .post-title {
         font-size: 24px;
     }
