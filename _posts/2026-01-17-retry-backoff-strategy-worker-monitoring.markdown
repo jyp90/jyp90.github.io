@@ -1,169 +1,95 @@
 ---
 layout: post
-title: "메시지 큐 Worker 설계 노트 (5) RabbitMQ DLQ, Retry/Backoff 전략과 Worker 모니터링"
+title: "PDF AI 분석 서비스 백엔드 설계 (5) 워커 감시, 타임아웃, 관측"
 date: 2026-01-17 09:00:00 +0900
 categories: blog
-tags: [RabbitMQ, DeadLetterQueue, Retry, Backoff, Monitoring, Worker, 장애대응]
-excerpt: "RabbitMQ Dead Letter Queue(DLQ) 설계, Retry + Backoff 전략, Worker 모니터링 및 자동재시작 패턴을 정리합니다."
-series: "메시지 큐 Worker 설계 노트"
+tags: [Python, FastAPI, Redis, 아키텍처, 장애대응, 배치]
+excerpt: "비동기 워커를 여러 종류로 나눈 PDF 처리 파이프라인에서 감시 전용 워커의 생존 확인, 작업별 타임아웃, APM·로그 기반 관측을 어떻게 설계했는지 정리합니다."
+series: "PDF AI 분석 서비스 백엔드 설계"
 summary:
-  - "반복 실패하는 메시지를 무한 재전달하면 장애가 번지고 정상 메시지가 밀립니다."
-  - "DLX로 실패 메시지를 분리하고, TTL 큐와 x-death 횟수로 지연 재시도를 구현합니다."
-  - "큐·Worker 지표 감시와 프로세스 자동 재시작까지 함께 설계해야 합니다."
+  - "비동기 워커 여러 종류를 운영할 때 생존 확인과 작업별 타임아웃, 평소 관측을 어떻게 설계할지가 문제였습니다."
+  - "감시 워커가 하트비트로 생존을 확인하고, 업로드 60초·번역 180초로 타임아웃을 나눴으며, APM·로그로 지표를 모읍니다."
+  - "재시도 대상을 일시적인 실패로 좁히는 것도 함께 고려해야 할 지점입니다."
 ---
 
-## 왜 Dead Letter Queue와 Retry가 필요한가
+## 문제와 배경
 
-분산 메시지 시스템에서는 메시지 처리 실패가 흔하게 발생합니다.  
-예기치 않은 예외, 외부 서비스 장애, 데이터 불일치 등으로 인해 **Consumer가 메시지 처리를 반복 실패**할 수 있습니다. 이때 동일 메시지를 무한 재전달하면 시스템 장애가 전파되거나 정상 메시지 처리가 지연될 수 있습니다.
+PDF를 업로드하면 텍스트를 추출하고, 청크로 나눠 임베딩한 뒤 색인하고, 마지막으로 요약·번역까지 만드는 파이프라인을 FastAPI 데몬과 비동기 워커들로 나눠서 돌립니다. 역할은 셋으로 나눴습니다.
 
-대부분의 메시징 시스템은 **Dead Letter Queue**라고 불리는 별도 큐를 통해 처리가 어려운 메시지를 분리하고, **Retry/Backoff** 정책을 통해 일시적인 장애에 대응하도록 설계할 수 있습니다. ([출처: RabbitMQ](https://www.rabbitmq.com/docs/dlx))
+- 텍스트·이미지 추출을 맡는 워커
+- 임베딩과 색인을 맡는 워커
+- 요약·번역·분류처럼 LLM을 호출하는 워커
 
----
+작업은 Redis 큐에 쌓이고 각 워커가 자기 몫만 꺼내 갑니다. 역할을 나누고 나니 「워커 하나가 멈추면 누가 알아채는가」, 「일을 꺼냈다가 응답이 안 오면 언제까지 기다려야 하는가」, 「평소에는 무엇을 보고 있어야 이상 징후를 조기에 알아채는가」 같은 질문이 남았습니다. (역할별 워커를 내리고 올리는 배포 순서는 [PDF AI 분석 서비스 백엔드 설계 (3) API 데몬과 세 갈래 워커로 나눈 이유](/blog/2026/01/15/worker-on-deploy-environment.html)에서 다뤘습니다.) 이 글은 남은 세 질문에 쓴 답을 정리합니다.
 
-## 1. RabbitMQ Dead Letter Queue (DLQ) 설계
+## 접근
 
-### Dead Letter Queue란?
+세 가지를 따로 설계했습니다.
 
-Dead Letter Queue(DLQ)는 **처리할 수 없는 메시지를 모아두는 큐**입니다.  
-RabbitMQ에서는 메시지에 다음 조건이 발생하면 DLQ로 이동(Dead-Lettering)합니다:
+1. **감시 전용 워커**: 작업을 처리하지 않고 다른 워커들의 생존만 확인하는 프로세스를 하나 둡니다.
+2. **작업 종류별 타임아웃**: 업로드 처리와 번역처럼 걸리는 시간이 완전히 다른 작업에 같은 타임아웃을 주지 않습니다.
+3. **평소 관측**: APM과 로그 모니터링 도구로 지표를 모아 두어야, 장애가 나기 전 징후도 보입니다.
 
-- Consumer가 메시지를 reject/nack하며 requeue를 false로 설정한 경우  
-- 메시지가 TTL(time-to-live) 만료된 경우  
-- 큐 길이 제한(max length) 초과로 인해 삭제된 경우 ([출처: RabbitMQ](https://www.rabbitmq.com/docs/dlx))
+여기에 더해 재시도 대상을 일시적인 실패로 좁히는 것도 함께 고려해야 할 지점입니다.
 
-이렇게 분리된 메시지는 문제 원인을 분석하거나, 재처리·수동 대응을 위해 별도 큐에 저장됩니다.
+## 구현
 
----
+### 핵심 코드
 
-### RabbitMQ에서 DLQ 구성 방법
+감시 워커는 일을 처리하지 않고 주기적으로 각 작업 워커의 생존만 확인합니다. 아래는 워커가 마지막으로 응답한 시각을 Redis에 기록해 두고, 일정 시간 갱신이 없으면 재기동을 시도하는 형태로 단순화한 예시입니다.
 
-RabbitMQ에서는 **Dead Letter Exchange(DLX)**를 설정한 뒤 이를 통해 DLQ로 메시지를 라우팅합니다. DLX는 일반 Exchange와 동일하게 동작하며, 큐 선언 시 `x-dead-letter-exchange` 및 `x-dead-letter-routing-key`를 지정합니다. ([출처: RabbitMQ](https://www.rabbitmq.com/docs/dlx))
+```python
+import time
 
-```java
-queueBuilder
-  .durable("main_queue")
-  .withArgument("x-dead-letter-exchange", "dead_letter_exchange")
-  .withArgument("x-dead-letter-routing-key", "dlq_routing_key")
-  .build();
+HEARTBEAT_TTL_SECONDS = 30
 
+class ManagerWorker:
+    def __init__(self, redis_client, worker_kinds):
+        self.redis = redis_client
+        self.worker_kinds = worker_kinds  # ["parse", "index", "llm"]
+
+    def check_and_recover(self):
+        for kind in self.worker_kinds:
+            last_seen = self.redis.get(f"heartbeat:{kind}")
+            if last_seen is None or self._is_stale(last_seen):
+                self._restart(kind)
+
+    def _is_stale(self, last_seen: bytes) -> bool:
+        return time.time() - float(last_seen) > HEARTBEAT_TTL_SECONDS
+
+    def _restart(self, kind: str):
+        # 프로세스 매니저(systemd 등)에 재기동을 요청
+        ...
 ```
 
-- dead_letter_exchange: 실패 메시지를 재전달할 Exchange
-- dlq_routing_key: DLQ로 라우팅할 키
+작업 종류별 타임아웃은 작업을 큐에 넣을 때 같이 적어 둡니다. 업로드 처리는 60초, 번역은 180초로 다르게 잡았습니다. 업로드 처리는 비교적 예측 가능한 작업이고, 번역은 외부 LLM 응답 속도에 그대로 끌려가기 때문에 여유를 더 둡니다.
 
-DLQ는 정상 흐름과 분리된 큐이므로, 별도의 Consumer를 두어 수동/자동 대응 로직을 운영할 수 있습니다.
+```python
+TIMEOUTS = {
+    "upload": 60,    # 업로드 처리
+    "translate": 180,  # 번역
+}
 
----
-
-### DLQ 응용 예시
-
-DLQ를 단순 장애 저장소 외에도 다음과 같이 활용할 수 있습니다:
-
-- 실패 원인 라벨링(에러 코드 기반 분리 큐)
-- 재처리 또는 재발행(운영 정책 기반)
-- 경보/알림 트리거
-- 운영자가 직접 문제 해결 후 다시 메인 큐로 재투입
-
----
-
-## 2. Retry + Backoff 전략
-
-### RabbitMQ 기본 Retry 한계
-
-RabbitMQ 자체는 retry 메커니즘을 제공하지 않습니다. 메시지 재전달이나 재시도는 Consumer 측에서 제어해야 합니다.
-
-즉 다음과 같은 패턴을 설계해야 합니다:
-
-1. 실패 시 바로 재시도 → 시스템 과부하 유발 가능
-2. 즉시 Dead Letter 이동 → 일시 장애 복구 불가
-3. Backoff(지연 + 점증 재시도) 설계 필요
-
----
-
-### TTL + DLX 기반 Backoff 패턴
-
-RabbitMQ는 **TTL(time-to-live)**와 DLX를 조합해 재시도 딜레이를 구현할 수 있습니다.
-기본 아이디어는 다음과 같습니다:
-
-1. 원래 큐(main_queue)에서 메시지 처리 실패 시, Retry 큐로 Dead-Letter
-2. Retry 큐는 x-message-ttl로 일정 지연 시간을 둔다
-3. TTL 만료 후 메시지는 다시 원래 큐로 Dead-Letter
-4. x-death 헤더 기반으로 재시도 횟수 누적 및 제한 판단
-
-이 패턴은 Consumer가 장애가 일시적인 경우에만 여러 번 재시도하게 하고, 정상적인 처리를 유지하도록 설계합니다.
-
----
-
-### 재시도 횟수 제한
-
-RabbitMQ 메시지 헤더 x-death는 메시지가 몇 번 Dead Letter 되었는지를 기록합니다. 이를 기반으로 재시도 횟수를 제한할 수 있습니다.
-
-- Consumer가 메시지를 받을 때 헤더의 x-death.count를 확인
-- 재시도 횟수 한계를 넘으면 DLQ로 분리 최종 저장
-- 그렇지 않으면 Backoff 재시도 큐로 재배치
-
-이를 통해 무한 반복 처리 방지 및 일정 회수 이상 실패한 메시지 분리 운영이 가능해집니다.
-
----
-
-## 3. Worker 모니터링 & 자동 재시작
-
-RabbitMQ DLQ와 Retry는 메시지 장애 대응에 중점을 두었지만, Worker 자체의 장애 대응, 모니터링, 자동 수복도 매우 중요합니다.
-
----
-
-### 모니터링 핵심 지표
-
-다중 서버 또는 컨테이너 기반 환경에서 Worker의 상태를 관리하려면 아래 지표를 실시간으로 관찰해야 합니다:
-
-**메시지 / 큐 레벨 지표**
-
-- 메인 큐 처리율, DLQ 큐 적재량
-- Retry 큐 대기 메시지 수
-- 메시지 지연시간(TTL 활용)
-
-**워커 프로세스 지표**
-
-- Worker 프로세스 가용 상태(CPU, 메모리)
-- 메시지 처리 오류율
-- 재시도/Backoff 큐 순환 비율
-
-이를 통해 이상 징후 조기 탐지 및 대응이 가능해집니다.
-
----
-
-### 자동재시작(Worker Recovery)
-
-Worker 프로세스가 비정상 종료되었을 때 자동으로 재기동 하는 전략도 중요합니다.
-
-**운영환경 예시**
-
-- systemd / supervisor: 프로세스 모니터링 및 재시작
-- Docker + Kubernetes: Liveness/Readiness Probe 기반 자동재배치
-- PM2 / Forever: Node 생태계 워커 자동화 도구
-
-이 방법들은 워커가 죽었을 때 자동으로 다시 올라오도록 설정해 작업 중단 상황을 줄이는 역할을 합니다.
-
----
-
-## 4. 장애 대응 흐름 요약
-
-아래는 메시지 처리 실패 시 전체 장애 대응 흐름입니다.
-
-```text
-메시지 처리 실패
-   ↓
-1. 실패 메시지 → DLQ 또는 Retry 큐
-   ↓                  ↓
-2. Retry 큐 TTL 적용 후 재전달 → 메시지 재처리 시도
-   ↓
-3. 재시도 횟수 제한 초과 → 최종 DLQ
-   ↓
-4. 운영 모니터링 / 알람 / 수동 처리
+def dispatch(job_kind: str, payload: dict):
+    timeout = TIMEOUTS[job_kind]
+    queue.enqueue(job_kind, payload, timeout=timeout)
 ```
 
-## 마무리
+평소 상태는 APM 도구와 로그 모니터링으로 봅니다. 워커별 처리 건수·지연 시간·오류율 같은 지표를 APM에서 보고, 예외 로그는 별도 로그 수집기로 모아 둡니다. 감시 워커의 하트비트 체크가 「지금 당장 죽었는가」를 보는 것이라면, APM·로그 쪽은 「천천히 나빠지고 있는가」를 보는 역할입니다.
 
-RabbitMQ 환경에서 안정적인 메시지 처리를 위해서는 DLQ/Retry/Backoff + Worker 모니터링/자동 복구 패턴을 함께 설계해야 합니다.
-특히 일시 장애나 처리 실패가 반복되는 경우에는 지연 재시도 + 재시도 횟수 제한 + DLQ 분리는 안정성과 유지보수성을 크게 향상시킵니다.
+## 함정과 트레이드오프
+
+### 타임아웃은 작업 종류만큼 나눠야 합니다
+
+모든 작업에 같은 타임아웃 하나를 쓰면, 짧게 잡을 때는 LLM 응답이 조금만 늦어도 멀쩡한 번역 작업이 잘리고, 길게 잡을 때는 정말 멈춘 업로드 처리를 오래 붙잡게 됩니다. 그래서 작업 종류별로 나눴습니다. 다만 타임아웃 값 자체는 외부 LLM 호출 속도에 종속적이라 한 번 정하고 끝나는 숫자가 아니라, 운영하면서 계속 조정해야 하는 값입니다.
+
+### 재시도 대상은 좁혀야 합니다
+
+재시도 대상 예외를 넓게 잡으면 설정이 잘못됐거나 입력 자체가 깨진 경우처럼 다시 시도해도 똑같이 실패할 작업까지 반복하게 됩니다. 이러면 실패까지 걸리는 시간만 늘어나고 로그만 늘어납니다. 일시적인 실패(타임아웃, 연결 오류)와 영구적인 실패(잘못된 입력, 권한 오류)를 구분해서, 후자는 재시도 대상에서 빼고 바로 실패 처리하는 쪽을 고려해야 합니다.
+
+## 정리
+
+- 역할을 나눈 워커 여러 종류를 운영할 때는 작업을 처리하지 않는 감시 전용 워커를 따로 두어 하트비트로 생존을 확인해야 합니다.
+- 타임아웃은 작업 하나로 뭉뚱그리지 말고 종류별로 나눠야 하며(업로드 60초, 번역 180초), 외부 API에 의존하는 작업일수록 더 여유 있게 잡아야 합니다.
+- 하트비트 체크만으로는 부족하고, APM과 로그 모니터링으로 평소 지표를 모아야 서서히 나빠지는 상태도 조기에 알아챌 수 있습니다.
+- 재시도 대상을 일시적인 실패로 좁히는 것도 함께 고려해야 할 지점입니다.
