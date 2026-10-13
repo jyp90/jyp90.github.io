@@ -10,10 +10,12 @@
     --accent-success: #3fb950; --accent-warning: #d29922; --accent-danger: #f85149;
     --code-bg: #161b22;
     --on-accent: #ffffff;
+    --paper: #1a1916; --paper-edge: #2e2b25; --ink-accent: #d6a86c;
     --shadow-rgb: 0, 0, 0;
     --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px;
     --measure: 72ch; --header-height: 60px;
     --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", sans-serif;
+    --font-serif: "Noto Serif KR", "AppleMyungjo", "Nanum Myeongjo", "Batang", serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     color-scheme: dark;
 }
@@ -26,6 +28,7 @@
     --accent-success: #1a7f37; --accent-warning: #9a6700; --accent-danger: #cf222e;
     --code-bg: #f6f8fa;
     --shadow-rgb: 31, 35, 40;
+    --paper: #fcfaf5; --paper-edge: #e6dfd0; --ink-accent: #8c5a24;
     color-scheme: light;
 }
 
@@ -38,6 +41,7 @@
         --accent-success: #1a7f37; --accent-warning: #9a6700; --accent-danger: #cf222e;
         --code-bg: #f6f8fa;
         --shadow-rgb: 31, 35, 40;
+        --paper: #fcfaf5; --paper-edge: #e6dfd0; --ink-accent: #8c5a24;
         color-scheme: light;
     }
 }
@@ -295,24 +299,39 @@ body > header {
 
 .home {
     max-width: 760px;
-    margin: 0 auto;
-    padding: 48px 0;
+    margin: 48px auto 64px;
+    padding: 64px 72px 48px;
+    /* A sheet of paper: binding shadow on the left, a few page edges stacked under the bottom */
+    background:
+        linear-gradient(90deg, rgba(var(--shadow-rgb), 0.14), transparent 28px),
+        var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: 2px 6px 6px 2px;
+    box-shadow:
+        0 3px 0 -1px var(--paper), 0 3px 0 0 var(--paper-edge),
+        0 6px 0 -2px var(--paper), 0 6px 0 -1px var(--paper-edge),
+        var(--shadow-lg);
 }
 
+/* Title page */
 .home-intro {
-    margin-bottom: 32px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--border-primary);
+    margin-bottom: 48px;
+    padding-bottom: 36px;
+    text-align: center;
+    border-bottom: 3px double var(--paper-edge);
 }
 
 .home-title {
-    font-size: 32px;
+    font-family: var(--font-serif);
+    font-size: 36px;
     font-weight: 700;
+    letter-spacing: -0.01em;
     color: var(--text-primary);
 }
 
 .home-desc {
-    margin-top: 8px;
+    max-width: 30em;
+    margin: 12px auto 0;
     color: var(--text-secondary);
     font-size: 15px;
 }
@@ -476,16 +495,27 @@ details[open] > summary .fold-chevron {
     color: inherit;
 }
 
-/* Year groups */
+/* Year groups read as chapters: the year centred between two rules */
 .year-group + .year-group {
-    margin-top: 40px;
+    margin-top: 48px;
 }
 
 .year-heading {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    font-family: var(--font-serif);
     font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 16px;
+    font-weight: 700;
+    color: var(--ink-accent);
+}
+
+.year-heading::before,
+.year-heading::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid var(--paper-edge);
 }
 
 /* Post List */
@@ -507,6 +537,50 @@ details[open] > summary .fold-chevron {
     font-size: 18px;
     font-weight: 600;
     line-height: 1.4;
+}
+
+/* Table-of-contents row: number, title, dotted leader, then the date where a page number would be */
+.home .post-item-title {
+    display: flex;
+    align-items: last baseline;
+    gap: 10px;
+}
+
+.toc-no {
+    flex: none;
+    min-width: 2ch;
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--ink-accent);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.toc-leader {
+    flex: 1 1 24px;
+    min-width: 24px;
+    border-bottom: 2px dotted var(--paper-edge);
+    transform: translateY(-0.3em);
+}
+
+.toc-page {
+    flex: none;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+.home .post-excerpt,
+.home .post-meta {
+    padding-left: calc(2ch + 10px);
+}
+
+/* The date already ends the leader */
+.home .post-meta > time,
+.home .post-meta > time + span[aria-hidden] {
+    display: none;
 }
 
 /* `:visited` restated: minima's a:visited (0,1,1) beats a single class */
@@ -603,6 +677,21 @@ a.pager-link:hover {
 /* Grid view (data-home-view is set from localStorage in head.html before paint) */
 :root[data-home-view="grid"] .home {
     max-width: 1080px;
+}
+
+:root[data-home-view="grid"] .toc-leader,
+:root[data-home-view="grid"] .toc-page {
+    display: none;
+}
+
+:root[data-home-view="grid"] .home .post-excerpt,
+:root[data-home-view="grid"] .home .post-meta {
+    padding-left: 0;
+}
+
+:root[data-home-view="grid"] .home .post-meta > time,
+:root[data-home-view="grid"] .home .post-meta > time + span[aria-hidden] {
+    display: inline;
 }
 
 :root[data-home-view="grid"] .post-list {
@@ -1103,7 +1192,12 @@ p.head {
     }
 
     .home {
-        padding: 24px 0;
+        margin: 16px auto 32px;
+        padding: 36px 20px 28px;
+    }
+
+    .home-title {
+        font-size: 28px;
     }
 
     .tag-chip {
@@ -1873,17 +1967,16 @@ p.head {
 }
 
 .featured {
-    margin-bottom: 40px;
-    padding: 20px 24px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-lg);
+    margin-bottom: 48px;
+    padding: 4px 0 4px 20px;
+    border-left: 3px solid var(--ink-accent);
 }
 
 .featured-heading {
+    font-family: var(--font-serif);
     font-size: 16px;
-    font-weight: 600;
-    color: var(--text-secondary);
+    font-weight: 700;
+    color: var(--ink-accent);
     margin-bottom: 8px;
 }
 
@@ -2055,7 +2148,7 @@ p.head {
 
 @media (max-width: 480px) {
     .featured {
-        padding: 16px;
+        padding-left: 14px;
     }
     .header-items li a,
     .header-items li button {

@@ -34,13 +34,15 @@ layout: default
   </div>
 
   {%- assign by_year = listed | group_by_exp: "p", "p.date | date: '%Y'" -%}
+  {%- assign toc_no = listed.size -%}
   {%- for y in by_year -%}
   <section class="year-group">
-    <h2 class="year-heading">{{ y.name }}</h2>
+    <h2 class="year-heading"><span>{{ y.name }}</span></h2>
     <ul class="post-list">
       {%- for post in y.items -%}
       <li class="post-item" data-tags="{{ post.tags | join: '|' | escape }}">
-        <h3 class="post-item-title"><a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></h3>
+        <h3 class="post-item-title"><span class="toc-no">{{ toc_no }}</span><a class="post-link" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a><span class="toc-leader" aria-hidden="true"></span><span class="toc-page" aria-hidden="true">{{ post.date | date: "%m.%d" }}</span></h3>
+        {%- assign toc_no = toc_no | minus: 1 -%}
         <p class="post-excerpt">{{ post.excerpt | strip_html | strip_newlines | truncate: 140 }}</p>
         {% include post-meta.html post=post %}
       </li>
