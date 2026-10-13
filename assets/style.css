@@ -1272,10 +1272,6 @@ p.head {
         padding: 36px 18px 28px;
     }
 
-    .post {
-        padding: 16px 18px 32px;
-    }
-
     .home-title {
         font-size: 28px;
     }
@@ -2036,6 +2032,10 @@ p.head {
 }
 
 @media (max-width: 480px) {
+    .post {
+        padding: 16px 18px 32px;
+    }
+
     .post-title {
         font-size: 24px;
     }
