@@ -684,6 +684,18 @@ a.pager-link:hover {
     display: none;
 }
 
+/* Cards are too narrow to give the number its own column; it sits above the title */
+:root[data-home-view="grid"] .home .post-item-title {
+    display: block;
+}
+
+:root[data-home-view="grid"] .toc-no {
+    display: block;
+    margin-bottom: 6px;
+    text-align: left;
+    font-size: 14px;
+}
+
 :root[data-home-view="grid"] .home .post-excerpt,
 :root[data-home-view="grid"] .home .post-meta {
     padding-left: 0;
@@ -2149,6 +2161,15 @@ p.head {
 @media (max-width: 480px) {
     .featured {
         padding-left: 14px;
+    }
+    /* Too narrow for a leader: the date goes back into the meta line */
+    .home .toc-leader,
+    .home .toc-page {
+        display: none;
+    }
+    .home .post-meta > time,
+    .home .post-meta > time + span[aria-hidden] {
+        display: inline;
     }
     .header-items li a,
     .header-items li button {
