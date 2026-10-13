@@ -45,6 +45,7 @@
 
 - 종이 왼쪽 위에 「‹ 목록」(`.post-back`)을 두고, 제목은 명조로 써요.
 - 하단의 「목록으로」(`.btn-back`)와 이전·다음 글 카드는 책 안 표면 토큰을 따라가요.
+- 댓글(`.post-comments`, giscus)은 본문과 하단 내비게이션 사이에 둬요. giscus 테마는 `noborder_light`/`noborder_dark`이고 테마 토글을 따라가요. 설계: `docs/specs/2026-10-14-analytics-comments.md`
 
 ### 헤더와 푸터
 
