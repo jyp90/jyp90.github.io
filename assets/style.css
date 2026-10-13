@@ -1902,8 +1902,29 @@ p.head {
 }
 
 .mermaid-figure svg {
-    max-width: min(100%, 640px);
     height: auto;
+}
+
+/* Wider than the panel at a 12px label floor: say so, since a sideways scroll inside a figure is easy to miss */
+.mermaid-figure.is-scroll::before {
+    content: "옆으로 넘겨 보세요 →";
+    display: block;
+    position: sticky;
+    left: 0;
+    margin-bottom: 8px;
+    font-size: 0.8125rem;
+    text-align: left;
+    color: var(--text-secondary);
+}
+
+.code-bar[hidden] {
+    display: none;
+}
+
+@media (max-width: 480px) {
+    .mermaid-figure {
+        padding: 12px 8px;
+    }
 }
 
 /* Comments (giscus) */
