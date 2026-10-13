@@ -71,14 +71,14 @@ python3 -m http.server 4010 -d $D
 ### 디렉토리 구조
 - `_posts/`: Jekyll 블로그 포스트 (마크다운 파일)
 - `_includes/`: 재사용 가능한 HTML 컴포넌트 및 레이아웃
-  - `_layouts/default.html`: 기본 레이아웃
-  - `head.html`, `header.html`, `footer.html`: 공통 컴포넌트 (`head.html`: `{% seo %}`, 테마 깜빡임 방지 스크립트, Pretendard)
+  - `_layouts/default.html`: 기본 레이아웃 (페이지 넘김 전환용 `.page-flap` 포함)
+  - `head.html`, `header.html`, `footer.html`: 공통 컴포넌트 (`head.html`: `{% seo %}`, 테마 깜빡임 방지 스크립트, 페이지 넘김 방향 스크립트, Pretendard)
   - `post-meta.html`(날짜·읽기 시간·태그), `reading-time.html`(300단어/분): 목록·상세 공용
   - `YYYY-MM-DD-[page-name].html`: 각 도구 페이지의 HTML 템플릿
 - `assets/`: 정적 파일
   - `js/`: JavaScript 파일
     - `common.js`: 날짜 포맷팅 등 공통 유틸리티 함수
-    - `blog.js`: 테마 토글, 메인 목록(태그 필터 `?tag=`·20개 페이징 `?page=`·목록/격자 보기, 태그 칩은 6편마다 목록 사이에 삽입), 상세 목차·제목 앵커·코드 복사·진행 바·맨 위로
+    - `blog.js`: 테마 토글, 메인 목록(태그 필터 `?tag=`·20개 페이징 `?page=`·목록/격자 보기, 태그 칩은 6편마다 목록 사이에 삽입), 상세 목차·제목 앵커·코드 복사·진행 바·맨 위로·목록 뒤로 가기(`history.back()`)
     - `YYYY/MM/DD/[tool-name].js`: 각 도구별 JavaScript 로직
   - `css/`: 스타일시트 (`main.css`, `style.css`, `reset.css`)
 - `templates/`: 새 포스트 작성용 템플릿
@@ -86,10 +86,16 @@ python3 -m http.server 4010 -d $D
 - `.claude/skills/tech-blog/`: 작업 이력 → 비식별 글 → 승인 후 게시 스킬 (`~/.claude/skills/tech-blog`로 심볼릭 링크). 금지어 목록은 저장소 밖 `~/.config/tech-blog/forbidden-terms.txt`
 
 ### 스타일 규칙
+**스타일 SSOT는 [`docs/style-guide.md`](docs/style-guide.md)** — 책 디자인(표지·종이·목차·쪽수), 책 토큰, 반응형 기준, 페이지 넘김 전환, 확인 방법. 스타일을 바꾸면 이 문서도 같은 PR에서 갱신한다.
 - 색은 `assets/style.css` 상단 토큰(다크 `:root`, 라이트 `[data-theme="light"]` + `prefers-color-scheme`)만 쓴다. 토큰 블록 밖 hex 금지.
 - minima `assets/main.css`의 `a:visited`(0,1,1)가 단일 클래스 링크 색을 이긴다 — 새 링크 클래스는 `:visited`도 같이 지정.
 - 전역 `button` 규칙(그라데이션)이 새 버튼에 적용된다 — 새 버튼은 배경·그림자·transform을 직접 덮어쓴다.
 - 커밋 이메일은 `jyp90@kakao.com`만 (공개 저장소).
+
+### PR 머지 (자동)
+- 작업은 `master`에서 브랜치를 따서 PR로 올린다. PR의 Actions `build`가 통과하면 사용자에게 묻지 않고 `gh pr merge <번호> --merge`로 머지한다.
+- 머지 뒤 `master`를 `--ff-only`로 당기고, `master` 배포 run이 `success`인지 확인한 다음 로컬 작업 브랜치를 지운다.
+- `build`가 실패하면 머지하지 않고 원인을 고친 뒤 다시 올린다.
 
 ### 페이지 구조 패턴
 
