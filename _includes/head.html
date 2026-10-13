@@ -11,6 +11,21 @@
       // Home list view, set before paint so a saved grid view does not flash as a list.
       try { if (localStorage.getItem('home-view') === 'grid') document.documentElement.setAttribute('data-home-view', 'grid'); } catch (e) {}
     })();
+    // Page-turn direction for cross-document view transitions; must run before first render, so it cannot live in deferred blog.js.
+    (function () {
+      var home = '{{ "/" | relative_url }}';
+      function turnType(act) {
+        if (!act || !act.entry) return 'forward';
+        if (act.navigationType === 'traverse' && act.from) return act.entry.index < act.from.index ? 'backward' : 'forward';
+        return new URL(act.entry.url).pathname === home ? 'backward' : 'forward';
+      }
+      window.addEventListener('pageswap', function (e) {
+        if (e.viewTransition) e.viewTransition.types.add(turnType(e.activation));
+      });
+      window.addEventListener('pagereveal', function (e) {
+        if (e.viewTransition) e.viewTransition.types.add(turnType(window.navigation && navigation.activation));
+      });
+    })();
   </script>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">

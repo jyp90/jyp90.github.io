@@ -117,6 +117,46 @@ body {
 }
 
 /* ===================================
+   Page turn (cross-document view transition)
+   =================================== */
+
+/* forward: the old page turns away to the left; backward: the new page turns back in over it */
+@media (prefers-reduced-motion: no-preference) {
+    @view-transition { navigation: auto; }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    mix-blend-mode: normal;
+    transform-origin: left center;
+    animation-duration: 0.55s;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+    animation-fill-mode: both;
+}
+
+html:active-view-transition-type(forward)::view-transition-old(root) { z-index: 1; animation-name: page-turn-away; }
+html:active-view-transition-type(forward)::view-transition-new(root) { animation-name: page-under; }
+html:active-view-transition-type(backward)::view-transition-old(root) { animation-name: page-under-reverse; }
+html:active-view-transition-type(backward)::view-transition-new(root) { z-index: 1; animation-name: page-turn-back; }
+
+@keyframes page-turn-away {
+    from { transform: perspective(1800px) rotateY(0); filter: brightness(1); }
+    to   { transform: perspective(1800px) rotateY(-90deg); filter: brightness(0.55); }
+}
+@keyframes page-turn-back {
+    from { transform: perspective(1800px) rotateY(-90deg); filter: brightness(0.55); }
+    to   { transform: perspective(1800px) rotateY(0); filter: brightness(1); }
+}
+@keyframes page-under {
+    from { filter: brightness(0.7); }
+    to   { filter: brightness(1); }
+}
+@keyframes page-under-reverse {
+    from { filter: brightness(1); }
+    to   { filter: brightness(0.7); }
+}
+
+/* ===================================
    Header
    =================================== */
 
